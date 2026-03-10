@@ -508,9 +508,10 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 <div id="airport-map-panel">
   <div class="amp-header">
     <span class="amp-title" id="amp-title">Airport Map</span>
-    <button class="tile-btn active" onclick="setTileLayer('street')">Street</button>
-    <button class="tile-btn" onclick="setTileLayer('sat')">Satellite</button>
-    <button class="tile-btn" onclick="setTileLayer('aero')">Aeronautical</button>
+    <span style="font-size:10px;color:#5a7a9a">Arr: <b id="ap-arr-count">–</b> &nbsp; Dep: <b id="ap-dep-count">–</b> &nbsp; Ground: <b id="ap-ground-count">–</b></span>
+    <button class="tile-btn active" data-tile="street">Street</button>
+    <button class="tile-btn" data-tile="sat">Satellite</button>
+    <button class="tile-btn" data-tile="aero">Aeronautical</button>
     <button class="btn" onclick="closeAirportMap()">✕ Close</button>
   </div>
   <div id="leaflet-map"></div>
@@ -518,90 +519,57 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ─── Theme ────────────────────────────────────────────────────
-let isDayMode = false;
 
+// ─── Theme ─────────────────────────────────────────────────────
+let isDayMode = false;
 document.getElementById('theme-btn').addEventListener('click', () => {
   isDayMode = !isDayMode;
   document.body.classList.toggle('day-mode', isDayMode);
   document.getElementById('theme-icon').textContent = isDayMode ? '☀️' : '🌙';
   document.getElementById('theme-label').textContent = isDayMode ? 'Day' : 'Night';
-  if (worldData) { initGlobe(); renderFlights(); }
+  if (typeof initGlobe === 'function') initGlobe();
 });
 
 function getTheme() {
   return isDayMode ? {
-    ocean: '#a8c8e8',
-    land: '#d4e8c8',
-    landStroke: '#90b870',
-    borders: '#50884a',
-    grat: '#c0d8e8',
-    globeGlow: '#0077cc',
-    airspace: 'rgba(200,120,0,0.12)',
-    airspaceStroke: 'rgba(200,120,0,0.55)',
+    ocean: '#a8c8e8', land: '#d4e8c8', landStroke: '#90b870',
+    borders: '#50884a', grat: '#c0d8c0', globeGlow: '#60a860',
+    airspace: 'rgba(80,200,80,0.08)'
   } : {
-    ocean: '#071020',
-    land: '#0f2040',
-    landStroke: '#2a4a7a',
-    borders: '#3a6090',
-    grat: '#0d1e35',
-    globeGlow: '#00d4ff',
-    airspace: 'rgba(255,165,0,0.07)',
-    airspaceStroke: 'rgba(255,165,0,0.5)',
+    ocean: '#0a1628', land: '#0d2040', landStroke: '#1a3050',
+    borders: '#1e4060', grat: '#0d2035', globeGlow: '#00d4ff',
+    airspace: 'rgba(0,212,255,0.06)'
   };
 }
 
-// ─── Layers ───────────────────────────────────────────────────
-const layers = { borders: true, graticule: true, airspace: false, flights: true, airports: true, trails: true, waypoints: false, route: false, ils: false };
+// ─── D3 Setup ───────────────────────────────────────────────────
+const layers = {
+  borders: true, graticule: true, airspace: false, flights: true,
+  airports: true, trails: false, waypoints: false, route: false, ils: false
+};
 
-function toggleLayer(id) {
-  layers[id] = !layers[id];
-  const el = document.getElementById('layer-' + id);
-  if (!el) return;
-  el.classList.toggle('active', layers[id]);
-  el.querySelector('.layer-check').textContent = layers[id] ? '✓' : '';
-  if (id === 'airports') { showAirports = layers[id]; renderAirports(); return; }
-  if (id === 'trails') { renderFlights(); return; }
-  if (id === 'waypoints') { renderWaypoints(); return; }
-  if (id === 'route') { renderRoutePath(); return; }
-  if (id === 'ils') { renderILS(); return; }
-  if (worldData) { initGlobe(); renderFlights(); }
-}
-
-['borders','graticule','airspace','flights','airports','trails','waypoints','route','ils'].forEach(id => {
-  const el = document.getElementById('layer-' + id);
-  if (el) el.addEventListener('click', () => toggleLayer(id));
-});
-
-// ─── Globe Setup ──────────────────────────────────────────────
 const container = document.getElementById('globe-container');
 const svg = d3.select('#globe-svg');
-let width = 0;
-let height = 0;
-
+let width, height;
 const projection = d3.geoOrthographic()
-  .scale(Math.min(width, height) * 0.42)
-  .translate([width / 2, height / 2])
-  .clipAngle(90)
-  .precision(0.3);
-
+  .scale(300).translate([400, 400])
+  .clipAngle(90).precision(0.3);
 const path = d3.geoPath().projection(projection);
 const graticule = d3.geoGraticule()();
-const sphere = {type: 'Sphere'};
+const sphere = { type: 'Sphere' };
 
-let g, landG, gratG, bordersG, airspaceG, flightG, airportG, waypointG, ilsG, routeG;
-let showAirports = true;
+let g, landG, gratG, airspaceG, airportG, routeG, waypointG, ilsG, flightG, bordersG;
 let worldData = null;
-let flights = [];
-let filteredFlights = [];
+let flights = [], filteredFlights = [];
 let selectedFlight = null;
-let activeFilter = 'all';
-let searchTerm = '';
-let autoRotate = false;
-let rotateTimer;
+let activeFilter = 'all', searchTerm = '';
+let autoRotate = false, rotateTimer = null;
+let dragStart = null, rotationStart = null, isDragging = false;
+let lastDragX = 0, lastDragY = 0, dragVelX = 0, dragVelY = 0;
+let lastDragTime = 0, inertiaFrame = null;
+let currentZoomK = 1;
 
-// Pre-built simplified airspace polygons for major FIRs (Flight Information Regions)
-// These are representative bounding boxes for key airspace regions worldwide
+// ─── Data blocks (must be before initGlobe) ─────────────────────
 const AIRSPACE_REGIONS = [
   // ── NORTH AMERICA ──────────────────────────────────────────────
   { name:'New York ARTCC',    id:'ZNY',  coords:[[-79,39],[-66,39],[-66,47],[-79,47],[-79,39]] },
@@ -1010,97 +978,131 @@ const VORS = {
 
 // Resolve a waypoint name to {lat, lon} or null
 
-const flightTrails = new Map(); // icao24 → [{lon,lat,ts}]
-const MAX_TRAIL_POINTS = 20;
+const WAYPOINTS = [
+  // North Atlantic Track fixes
+  {id:'SOMAX',lat:51,lon:-15,type:'fix'},{id:'MIMKU',lat:52,lon:-20,type:'fix'},
+  {id:'DOLIR',lat:53,lon:-30,type:'fix'},{id:'BEDRA',lat:54,lon:-40,type:'fix'},
+  {id:'RAFOX',lat:55,lon:-50,type:'fix'},{id:'MIMLO',lat:57,lon:-20,type:'fix'},
+  // North Pacific
+  {id:'NORDO',lat:48,lon:-150,type:'fix'},{id:'TALON',lat:47,lon:-160,type:'fix'},
+  {id:'NIPPI',lat:45,lon:-170,type:'fix'},{id:'EMRON',lat:43,lon:180,type:'fix'},
+  // Europe major VORs
+  {id:'LAM',lat:51.64,lon:-0.15,type:'vor'},{id:'DET',lat:51.28,lon:0.61,type:'vor'},
+  {id:'CLN',lat:51.84,lon:0.89,type:'vor'},{id:'TNT',lat:51.47,lon:0.45,type:'vor'},
+  {id:'DVR',lat:51.16,lon:1.35,type:'vor'},{id:'KONAN',lat:51.08,lon:2.61,type:'fix'},
+  {id:'POL',lat:55.68,lon:-4.68,type:'vor'},{id:'TLA',lat:48.77,lon:2.2,type:'vor'},
+  {id:'BIG',lat:51.33,lon:0.03,type:'vor'},{id:'MAY',lat:50.86,lon:-0.12,type:'vor'},
+  {id:'SFD',lat:50.99,lon:-0.11,type:'vor'},{id:'BNN',lat:51.64,lon:-0.55,type:'vor'},
+  {id:'HON',lat:51.01,lon:-1.35,type:'vor'},{id:'SAM',lat:50.95,lon:-1.34,type:'vor'},
+  {id:'BCN',lat:41.29,lon:2.1,type:'vor'},{id:'LFPG',lat:49.01,lon:2.55,type:'vor'},
+  // Middle East VORs
+  {id:'DXB',lat:25.25,lon:55.36,type:'vor'},{id:'AUH',lat:24.43,lon:54.65,type:'vor'},
+  {id:'DOH',lat:25.27,lon:51.61,type:'vor'},{id:'BGW',lat:33.26,lon:44.23,type:'vor'},
+  {id:'CAI',lat:30.12,lon:31.41,type:'vor'},{id:'BEY',lat:33.82,lon:35.49,type:'vor'},
+  {id:'TLV',lat:32.01,lon:34.89,type:'vor'},{id:'AMM',lat:31.72,lon:35.99,type:'vor'},
+  // Asia VORs
+  {id:'HKG',lat:22.31,lon:113.91,type:'vor'},{id:'SIN',lat:1.36,lon:103.99,type:'vor'},
+  {id:'NRT',lat:35.77,lon:140.39,type:'vor'},{id:'ICN',lat:37.47,lon:126.45,type:'vor'},
+  {id:'PEK',lat:40.08,lon:116.6,type:'vor'},{id:'PVG',lat:31.14,lon:121.81,type:'vor'},
+  {id:'DEL',lat:28.57,lon:77.1,type:'vor'},{id:'BOM',lat:19.09,lon:72.87,type:'vor'},
+  {id:'BKK',lat:13.69,lon:100.75,type:'vor'},{id:'KUL',lat:2.75,lon:101.71,type:'vor'},
+  // Americas VORs
+  {id:'JFK',lat:40.64,lon:-73.78,type:'vor'},{id:'LAX',lat:33.94,lon:-118.41,type:'vor'},
+  {id:'ORD',lat:41.97,lon:-87.91,type:'vor'},{id:'MIA',lat:25.8,lon:-80.29,type:'vor'},
+  {id:'ATL',lat:33.64,lon:-84.43,type:'vor'},{id:'DFW',lat:32.9,lon:-97.04,type:'vor'},
+  {id:'DEN',lat:39.86,lon:-104.67,type:'vor'},{id:'SFO',lat:37.62,lon:-122.38,type:'vor'},
+  {id:'YYZ',lat:43.68,lon:-79.62,type:'vor'},{id:'GRU',lat:-23.44,lon:-46.47,type:'vor'},
+  // Africa
+  {id:'ADD',lat:8.98,lon:38.8,type:'vor'},{id:'NBO',lat:-1.32,lon:36.93,type:'vor'},
+  {id:'JNB',lat:-26.14,lon:28.25,type:'vor'},{id:'LOS',lat:6.58,lon:3.32,type:'vor'},
+];
 
+// ILS approaches for major airports (runway heading, glideslope lat/lon, name)
+
+const TILE_LAYERS = {
+  osm: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attr: '© OpenStreetMap contributors',
+    maxZoom: 19
+  },
+  sat: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attr: '© Esri, DigitalGlobe',
+    maxZoom: 19
+  },
+  aero: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attr: '© OpenStreetMap',
+    maxZoom: 19
+  }
+};
+
+
+// ─── Aircraft Icons ─────────────────────────────────────────────
+const flightTrails = new Map();
+const MAX_TRAIL_POINTS = 20;
 
 const AIRCRAFT_ICONS = {
   narrowbody: 'M0,-8 L2,-2 L8,0 L2,1 L1,6 L3,7 L3,8 L0,7 L-3,8 L-3,7 L-1,6 L-2,1 L-8,0 L-2,-2 Z',
   widebody:   'M0,-10 L3,-3 L10,0 L3,1.5 L1.5,7 L4,8 L4,9.5 L0,8.5 L-4,9.5 L-4,8 L-1.5,7 L-3,1.5 L-10,0 L-3,-3 Z',
   cargo:      'M0,-9 L2.5,-2 L9,0 L2.5,1.5 L1,6 L3,7 L3,8.5 L0,7.5 L-3,8.5 L-3,7 L-1,6 L-2.5,1.5 L-9,0 L-2.5,-2 Z',
   military:   'M0,-9 L1.5,-4 L6,-5 L4,-1 L8,1 L4,1.5 L2,6 L0,5 L-2,6 L-4,1.5 L-8,1 L-4,-1 L-6,-5 L-1.5,-4 Z',
-  helicopter: 'M-8,0 L8,0 M0,-6 L0,6 M-6,-4 L6,4 M6,-4 L-6,4 M0,0 m-2,-2 L2,-2 L2,3 L0,5 L-2,3 Z',
-  general:    'M0,-6 L1.5,-1 L6,0 L1.5,1 L0.5,4 L2,5 L2,6 L0,5.5 L-2,6 L-2,5 L-0.5,4 L-1.5,1 L-6,0 L-1.5,-1 Z',
+  helicopter: 'M-8,0 L8,0 M0,-5 L0,5 M-4,-4 L4,4 M4,-4 L-4,4',
+  general:    'M0,-6 L1.5,-1 L6,0 L1.5,1 L0.5,4 L2,5 L0,4.5 L-2,5 L-0.5,4 L-1.5,1 L-6,0 L-1.5,-1 Z',
   glider:     'M0,-5 L1,-1 L12,1 L1,1.5 L0.5,4 L0,5 L-0.5,4 L-1,1.5 L-12,1 L-1,-1 Z',
 };
 
+function getIconScale(cat, isSelected, onGround) {
+  const base = { widebody:1.8, narrowbody:1.4, cargo:1.5, military:1.4, helicopter:1.2, general:1.0, glider:1.3 }[cat] || 1.4;
+  return onGround ? base * 0.75 : isSelected ? base * 1.4 : base;
+}
 
-
+// ─── Globe Init ─────────────────────────────────────────────────
 function initGlobe() {
   svg.selectAll('*').remove();
-  // Set SVG to fill container before reading dimensions
-  svg.attr('width', '100%').attr('height', '100%')
-     .style('width','100%').style('height','100%').style('display','block');
+  svg.attr('width','100%').attr('height','100%').style('display','block');
   width = container.clientWidth || (window.innerWidth - 340);
   height = container.clientHeight;
   if (height < 400) height = window.innerHeight - 60;
-
-  projection
-    .scale(Math.min(width, height) * 0.42)
-    .translate([width / 2, height / 2]);
-
+  projection.scale(Math.min(width,height) * 0.42 * currentZoomK).translate([width/2, height/2]);
   g = svg.append('g');
-
   const t = getTheme();
 
-  // Defs: glow filter
+  // Glow filter
   const defs = svg.append('defs');
-  const filter = defs.append('filter').attr('id', 'glow');
-  filter.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'blur');
+  const filter = defs.append('filter').attr('id','glow');
+  filter.append('feGaussianBlur').attr('stdDeviation','3').attr('result','blur');
   filter.append('feMerge').selectAll('feMergeNode')
-    .data(['blur','SourceGraphic']).enter()
-    .append('feMergeNode').attr('in', d => d);
+    .data(['blur','SourceGraphic']).enter().append('feMergeNode').attr('in', d => d);
 
-  // Ocean
-  g.append('path').datum(sphere).attr('class','sphere')
-    .attr('d', path).attr('fill', t.ocean);
+  g.append('path').datum(sphere).attr('class','sphere').attr('d',path).attr('fill',t.ocean);
+  g.append('path').datum(sphere).attr('class','globe-glow').attr('d',path)
+    .attr('fill','none').attr('stroke',t.globeGlow).attr('stroke-width','1.5').attr('opacity','0.35').attr('filter','url(#glow)');
 
-  // Glow ring
-  g.append('path').datum(sphere).attr('class','globe-glow')
-    .attr('d', path)
-    .attr('fill', 'none')
-    .attr('stroke', t.globeGlow)
-    .attr('stroke-width', '1.5')
-    .attr('opacity', '0.35')
-    .attr('filter', 'url(#glow)');
-
-  // Graticule
   gratG = g.append('g').attr('class','graticules');
-  if (layers.graticule) {
-    gratG.append('path').datum(graticule)
-      .attr('fill','none').attr('stroke', t.grat)
-      .attr('stroke-width','0.5').attr('d', path);
-  }
+  if (layers.graticule) gratG.append('path').datum(graticule).attr('fill','none').attr('stroke',t.grat).attr('stroke-width','0.5').attr('d',path);
 
-  // Land + borders layer
   landG = g.append('g').attr('class','lands');
+  bordersG = g.append('g').attr('class','borders');
   if (worldData) renderWorld();
 
-  // Airspace layer
   airspaceG = g.append('g').attr('class','airspace');
   if (layers.airspace) renderAirspace();
 
-  // Airports layer (above airspace, below flights)
   airportG = g.append('g').attr('class','airport-layer');
-  if (typeof AIRPORT_DB !== 'undefined') renderAirports();
+  if (layers.airports) renderAirports();
 
-  // Route path layer (selected flight waypoints)
-  routeG = g.append('g').attr('class','route-layer');
-  if (layers.route) renderRoutePath();
-
-  // Waypoints layer
+  routeG   = g.append('g').attr('class','route-layer');
   waypointG = g.append('g').attr('class','waypoint-layer');
   if (layers.waypoints) renderWaypoints();
 
-  // ILS layer
   ilsG = g.append('g').attr('class','ils-layer');
-  if (layers.ils) renderILS();
-
-  // Flights
   flightG = g.append('g').attr('class','flights');
+
+  if (filteredFlights.length) renderFlights();
 }
 
-// ISO numeric → country name + label lon/lat
+// ─── Country labels ─────────────────────────────────────────────
 const COUNTRY_LABELS = {
   '004':['Afghanistan',67,33],'008':['Albania',20,41],'012':['Algeria',3,28],
   '024':['Angola',18,-12],'032':['Argentina',-64,-34],'036':['Australia',134,-25],
@@ -1111,418 +1113,361 @@ const COUNTRY_LABELS = {
   '170':['Colombia',-74,4],'180':['DR Congo',24,-3],'188':['Costa Rica',-84,10],
   '191':['Croatia',16,45],'192':['Cuba',-79,22],'196':['Cyprus',33,35],
   '203':['Czech Rep.',16,50],'208':['Denmark',10,56],'218':['Ecuador',-78,-2],
-  '818':['Egypt',30,27],'222':['El Salvador',-89,14],'231':['Ethiopia',40,9],
-  '246':['Finland',26,64],'250':['France',2,46],'266':['Gabon',12,-1],
-  '276':['Germany',10,51],'288':['Ghana',-1,8],'300':['Greece',22,39],
-  '320':['Guatemala',-90,15],'332':['Haiti',-73,19],'340':['Honduras',-87,15],
-  '348':['Hungary',19,47],'356':['India',79,22],'360':['Indonesia',118,-2],
-  '364':['Iran',53,33],'368':['Iraq',44,33],'372':['Ireland',-8,53],
-  '376':['Israel',35,31],'380':['Italy',12,43],'388':['Jamaica',-77,18],
-  '392':['Japan',138,36],'400':['Jordan',37,31],'398':['Kazakhstan',67,48],
-  '404':['Kenya',37,1],'408':['North Korea',127,40],'410':['South Korea',128,36],
-  '414':['Kuwait',47,29],'418':['Laos',103,18],'422':['Lebanon',36,34],
-  '434':['Libya',17,27],'442':['Luxembourg',6,50],'458':['Malaysia',110,4],
-  '484':['Mexico',-102,24],'496':['Mongolia',105,46],'504':['Morocco',-5,32],
-  '516':['Namibia',18,-22],'524':['Nepal',84,28],'528':['Netherlands',5,52],
-  '554':['New Zealand',172,-41],'558':['Nicaragua',-85,13],'566':['Nigeria',8,10],
-  '578':['Norway',10,62],'512':['Oman',57,22],'586':['Pakistan',70,30],
-  '591':['Panama',-80,9],'598':['Papua NG',145,-6],'600':['Paraguay',-58,-23],
-  '604':['Peru',-76,-10],'608':['Philippines',122,13],'616':['Poland',20,52],
-  '620':['Portugal',-8,39],'630':['Puerto Rico',-66,18],'634':['Qatar',51,25],
+  '818':['Egypt',30,27],'231':['Ethiopia',40,9],'246':['Finland',26,64],
+  '250':['France',2,46],'276':['Germany',10,51],'288':['Ghana',-1,8],
+  '300':['Greece',22,39],'356':['India',79,22],'360':['Indonesia',118,-2],
+  '364':['Iran',53,33],'368':['Iraq',44,33],'376':['Israel',35,31],
+  '380':['Italy',12,43],'392':['Japan',138,36],'404':['Kenya',37,1],
+  '410':['South Korea',128,36],'414':['Kuwait',47,29],'422':['Lebanon',36,34],
+  '434':['Libya',17,27],'458':['Malaysia',110,4],'484':['Mexico',-102,24],
+  '504':['Morocco',-5,32],'524':['Nepal',84,28],'528':['Netherlands',5,52],
+  '554':['New Zealand',172,-41],'566':['Nigeria',8,10],'578':['Norway',10,62],
+  '586':['Pakistan',70,30],'604':['Peru',-76,-10],'608':['Philippines',122,13],
+  '616':['Poland',20,52],'620':['Portugal',-8,39],'634':['Qatar',51,25],
   '642':['Romania',25,46],'643':['Russia',100,60],'682':['Saudi Arabia',45,25],
-  '686':['Senegal',-14,14],'694':['Sierra Leone',-12,8],'703':['Slovakia',19,49],
-  '705':['Slovenia',15,46],'706':['Somalia',46,6],'710':['South Africa',25,-29],
-  '724':['Spain',-4,40],'144':['Sri Lanka',81,8],'729':['Sudan',30,15],
+  '710':['South Africa',25,-29],'724':['Spain',-4,40],'144':['Sri Lanka',81,8],
   '752':['Sweden',15,62],'756':['Switzerland',8,47],'760':['Syria',38,35],
-  '158':['Taiwan',121,24],'762':['Tajikistan',71,39],'764':['Thailand',101,15],
-  '792':['Turkey',35,39],'800':['Uganda',32,2],'804':['Ukraine',32,49],
-  '784':['UAE',54,24],'826':['United Kingdom',-2,54],'840':['United States',-98,38],
-  '858':['Uruguay',-56,-33],'860':['Uzbekistan',64,41],'862':['Venezuela',-66,8],
-  '704':['Vietnam',108,16],'887':['Yemen',48,16],'894':['Zambia',28,-14],
-  '716':['Zimbabwe',30,-20]
+  '158':['Taiwan',121,24],'764':['Thailand',101,15],'792':['Turkey',35,39],
+  '804':['Ukraine',32,49],'784':['UAE',54,24],'826':['United Kingdom',-2,54],
+  '840':['United States',-98,38],'858':['Uruguay',-56,-33],'862':['Venezuela',-66,8],
+  '704':['Vietnam',108,16],'887':['Yemen',48,16],
 };
 
 function renderWorld() {
   landG.selectAll('*').remove();
+  bordersG.selectAll('*').remove();
   if (!worldData) return;
   const t = getTheme();
-
   const countries = topojson.feature(worldData, worldData.objects.countries);
-
-  // Country fills
-  landG.selectAll('path.country')
-    .data(countries.features)
-    .enter().append('path')
-    .attr('class','country')
-    .attr('fill', t.land)
-    .attr('stroke', t.landStroke)
-    .attr('stroke-width','0.3')
-    .attr('d', path);
-
-  // Country borders
+  landG.selectAll('path.country').data(countries.features).enter().append('path')
+    .attr('class','country').attr('fill',t.land).attr('stroke',t.landStroke)
+    .attr('stroke-width','0.3').attr('d',path);
   if (layers.borders) {
-    landG.append('path')
+    bordersG.append('path')
       .datum(topojson.mesh(worldData, worldData.objects.countries, (a,b) => a !== b))
-      .attr('class','country-borders')
-      .attr('fill','none')
-      .attr('stroke', t.borders)
-      .attr('stroke-width','0.8')
-      .attr('stroke-linejoin','round')
-      .attr('d', path);
-
-    landG.append('path')
-      .datum(topojson.mesh(worldData, worldData.objects.countries, (a,b) => a === b))
-      .attr('class','coastlines')
-      .attr('fill','none')
-      .attr('stroke', t.borders)
-      .attr('stroke-width','0.5')
-      .attr('opacity','0.6')
-      .attr('d', path);
+      .attr('fill','none').attr('stroke',t.borders).attr('stroke-width','0.8').attr('d',path);
   }
-
-  // Render labels separately
   renderCountryLabels();
 }
 
-// ── Country labels: separate function so drag can update positions cheaply ──
 function renderCountryLabels() {
-  if (!worldData || !layers.borders) {
-    landG.selectAll('text.country-label').remove();
-    return;
-  }
-
-  const countries = topojson.feature(worldData, worldData.objects.countries);
-  const t = getTheme();
+  if (!worldData || !layers.borders) return;
   const r = projection.rotate();
-
-  const areaScale = d3.scaleLog()
-    .domain([0.0001, 0.25])
-    .range([5.5, 20])
-    .clamp(true);
-
-  // Build data for visible labels
-  const labelData = [];
-  countries.features.forEach(feature => {
-    const info = COUNTRY_LABELS[feature.id];
-    if (!info) return;
-    const [name, lon, lat] = info;
-
-    const geoAngle = d3.geoDistance([lon, lat], [-r[0], -r[1]]);
-    if (geoAngle > Math.PI / 2.1) return;
-
-    const proj = projection([lon, lat]);
-    if (!proj) return;
-
-    const area = d3.geoArea(feature);
-    const fontSize = areaScale(area);
-    const projectedArea = path.area(feature);
-    if (projectedArea < fontSize * name.length * 0.4) return;
-
-    labelData.push({ name, x: proj[0], y: proj[1], fontSize });
-  });
-
-  // Data join — update existing, add new, remove gone
-  const texts = landG.selectAll('text.country-label')
-    .data(labelData, d => d.name);
-
-  // Update positions of existing labels
-  texts.attr('x', d => d.x).attr('y', d => d.y)
-       .attr('font-size', d => d.fontSize)
-       .attr('fill', isDayMode ? 'rgba(10,40,10,0.88)' : 'rgba(210,230,255,0.82)');
-
-  // Enter new labels
-  texts.enter().append('text')
-    .attr('class','country-label')
-    .attr('text-anchor','middle')
-    .attr('dominant-baseline','middle')
-    .attr('font-family','Syne, sans-serif')
-    .attr('font-weight','600')
-    .attr('pointer-events','none')
-    .attr('fill', isDayMode ? 'rgba(10,40,10,0.88)' : 'rgba(210,230,255,0.82)')
-    .attr('x', d => d.x).attr('y', d => d.y)
-    .attr('font-size', d => d.fontSize)
-    .attr('letter-spacing', d => d.fontSize > 12 ? '1' : '0.3')
-    .text(d => d.name);
-
-  // Remove labels that rotated off-screen
-  texts.exit().remove();
+  const center = [-r[0], -r[1]];
+  const labels = Object.entries(COUNTRY_LABELS).map(([id,[name,lon,lat]]) => ({id,name,lon,lat}));
+  let sel = landG.selectAll('text.country-label').data(labels, d => d.id);
+  sel.enter().append('text').attr('class','country-label')
+    .attr('text-anchor','middle').attr('font-size','9')
+    .attr('fill', isDayMode ? '#2a4a2a' : '#4a7a9a').attr('pointer-events','none')
+    .merge(sel)
+    .each(function(d) {
+      const geoAngle = d3.geoDistance([d.lon,d.lat], center);
+      if (geoAngle > Math.PI*0.45) { d3.select(this).attr('display','none'); return; }
+      const p = projection([d.lon,d.lat]);
+      if (!p) { d3.select(this).attr('display','none'); return; }
+      d3.select(this).attr('display',null).attr('x',p[0]).attr('y',p[1]).text(d.name);
+    });
+  sel.exit().remove();
 }
-
 
 function renderAirspace() {
   airspaceG.selectAll('*').remove();
-  if (!layers.airspace) return;
+  if (!layers.airspace || !worldData) return;
   const t = getTheme();
+  const countries = topojson.feature(worldData, worldData.objects.countries);
+  airspaceG.selectAll('path.airspace').data(countries.features).enter().append('path')
+    .attr('class','airspace').attr('fill',t.airspace)
+    .attr('stroke','rgba(0,212,255,0.15)').attr('stroke-width','0.4').attr('d',path)
+    .on('mouseover', function(ev, d) {
+      d3.select(this).attr('fill','rgba(0,212,255,0.12)');
+    })
+    .on('mouseout', function(ev, d) {
+      d3.select(this).attr('fill',t.airspace);
+    });
+}
 
-  AIRSPACE_REGIONS.forEach(region => {
-    const poly = {
-      type: 'Feature',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [region.coords]
-      }
-    };
+// ─── renderGlobeOnly (fast path during drag/zoom) ───────────────
+function renderGlobeOnly() {
+  if (!g) return;
+  const t = getTheme();
+  svg.style('background', t.ocean);
+  if (layers.graticule && gratG) gratG.selectAll('path').attr('d', path);
+  if (landG) landG.selectAll('path').attr('d', path);
+  if (bordersG) bordersG.selectAll('path').attr('d', path);
+  if (airspaceG) airspaceG.selectAll('path').attr('d', path);
+  renderCountryLabels();
+  if (layers.airports) renderAirports();
 
-    // Check if centroid is on visible hemisphere
-    const centLon = (region.coords[0][0] + region.coords[2][0]) / 2;
-    const centLat = (region.coords[0][1] + region.coords[2][1]) / 2;
+  // Reproject aircraft positions live during drag/zoom
+  if (flightG && filteredFlights.length) {
     const r = projection.rotate();
-    const geoAngle = d3.geoDistance([centLon, centLat], [-r[0], -r[1]]);
-    if (geoAngle > Math.PI / 1.8) return;
-
-    airspaceG.append('path')
-      .datum(poly)
-      .attr('fill', t.airspace)
-      .attr('stroke', t.airspaceStroke)
-      .attr('stroke-width', '0.7')
-      .attr('stroke-dasharray', '3,2')
-      .attr('d', path)
-      .on('mouseover', function(event) {
-        d3.select(this).attr('fill', isDayMode ? 'rgba(200,120,0,0.22)' : 'rgba(255,165,0,0.15)');
-        showAirspaceTooltip(event, region);
-      })
-      .on('mousemove', moveTooltip)
-      .on('mouseout', function() {
-        d3.select(this).attr('fill', t.airspace);
-        hideTooltip();
-      });
-
-    // FIR label at centroid
-    const proj = projection([centLon, centLat]);
-    if (proj) {
-      airspaceG.append('text')
-        .attr('x', proj[0]).attr('y', proj[1])
-        .attr('text-anchor','middle')
-        .attr('dominant-baseline','middle')
-        .attr('fill', isDayMode ? 'rgba(160,90,0,0.75)' : 'rgba(255,165,0,0.65)')
-        .attr('font-family','Space Mono, monospace')
-        .attr('font-size','7')
-        .attr('letter-spacing','0.5')
-        .attr('pointer-events','none')
-        .text(region.id);
-    }
-  });
+    const center = [-r[0], -r[1]];
+    flightG.selectAll('g.aircraft-group').each(function() {
+      const f = d3.select(this).datum();
+      if (!f) return;
+      const geoAngle = d3.geoDistance([f.longitude, f.latitude], center);
+      if (geoAngle > Math.PI / 2) { d3.select(this).attr('visibility','hidden'); return; }
+      const proj = projection([f.longitude, f.latitude]);
+      if (!proj) { d3.select(this).attr('visibility','hidden'); return; }
+      const sc = getIconScale(getAircraftCategory(f), f === selectedFlight, f.on_ground);
+      d3.select(this).attr('visibility','visible')
+        .attr('transform', `translate(${proj[0]},${proj[1]}) rotate(${f.true_track||0}) scale(${sc})`);
+    });
+    flightG.selectAll('circle.hit-area').each(function() {
+      const f = d3.select(this).datum();
+      if (!f) return;
+      const proj = projection([f.longitude, f.latitude]);
+      if (proj) d3.select(this).attr('cx', proj[0]).attr('cy', proj[1]);
+    });
+  }
 }
 
 function updateGlobe() {
   if (!g) return;
-  const t = getTheme();
-  // Re-sync translate in case container resized
-  projection.translate([width / 2, height / 2]);
-  g.select('.sphere').attr('d', path).attr('fill', t.ocean);
-  g.select('.globe-glow').attr('d', path).attr('stroke', t.globeGlow).attr('opacity','0.35').attr('stroke-width','1.5');
-  gratG.selectAll('path').attr('d', path);
   renderWorld();
-  if (layers.airspace) renderAirspace(); else airspaceG && airspaceG.selectAll('*').remove();
-  renderAirports();
-  if (layers.waypoints) renderWaypoints(); else waypointG && waypointG.selectAll('*').remove();
-  if (layers.route) renderRoutePath(); else routeG && routeG.selectAll('*').remove();
-  if (layers.ils) renderILS(); else ilsG && ilsG.selectAll('*').remove();
+  if (layers.airspace) renderAirspace();
+  if (layers.airports) renderAirports();
+  if (layers.waypoints) renderWaypoints();
   renderFlights();
 }
 
-// ─── Load World Topology ──────────────────────────────────────
-fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-  .then(r => r.json())
-  .then(data => { worldData = data; initGlobe(); fetchFlights(); })
-  .catch(() => { initGlobe(); fetchFlights(); });
-
-// ─── Drag to rotate ───────────────────────────────────────────
-let isDragging = false;
-let dragStart = null, rotationStart = null, lastDragTime = 0, lastDragX = 0, lastDragY = 0, dragVelX = 0, dragVelY = 0;
-
-// ── Smooth drag with inertia ─────────────────────────────────
-
-let inertiaFrame = null;
-
-function applyInertia() {
-  dragVelX *= 0.92;
-  dragVelY *= 0.92;
-  if (Math.abs(dragVelX) < 0.01 && Math.abs(dragVelY) < 0.01) return;
-  const r = projection.rotate();
-  projection.rotate([r[0] + dragVelX, r[1] - dragVelY]);
-  renderGlobeOnly();
-  inertiaFrame = requestAnimationFrame(applyInertia);
-}
-
-function renderGlobeOnly() {
-  // Fast path during drag/zoom: redraw globe + reproject aircraft
-  if (!g) return;
-  const t = getTheme();
-  svg.style('background', t.ocean);
-  if (layers.graticule && gratG) {
-    gratG.selectAll('path').attr('d', path);
-  }
-  if (landG) landG.selectAll('path').attr('d', path);
-  if (layers.borders && bordersG) bordersG.selectAll('path').attr('d', path);
-  renderCountryLabels();
-  if (layers.airports && typeof AIRPORT_DB !== 'undefined') renderAirports();
-  if (layers.waypoints) renderWaypoints();
-  if (layers.route) renderRoutePath();
-  // Reproject aircraft positions to new globe orientation
-  if (flightG && filteredFlights && filteredFlights.length) {
-    const r = projection.rotate();
-    const center = [-r[0], -r[1]];
-    flightG.selectAll('g.aircraft-group').each(function(f) {
-      if (!f) return;
-      const coords = [f.longitude, f.latitude];
-      const geoAngle = d3.geoDistance(coords, center);
-      if (geoAngle > Math.PI / 2) {
-        d3.select(this).attr('visibility', 'hidden');
-        return;
-      }
-      const proj = projection(coords);
-      if (!proj) { d3.select(this).attr('visibility', 'hidden'); return; }
-      const sc = getIconScale(getAircraftCategory(f), f === selectedFlight, f.on_ground);
-      d3.select(this)
-        .attr('visibility', 'visible')
-        .attr('transform', `translate(${proj[0]},${proj[1]}) rotate(${f.true_track||0}) scale(${sc})`);
-    });
-    // Also move hit circles
-    flightG.selectAll('circle.hit-area').each(function(f) {
-      if (!f) return;
-      const proj = projection([f.longitude, f.latitude]);
-      if (!proj) return;
-      d3.select(this).attr('cx', proj[0]).attr('cy', proj[1]);
-    });
-  }
-}
-
+// ─── Drag & Inertia ─────────────────────────────────────────────
 svg.call(d3.drag()
   .on('start', event => {
     isDragging = true;
     dragStart = [event.x, event.y];
     rotationStart = projection.rotate();
-    lastDragX = event.x;
-    lastDragY = event.y;
+    lastDragX = event.x; lastDragY = event.y;
     dragVelX = 0; dragVelY = 0;
     if (inertiaFrame) { cancelAnimationFrame(inertiaFrame); inertiaFrame = null; }
+    svg.style('cursor','grabbing');
   })
   .on('drag', event => {
     if (!dragStart) return;
     const now = performance.now();
     const dt = Math.max(1, now - lastDragTime);
-    const dx = event.x - dragStart[0];
-    const dy = event.y - dragStart[1];
-    // Track velocity for inertia
-    dragVelX = (event.x - lastDragX) * 0.3 * (16 / dt);
-    dragVelY = (event.y - lastDragY) * 0.3 * (16 / dt);
+    dragVelX = (event.x - lastDragX) * 0.3 * (16/dt);
+    dragVelY = (event.y - lastDragY) * 0.3 * (16/dt);
     lastDragX = event.x; lastDragY = event.y; lastDragTime = now;
-    projection.rotate([rotationStart[0] + dx * 0.3, rotationStart[1] - dy * 0.3]);
+    projection.rotate([
+      rotationStart[0] + (event.x - dragStart[0]) * 0.3,
+      rotationStart[1] - (event.y - dragStart[1]) * 0.3
+    ]);
     renderGlobeOnly();
   })
   .on('end', () => {
     isDragging = false;
-    // Full redraw after drag ends
+    svg.style('cursor','grab');
     updateGlobe();
-    // Apply inertia
     if (Math.abs(dragVelX) > 0.05 || Math.abs(dragVelY) > 0.05) {
       inertiaFrame = requestAnimationFrame(applyInertia);
     }
   })
 );
 
-let currentZoomK = 1;
-// Use raw wheel event — avoids D3 zoom applying CSS transform to SVG element (causes floating ring)
+function applyInertia() {
+  dragVelX *= 0.92; dragVelY *= 0.92;
+  if (Math.abs(dragVelX) < 0.01 && Math.abs(dragVelY) < 0.01) { inertiaFrame = null; return; }
+  const r = projection.rotate();
+  projection.rotate([r[0] + dragVelX, r[1] - dragVelY]);
+  renderGlobeOnly();
+  inertiaFrame = requestAnimationFrame(applyInertia);
+}
+
+// ─── Zoom ───────────────────────────────────────────────────────
 container.addEventListener('wheel', event => {
   event.preventDefault();
-  const delta = event.deltaY > 0 ? 0.9 : 1.1;
-  currentZoomK = Math.min(8, Math.max(0.5, currentZoomK * delta));
+  currentZoomK = Math.min(8, Math.max(0.5, currentZoomK * (event.deltaY > 0 ? 0.9 : 1.1)));
   width = container.clientWidth;
   height = window.innerHeight - 48;
-  projection
-    .scale(Math.min(width, height) * 0.42 * currentZoomK)
-    .translate([width / 2, height / 2]);
+  projection.scale(Math.min(width,height) * 0.42 * currentZoomK).translate([width/2, height/2]);
   renderGlobeOnly();
   clearTimeout(window._zoomEnd);
   window._zoomEnd = setTimeout(() => updateGlobe(), 150);
 }, { passive: false });
 
-// ─── Sidebar Resize (drag handle) ────────────────────────────
+// ─── Sidebar Resize ─────────────────────────────────────────────
 (function() {
   const sidebar = document.getElementById('sidebar');
-  const handle = document.getElementById('sidebar-resize');
+  const handle  = document.getElementById('sidebar-resize');
   if (!sidebar || !handle) return;
-  let isResizing = false, startX = 0, startW = 0;
+  let resizing = false, startX = 0, startW = 0;
   handle.addEventListener('mousedown', e => {
-    isResizing = true;
-    startX = e.clientX;
-    startW = sidebar.offsetWidth;
+    resizing = true; startX = e.clientX; startW = sidebar.offsetWidth;
     handle.classList.add('dragging');
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
     e.preventDefault();
   });
   document.addEventListener('mousemove', e => {
-    if (!isResizing) return;
-    const dx = startX - e.clientX; // dragging left = wider
-    const newW = Math.min(520, Math.max(180, startW + dx));
+    if (!resizing) return;
+    const newW = Math.min(520, Math.max(180, startW + (startX - e.clientX)));
     sidebar.style.width = newW + 'px';
     document.documentElement.style.setProperty('--sidebar-w', newW + 'px');
-    // Reflow globe
     width = container.clientWidth;
-    projection.scale(Math.min(width, height) * 0.42 * currentZoomK).translate([width/2, height/2]);
-    if (g) { g.select('.sphere').attr('d', path); if (landG) landG.selectAll('path').attr('d', path); gratG && gratG.selectAll('path').attr('d', path); }
+    projection.scale(Math.min(width,height) * 0.42 * currentZoomK).translate([width/2, height/2]);
+    renderGlobeOnly();
   });
   document.addEventListener('mouseup', () => {
-    if (!isResizing) return;
-    isResizing = false;
+    if (!resizing) return;
+    resizing = false;
     handle.classList.remove('dragging');
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
     updateGlobe();
-    renderFlights();
   });
 })();
 
-// ─── Font Size Control ────────────────────────────────────────
+// ─── Font Size ──────────────────────────────────────────────────
 (function() {
   const slider = document.getElementById('font-size-slider');
-  const valEl = document.getElementById('font-size-val');
+  const valEl  = document.getElementById('font-size-val');
   if (!slider) return;
-  function applyFontSize(px) {
-    // Set CSS custom property on root so all sidebar elements inherit it
+  function apply(px) {
     document.documentElement.style.setProperty('--sidebar-font-size', px + 'px');
-    valEl.textContent = parseFloat(px).toFixed(0) + 'px';
+    if (valEl) valEl.textContent = Math.round(px) + 'px';
   }
-  slider.addEventListener('input', () => applyFontSize(parseFloat(slider.value)));
+  slider.addEventListener('input', () => apply(parseFloat(slider.value)));
 })();
 
-// ─── Auto Rotate ─────────────────────────────────────────────
+// ─── Auto Rotate ────────────────────────────────────────────────
 function startAutoRotate() {
   if (rotateTimer) return;
   rotateTimer = d3.timer(() => {
     if (!isDragging && autoRotate) {
       const r = projection.rotate();
       projection.rotate([r[0] + 0.08, r[1]]);
-      updateGlobe();
+      renderGlobeOnly();
     }
   });
 }
 startAutoRotate();
 
-document.getElementById('auto-rotate-btn').addEventListener('click', function() {
-  autoRotate = !autoRotate;
-  this.classList.toggle('active', autoRotate);
-  this.textContent = autoRotate ? 'Auto-Rotate' : 'Auto-Rotate';
-});
+const autorotateBtn = document.getElementById('autorotate-btn');
+if (autorotateBtn) {
+  autorotateBtn.addEventListener('click', function() {
+    autoRotate = !autoRotate;
+    this.classList.toggle('active', autoRotate);
+  });
+}
 
+const refreshBtn = document.getElementById('refresh-btn');
+if (refreshBtn) refreshBtn.addEventListener('click', () => fetchFlights());
+
+// ─── Window resize ──────────────────────────────────────────────
 let _resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
-    // Force layout reflow so clientWidth/Height are accurate
-    width = container.clientWidth || (window.innerWidth - 280);
-    height = container.clientHeight || (window.innerHeight - 48);
-    projection
-      .scale(Math.min(width, height) * 0.42 * currentZoomK)
-      .translate([width / 2, height / 2]);
-    initGlobe();
-    renderFlights();
-  }, 150);
+    width  = container.clientWidth;
+    height = window.innerHeight - 48;
+    projection.scale(Math.min(width,height) * 0.42 * currentZoomK).translate([width/2, height/2]);
+    svg.select('.sphere').attr('d', path);
+    updateGlobe();
+  }, 200);
 });
 
-// ─── Flight Trails ────────────────────────────────────────────
+// ─── Layer toggles ──────────────────────────────────────────────
+document.querySelectorAll('.layer-row').forEach(row => {
+  row.addEventListener('click', () => {
+    const layer = row.dataset.layer;
+    if (!layer) return;
+    layers[layer] = !layers[layer];
+    row.classList.toggle('active', layers[layer]);
+    if (layer === 'flights') { if (layers.flights) renderFlights(); else if (flightG) flightG.selectAll('*').remove(); }
+    else if (layer === 'airports') { if (layers.airports) renderAirports(); else if (airportG) airportG.selectAll('*').remove(); }
+    else if (layer === 'airspace') { if (layers.airspace) renderAirspace(); else if (airspaceG) airspaceG.selectAll('*').remove(); }
+    else if (layer === 'waypoints') { if (layers.waypoints) renderWaypoints(); else if (waypointG) waypointG.selectAll('*').remove(); }
+    else updateGlobe();
+  });
+});
+
+// ─── Filter tabs ────────────────────────────────────────────────
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeFilter = tab.dataset.filter || 'all';
+    applyFilters(); renderFlights(); renderList();
+  });
+});
+
+const searchEl = document.getElementById('flight-search');
+if (searchEl) searchEl.addEventListener('input', e => {
+  searchTerm = e.target.value;
+  applyFilters(); renderFlights(); renderList();
+});
+
+
+// ─── Tooltip ────────────────────────────────────────────────────
+const tooltipEl = document.getElementById('tooltip');
+
+function showTooltip(event, f) {
+  if (!tooltipEl) return;
+  const alt = f.baro_altitude ? Math.round(f.baro_altitude * 3.28084 / 100) / 10 + 'k ft' : 'GND';
+  const spd = f.velocity ? Math.round(f.velocity * 1.944) + ' kts' : '–';
+  const vr  = f.vertical_rate ? (f.vertical_rate > 0.5 ? '▲' : f.vertical_rate < -0.5 ? '▼' : '►') : '►';
+  tooltipEl.innerHTML = `
+    <div style="font-weight:700;color:#00d4ff;margin-bottom:4px">${f.callsign || f.icao24}</div>
+    <div style="color:#8aaccc">${getAirline(f.callsign) || f.origin_country || '–'}</div>
+    <div style="margin-top:4px;display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:9px">
+      <span style="color:#5a7a9a">Alt</span><span>${alt}</span>
+      <span style="color:#5a7a9a">Spd</span><span>${spd}</span>
+      <span style="color:#5a7a9a">Hdg</span><span>${Math.round(f.true_track||0)}°</span>
+      <span style="color:#5a7a9a">V/R</span><span>${vr} ${Math.abs(Math.round((f.vertical_rate||0)*196))} fpm</span>
+    </div>
+    <div style="color:#5a7a9a;margin-top:4px;font-size:9px">Click for details</div>
+  `;
+  tooltipEl.style.display = 'block';
+  moveTooltip(event);
+}
+
+function moveTooltip(event) {
+  if (!tooltipEl) return;
+  const x = event.pageX || (event.sourceEvent && event.sourceEvent.pageX) || 0;
+  const y = event.pageY || (event.sourceEvent && event.sourceEvent.pageY) || 0;
+  tooltipEl.style.left = Math.min(x + 12, window.innerWidth - 220) + 'px';
+  tooltipEl.style.top  = Math.min(y + 12, window.innerHeight - 150) + 'px';
+}
+
+function hideTooltip() {
+  if (tooltipEl) tooltipEl.style.display = 'none';
+}
+
+// ─── Aircraft Color Coding ──────────────────────────────────────
+function getAircraftCategory(f) {
+  if (f._isMil || (f.dbFlags & 1)) return 'military';
+  const cat = f.category || '';
+  const t   = (f.type_code || '').toUpperCase();
+  const desc= (f.desc || '').toLowerCase();
+  if (cat === 'A7' || t.startsWith('H') || desc.includes('helicopter') || desc.includes('rotor')) return 'helicopter';
+  const wideTypes = ['B744','B748','B77W','B772','B773','B778','B779','B762','B763','B764',
+    'A380','A332','A333','A339','A35K','A359','A388','B788','B789','B78X'];
+  if (wideTypes.includes(t)) return 'widebody';
+  if (desc.includes('cargo') || desc.includes('freighter') || cat === 'C') return 'cargo';
+  if (cat === 'A1' || cat === 'A2') return 'general';
+  return 'narrowbody';
+}
+
+function flightColor(f) {
+  const squawk = f.squawk || '';
+  if (f.emergency && f.emergency !== 'none') return '#ff4444';
+  if (squawk === '7700' || squawk === '7600' || squawk === '7500') return '#ff4444';
+  const cat = getAircraftCategory(f);
+  if (cat === 'military')   return '#4a9c3f';   // army green
+  if (cat === 'cargo')      return '#aa44ff';   // purple
+  if (cat === 'helicopter') return '#00ff88';   // teal/green
+  if (cat === 'widebody')   return '#ffffff';   // white
+  if (cat === 'general')    return '#fbbf24';   // amber
+  const alt = f.baro_altitude || 0;
+  const vr  = f.vertical_rate || 0;
+  if (alt > 10668) return '#ffffff';            // high alt — white (widebody visual)
+  if (vr > 3)  return '#ffcc00';               // climbing — yellow
+  if (vr < -3) return '#ffcc00';               // descending — yellow
+  return isDayMode ? '#0077cc' : '#00d4ff';     // default narrowbody
+}
+
+// ─── Render Flights ─────────────────────────────────────────────
 function recordTrail(f) {
   if (!f.icao24 || f.on_ground) return;
   const trail = flightTrails.get(f.icao24) || [];
@@ -1532,22 +1477,6 @@ function recordTrail(f) {
   if (trail.length > MAX_TRAIL_POINTS) trail.shift();
   flightTrails.set(f.icao24, trail);
 }
-
-
-// ─── Aircraft Icons (SVG paths, centred at 0,0) ──────────────
-function getIconScale(cat, isSelected, onGround) {
-  const base = {
-    widebody: 1.8, narrowbody: 1.4, cargo: 1.5,
-    military: 1.4, helicopter: 1.2, general: 1.0, glider: 1.3
-  }[cat] || 1.4;
-  if (onGround) return base * 0.75;
-  if (isSelected) return base * 1.4;
-  return base;
-}
-
-const tooltipEl = document.getElementById('tooltip');
-
-
 
 function renderFlights() {
   if (!flightG) return;
@@ -1559,98 +1488,314 @@ function renderFlights() {
 
   filteredFlights.forEach(f => {
     const coords = [f.longitude, f.latitude];
-    const geoAngle = d3.geoDistance(coords, center);
-    if (geoAngle > Math.PI / 2) return;
+    if (d3.geoDistance(coords, center) > Math.PI / 2) return;
     const proj = projection(coords);
     if (!proj) return;
 
     recordTrail(f);
 
-    const isSelected = f === selectedFlight;
-    const color = isSelected ? '#ffffff' : flightColor(f);
-    const cat = getAircraftCategory(f);
-    const iconPath = AIRCRAFT_ICONS[cat] || AIRCRAFT_ICONS.narrowbody;
-    const sc = getIconScale(cat, isSelected, f.on_ground);
+    const cat   = getAircraftCategory(f);
+    const color = (f === selectedFlight) ? '#ffffff' : flightColor(f);
+    const sc    = getIconScale(cat, f === selectedFlight, f.on_ground);
+    const icon  = AIRCRAFT_ICONS[cat] || AIRCRAFT_ICONS.narrowbody;
 
-    // ── Draw trail ────────────────────────────────────────
+    // Trail
     if (layers.trails && !f.on_ground) {
       const trail = flightTrails.get(f.icao24);
       if (trail && trail.length > 1) {
-        const trailColor = isSelected ? 'rgba(255,255,255,0.6)' : `${color}66`;
         for (let i = 1; i < trail.length; i++) {
           const p0 = projection([trail[i-1].lon, trail[i-1].lat]);
           const p1 = projection([trail[i].lon,   trail[i].lat]);
           if (!p0 || !p1) continue;
           const age = i / trail.length;
           flightG.append('line')
-            .attr('x1', p0[0]).attr('y1', p0[1])
-            .attr('x2', p1[0]).attr('y2', p1[1])
-            .attr('stroke', trailColor)
-            .attr('stroke-width', age * 1.5)
-            .attr('opacity', age * 0.7)
-            .attr('pointer-events', 'none');
+            .attr('x1',p0[0]).attr('y1',p0[1]).attr('x2',p1[0]).attr('y2',p1[1])
+            .attr('stroke', `${color}66`).attr('stroke-width', age*1.5)
+            .attr('opacity', age*0.7).attr('pointer-events','none');
         }
       }
     }
 
-    // ── Draw aircraft icon ─────────────────────────────────
+    // Aircraft group — bound with datum for drag reprojection
     const gp = flightG.append('g')
-      .attr('class', 'aircraft-group')
+      .attr('class','aircraft-group')
       .datum(f)
       .attr('transform', `translate(${proj[0]},${proj[1]}) rotate(${f.true_track||0}) scale(${sc})`)
       .attr('opacity', f.on_ground ? 0.5 : 0.92)
-      .style('cursor', 'pointer');
+      .style('cursor','pointer');
 
-    if (isSelected) {
-      gp.append('path').attr('d', iconPath)
-        .attr('fill', color).attr('filter', 'url(#glow)')
-        .attr('opacity', 0.35).attr('transform', 'scale(1.6)');
+    if (f === selectedFlight) {
+      gp.append('path').attr('d', icon).attr('fill', color)
+        .attr('filter','url(#glow)').attr('opacity',0.35).attr('transform','scale(1.6)');
     }
+    gp.append('path').attr('d', icon).attr('fill', color)
+      .attr('stroke','rgba(0,0,0,0.4)').attr('stroke-width','0.3');
 
-    gp.append('path').attr('d', iconPath)
-      .attr('fill', color)
-      .attr('stroke', 'rgba(0,0,0,0.5)')
-      .attr('stroke-width', 0.3);
-
-    // Invisible hit area (doesn't rotate with icon)
+    // Hit area — bound with datum for drag reprojection
     flightG.append('circle')
-      .attr('class', 'hit-area')
+      .attr('class','hit-area')
       .datum(f)
       .attr('cx', proj[0]).attr('cy', proj[1])
-      .attr('r', Math.max(6, sc * 5))
-      .attr('fill', 'transparent')
-      .on('mouseover', event => showTooltip(event, f))
-      .on('mousemove', moveTooltip)
-      .on('mouseout', hideTooltip)
-      .on('click', () => selectFlight(f));
+      .attr('r', Math.max(7, sc * 5))
+      .attr('fill','transparent')
+      .on('mouseover', (ev) => showTooltip(ev, f))
+      .on('mousemove', (ev) => moveTooltip(ev))
+      .on('mouseout',  () => hideTooltip())
+      .on('click',     () => selectFlight(f));
   });
 }
 
-// ─── Tooltips ────────────────────────────────────────────────
-function showTooltip(event, f) {
-  const alt = f.baro_altitude ? Math.round(f.baro_altitude*3.28084).toLocaleString()+' ft' : 'Ground';
-  const spd = f.velocity ? Math.round(f.velocity*1.944)+' kts' : '–';
-  const vr = f.vertical_rate ? (f.vertical_rate>0?'↑':'↓')+Math.abs(Math.round(f.vertical_rate*196.85))+' fpm' : '–';
-  const airline = getAirline(f.callsign) || f.origin_country;
-  tooltipEl.innerHTML = `<span class="tooltip-callsign">${f.callsign}</span>${airline}<br>Alt: ${alt} &nbsp; Spd: ${spd}<br>V/S: ${vr} &nbsp; Hdg: ${Math.round(f.true_track||0)}°${f.squawk?'<br>Squawk: <b style="color:#ff4">'+f.squawk+'</b>':''}`;
-  tooltipEl.style.display = 'block';
-  moveTooltip(event);
+// ─── Select Flight (detail panel) ───────────────────────────────
+function selectFlight(f) {
+  selectedFlight = (selectedFlight === f) ? null : f;
+  renderFlights();
+  renderList();
+  if (!selectedFlight) {
+    document.getElementById('detail-panel').classList.remove('open');
+    return;
+  }
+
+  const panel = document.getElementById('detail-panel');
+  const dpTitle = document.getElementById('dp-title');
+  const dpBody  = document.getElementById('dp-body');
+  if (!panel || !dpBody) return;
+
+  const f2 = selectedFlight;
+  const alt = f2.baro_altitude ? Math.round(f2.baro_altitude * 3.28084 / 100) / 10 + 'k ft' : 'GND';
+  const spd = f2.velocity ? Math.round(f2.velocity * 1.944) + ' kts' : '–';
+  const hdg = Math.round(f2.true_track || 0) + '°';
+  const vr  = f2.vertical_rate ? Math.round(f2.vertical_rate * 196) + ' fpm' : '–';
+  const airline = getAirline(f2.callsign) || '–';
+  const typeInfo = getAircraftType(f2.type_code) || f2.type_code || '–';
+  const cat = getAircraftCategory(f2);
+  const color = flightColor(f2);
+
+  if (dpTitle) dpTitle.textContent = f2.callsign || f2.icao24;
+
+  dpBody.innerHTML = `
+    <div class="dp-section">
+      <div class="dp-section-title">Flight</div>
+      <div class="dp-row"><span class="dp-label">Callsign</span><span class="dp-value mono">${f2.callsign||'–'}</span></div>
+      <div class="dp-row"><span class="dp-label">Airline</span><span class="dp-value">${airline}</span></div>
+      <div class="dp-row"><span class="dp-label">Reg</span><span class="dp-value mono">${f2.registration||'–'}</span></div>
+      <div class="dp-row"><span class="dp-label">Type</span><span class="dp-value">${typeInfo}</span></div>
+      <div class="dp-row"><span class="dp-label">Category</span><span class="dp-value" style="color:${color}">${cat}</span></div>
+      <div class="dp-row"><span class="dp-label">ICAO24</span><span class="dp-value mono dim">${f2.icao24}</span></div>
+    </div>
+    <div class="dp-section" style="margin-top:8px">
+      <div class="dp-section-title">Position</div>
+      <div class="dp-row"><span class="dp-label">Altitude</span><span class="dp-value">${alt}</span></div>
+      <div class="dp-row"><span class="dp-label">Speed</span><span class="dp-value">${spd}</span></div>
+      <div class="dp-row"><span class="dp-label">Heading</span><span class="dp-value">${hdg}</span></div>
+      <div class="dp-row"><span class="dp-label">Vert Rate</span><span class="dp-value">${vr}</span></div>
+      <div class="dp-row"><span class="dp-label">Squawk</span><span class="dp-value mono">${f2.squawk||'–'}</span></div>
+      <div class="dp-row"><span class="dp-label">Status</span><span class="dp-value">${f2.on_ground ? '🟡 On Ground' : '🔵 Airborne'}</span></div>
+    </div>
+    <div class="dp-section" style="margin-top:8px">
+      <div class="dp-section-title">Origin</div>
+      <div class="dp-row"><span class="dp-label">Country</span><span class="dp-value">${f2.origin_country||'–'}</span></div>
+      <div class="dp-row"><span class="dp-label">Lat/Lon</span><span class="dp-value mono dim">${f2.latitude?.toFixed(2)}° / ${f2.longitude?.toFixed(2)}°</span></div>
+    </div>
+    <div style="grid-column:1/-1;margin-top:12px">
+      <button class="zoom-to-map-btn" onclick="panToFlight(selectedFlight)">⌖ Centre on Globe</button>
+    </div>
+  `;
+  panel.classList.add('open');
+
+  // Spin globe to aircraft
+  panToFlight(f2);
 }
 
-function showAirspaceTooltip(event, region) {
-  tooltipEl.innerHTML = `<span class="tooltip-callsign">${region.id}</span>${region.name}<br><span style="color:var(--muted);font-size:8px">FLIGHT INFORMATION REGION</span>`;
-  tooltipEl.style.display = 'block';
-  moveTooltip(event);
+function panToFlight(f) {
+  if (!f) return;
+  const target = [-f.longitude, -f.latitude, 0];
+  const current = projection.rotate();
+  const interp = d3.interpolate(current, target);
+  d3.transition().duration(800).tween('rotate', () => t => {
+    projection.rotate(interp(t));
+    renderGlobeOnly();
+  }).on('end', updateGlobe);
 }
 
-function moveTooltip(event) {
-  let x = event.clientX + 14, y = event.clientY - 10;
-  if (x + 230 > window.innerWidth) x = event.clientX - 240;
-  tooltipEl.style.left = x+'px'; tooltipEl.style.top = y+'px';
-}
-function hideTooltip() { tooltipEl.style.display = 'none'; }
+// ─── Render List ────────────────────────────────────────────────
+function renderList() {
+  const list = document.getElementById('flight-list-items');
+  const loading = document.getElementById('list-loading');
+  if (loading) loading.style.display = 'none';
+  if (!list) return;
 
-// ─── Detail Panel ─────────────────────────────────────────────
+  if (!filteredFlights.length) {
+    list.innerHTML = '<div style="padding:20px 12px;color:#5a7a9a;font-size:10px">No flights match your filter.</div>';
+    return;
+  }
+
+  list.innerHTML = filteredFlights.slice(0, 300).map(f => {
+    const alt = f.baro_altitude ? Math.round(f.baro_altitude * 3.28084 / 100) / 10 + 'k' : 'GND';
+    const spd = f.velocity ? Math.round(f.velocity * 1.944) + ' kt' : '–';
+    const color = flightColor(f);
+    const airline = getAirline(f.callsign) || f.origin_country || '–';
+    const sel = f === selectedFlight ? ' selected' : '';
+    return `<div class="flight-item${sel}" data-icao="${f.icao24}">
+      <div class="flight-dot" style="background:${color}"></div>
+      <div class="flight-info">
+        <div class="flight-cs">${f.callsign || f.icao24}</div>
+        <div class="flight-airline">${airline}</div>
+      </div>
+      <div class="flight-meta">${alt}<br>${spd}</div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.flight-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const f = filteredFlights.find(x => x.icao24 === el.dataset.icao);
+      if (f) selectFlight(f);
+    });
+  });
+}
+
+// ─── Apply Filters ──────────────────────────────────────────────
+function applyFilters() {
+  const s = searchTerm.toLowerCase();
+  filteredFlights = flights.filter(f => {
+    if (s) {
+      const cs = (f.callsign || '').toLowerCase();
+      const co = (f.origin_country || '').toLowerCase();
+      const reg= (f.registration || '').toLowerCase();
+      if (!cs.includes(s) && !co.includes(s) && !reg.includes(s)) return false;
+    }
+    if (activeFilter === 'airborne') return !f.on_ground;
+    if (activeFilter === 'highalt')  return (f.baro_altitude || 0) > 10000;
+    if (activeFilter === 'us')    return (f.origin_country||'').toLowerCase().includes('united states');
+    if (activeFilter === 'europe') {
+      const eu = ['united kingdom','france','germany','spain','italy','netherlands',
+        'belgium','switzerland','austria','sweden','norway','denmark','finland','portugal','ireland'];
+      return eu.some(c => (f.origin_country||'').toLowerCase().includes(c));
+    }
+    return true;
+  });
+  const lc = document.getElementById('list-count');
+  if (lc) lc.textContent = filteredFlights.length.toLocaleString() + ' flights';
+}
+
+// ─── Airports ───────────────────────────────────────────────────
+function renderAirports() {
+  if (!airportG) return;
+  airportG.selectAll('*').remove();
+  if (!layers.airports) return;
+  const r = projection.rotate();
+  const center = [-r[0], -r[1]];
+  Object.entries(AIRPORT_DB).forEach(([icao, ap]) => {
+    if (!ap.lat || !ap.lon) return;
+    const coords = [ap.lon, ap.lat];
+    if (d3.geoDistance(coords, center) > Math.PI / 2) return;
+    const proj = projection(coords);
+    if (!proj) return;
+
+    const zk = currentZoomK;
+    if (zk < 1.5 && (ap.type === 'small_airport' || !ap.type)) return;
+
+    const size = ap.type === 'large_airport' ? 4 : ap.type === 'medium_airport' ? 3 : 2;
+    const color = ap.type === 'large_airport' ? '#ff6b35' : ap.type === 'medium_airport' ? '#ffd700' : '#8aaccc';
+
+    const g2 = airportG.append('g').style('cursor','pointer')
+      .on('mouseover', (ev) => {
+        const tt = document.getElementById('tooltip');
+        if (tt) {
+          tt.innerHTML = `<b style="color:#ff6b35">${icao}</b> ${ap.iata ? '/ '+ap.iata : ''}<br><span style="color:#8aaccc">${ap.name}</span>`;
+          tt.style.display = 'block';
+          tt.style.left = Math.min(ev.pageX+12, window.innerWidth-220)+'px';
+          tt.style.top  = Math.min(ev.pageY+12, window.innerHeight-80)+'px';
+        }
+      })
+      .on('mouseout', hideTooltip)
+      .on('click', () => openAirportPanel(icao, ap));
+
+    g2.append('circle').attr('cx',proj[0]).attr('cy',proj[1]).attr('r',size)
+      .attr('fill',color).attr('stroke','rgba(0,0,0,0.5)').attr('stroke-width','0.5');
+    if (zk > 2) {
+      g2.append('text').attr('x',proj[0]+size+2).attr('y',proj[1]+3)
+        .attr('font-size','8').attr('fill',color).attr('pointer-events','none')
+        .text(ap.iata || icao);
+    }
+  });
+}
+
+function openAirportPanel(icao, ap) {
+  const panel = document.getElementById('airport-map-panel');
+  const title = document.getElementById('amp-title');
+  if (!panel) return;
+  if (title) title.textContent = `${icao} — ${ap.name}`;
+
+  // Nearby flights
+  const nearby = flights.filter(f => {
+    const dlat = (f.latitude||0)  - ap.lat;
+    const dlon = (f.longitude||0) - ap.lon;
+    return Math.sqrt(dlat*dlat + dlon*dlon) < 0.5;
+  });
+  const arr  = document.getElementById('ap-arr-count');
+  const dep  = document.getElementById('ap-dep-count');
+  const gnd  = document.getElementById('ap-ground-count');
+  if (arr) arr.textContent = nearby.filter(f => !f.on_ground).length;
+  if (dep) dep.textContent = nearby.filter(f => !f.on_ground).length;
+  if (gnd) gnd.textContent = nearby.filter(f => f.on_ground).length;
+
+  panel.classList.add('open');
+
+  // Init leaflet map
+  setTimeout(() => {
+    const mapEl = document.getElementById('leaflet-map');
+    if (!mapEl) return;
+    if (window._leafletMap) { window._leafletMap.remove(); window._leafletMap = null; }
+    window._leafletMap = L.map('leaflet-map').setView([ap.lat, ap.lon], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:'© OpenStreetMap', maxZoom:19
+    }).addTo(window._leafletMap);
+  }, 100);
+}
+
+function closeAirportMap() {
+  const panel = document.getElementById('airport-map-panel');
+  if (panel) panel.classList.remove('open');
+  if (window._leafletMap) { window._leafletMap.remove(); window._leafletMap = null; }
+}
+
+document.querySelectorAll('.tile-btn[data-tile]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.tile-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    if (window._leafletMap) {
+      window._leafletMap.eachLayer(l => { if (l._url) window._leafletMap.removeLayer(l); });
+      const urls = {
+        sat:    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        street: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        aero:   'https://tiles.openaip.net/geowebcache/service/tms/1.0.0/openaip_basemap@EPSG%3A900913@png/{z}/{x}/{y}.png'
+      };
+      L.tileLayer(urls[b.dataset.tile] || urls.street, {maxZoom:19}).addTo(window._leafletMap);
+    }
+  });
+});
+
+// ─── Render Waypoints / ILS (stubs) ─────────────────────────────
+function renderWaypoints() {
+  if (!waypointG) return;
+  waypointG.selectAll('*').remove();
+  if (!layers.waypoints) return;
+  const r = projection.rotate();
+  const center = [-r[0], -r[1]];
+  (WAYPOINTS || []).forEach(w => {
+    if (d3.geoDistance([w.lon,w.lat], center) > Math.PI/2) return;
+    const p = projection([w.lon,w.lat]);
+    if (!p) return;
+    waypointG.append('text').attr('x',p[0]).attr('y',p[1])
+      .attr('font-size','7').attr('fill','rgba(255,200,80,0.6)')
+      .attr('text-anchor','middle').attr('pointer-events','none').text('+');
+  });
+}
+
+function renderILS() {}
+function renderRoutePath() {}
+
+// ─── Airline / Aircraft lookups ─────────────────────────────────
 const AIRLINE_DB = {
   // Europe
   'BAW':'British Airways','EZY':'easyJet','RYR':'Ryanair','VIR':'Virgin Atlantic',
@@ -1751,130 +1896,21 @@ const AIRCRAFT_DB = {
 };
 
 
-// ── Airport rendering ─────────────────────────────────────────
-function renderAirports() {
-  if (typeof AIRPORT_DB === "undefined") return;
-  airportG.selectAll('*').remove();
-  if (!showAirports) return;
-
-  const r = projection.rotate();
-  Object.entries(AIRPORT_DB).forEach(([icao, ap]) => {
-    const geoAngle = d3.geoDistance([ap.lon, ap.lat], [-r[0], -r[1]]);
-    if (geoAngle > Math.PI / 2.05) return;
-    const proj = projection([ap.lon, ap.lat]);
-    if (!proj) return;
-
-    const sz = ap.size === 'mega' ? 4.5 : ap.size === 'large' ? 3 : ap.size === 'medium' ? 2 : 1.5;
-    const col = ap.size === 'mega' ? '#ffd700' : ap.size === 'large' ? '#ff9944' : '#aaaaaa';
-
-    const ag = airportG.append('g')
-      .attr('transform', `translate(${proj[0]},${proj[1]})`)
-      .style('cursor','pointer');
-
-    // Outer ring
-    ag.append('circle').attr('r', sz + 1.5)
-      .attr('fill','none').attr('stroke', col)
-      .attr('stroke-width', 0.8).attr('opacity', 0.7);
-
-    // Center dot
-    ag.append('circle').attr('r', sz * 0.5)
-      .attr('fill', col).attr('opacity', 0.9);
-
-    // Cross/runway lines for mega airports
-    if (ap.size === 'mega' || ap.size === 'large') {
-      ag.append('line').attr('x1',-sz).attr('x2',sz).attr('y1',0).attr('y2',0)
-        .attr('stroke',col).attr('stroke-width',0.7).attr('opacity',0.6);
-      ag.append('line').attr('x1',0).attr('x2',0).attr('y1',-sz).attr('y2',sz)
-        .attr('stroke',col).attr('stroke-width',0.7).attr('opacity',0.6);
-    }
-
-    // Invisible hit target
-    ag.append('circle').attr('r', 8).attr('fill','transparent')
-      .on('mouseover', evt => {
-        tooltipEl.innerHTML = `<span class="tooltip-callsign">${ap.iata} / ${icao}</span>${ap.name}<br>${ap.city}, ${ap.country}<br><span style="color:#aaa;font-size:9px">✈ ${ap.runways} runway${ap.runways>1?'s':''} &nbsp; 🏢 ${ap.terminals} terminal${ap.terminals>1?'s':''}</span>`;
-        tooltipEl.style.display = 'block'; moveTooltip(evt);
-      })
-      .on('mousemove', moveTooltip)
-      .on('mouseout', hideTooltip)
-      .on('click', () => openAirportPanel(icao, ap));
-  });
-}
-
-function openAirportPanel(icao, ap) {
-  const panel   = document.getElementById('detail-panel');
-  document.getElementById('dp-callsign').textContent = `${ap.iata} / ${icao}`;
-  document.getElementById('dp-airline').textContent  = ap.name;
-  document.getElementById('dp-badges').innerHTML = `
-    <span class="dp-badge accent">${ap.size.toUpperCase()} HUB</span>
-    <span class="dp-badge">✈ ${ap.runways} RUNWAYS</span>
-    <span class="dp-badge">🏢 ${ap.terminals} TERMINALS</span>`;
-  document.getElementById('dp-content').innerHTML = `
-    <div class="dp-section">
-      <div class="dp-section-title">✈ Airport Info</div>
-      <div class="dp-row"><span class="dp-label">Full Name</span><span class="dp-value">${ap.name}</span></div>
-      <div class="dp-row"><span class="dp-label">ICAO / IATA</span><span class="dp-value mono">${icao} / ${ap.iata}</span></div>
-      <div class="dp-row"><span class="dp-label">City</span><span class="dp-value">${ap.city}</span></div>
-      <div class="dp-row"><span class="dp-label">Country</span><span class="dp-value">${ap.country}</span></div>
-      <div class="dp-row"><span class="dp-label">Coordinates</span><span class="dp-value dim">${ap.lat.toFixed(4)}°, ${ap.lon.toFixed(4)}°</span></div>
-    </div>
-    <div class="dp-section">
-      <div class="dp-section-title">🏗 Infrastructure</div>
-      <div class="dp-row"><span class="dp-label">Runways</span><span class="dp-value" style="color:var(--accent)">${ap.runways}</span></div>
-      <div class="dp-row"><span class="dp-label">Terminals</span><span class="dp-value" style="color:var(--accent)">${ap.terminals}</span></div>
-      <div class="dp-row"><span class="dp-label">Hub Size</span><span class="dp-value">${ap.size.charAt(0).toUpperCase()+ap.size.slice(1)}</span></div>
-    </div>
-    <div class="dp-section">
-      <div class="dp-section-title">✈ Live Traffic</div>
-      <div class="dp-row"><span class="dp-label">On Ground</span><span class="dp-value" style="color:#ffd700" id="ap-ground-count">counting...</span></div>
-      <div class="dp-row"><span class="dp-label">Departing</span><span class="dp-value" style="color:#00ff88" id="ap-dep-count">–</span></div>
-      <div class="dp-row"><span class="dp-label">Arriving</span><span class="dp-value" style="color:#ff6b35" id="ap-arr-count">–</span></div>
-    </div>
-    <div class="dp-section" style="grid-column:1/-1;padding:8px 12px">
-      <button class="zoom-to-map-btn" onclick="openAirportMap('${icao}')">🗺 View Runway Layout · Satellite / Aeronautical</button>
-    </div>`;
-  panel.classList.add('open');
-
-  // Count live aircraft near this airport
-  setTimeout(() => {
-    const nearby = flights.filter(f => {
-      const dist = Math.sqrt(Math.pow(f.latitude - ap.lat, 2) + Math.pow(f.longitude - ap.lon, 2));
-      return dist < 0.5;
-    });
-    const onGround = nearby.filter(f => f.on_ground).length;
-    const departing = nearby.filter(f => !f.on_ground && f.vertical_rate > 1).length;
-    const arriving  = nearby.filter(f => !f.on_ground && f.vertical_rate < -1).length;
-    const groundEl = document.getElementById('ap-ground-count');
-    const depEl    = document.getElementById('ap-dep-count');
-    const arrEl    = document.getElementById('ap-arr-count');
-    if (groundEl) groundEl.textContent = onGround || '0';
-    if (depEl)    depEl.textContent    = departing || '0';
-    if (arrEl)    arrEl.textContent    = arriving  || '0';
-  }, 100);
-}
-
 
 function getAirline(callsign) {
-  if (!callsign) return null;
-  const cs = callsign.trim().toUpperCase().replace(/[0-9].*$/, ''); // strip trailing numbers
-  // Try 3-char ICAO, then 2-char IATA, then partial
-  return AIRLINE_DB[cs] ||
-         AIRLINE_DB[callsign.substring(0,3).toUpperCase()] ||
-         AIRLINE_DB[callsign.substring(0,2).toUpperCase()] ||
-         null;
+  if (!callsign || !AIRLINE_DB) return null;
+  const prefix = callsign.slice(0,3).toUpperCase();
+  return AIRLINE_DB[prefix] || null;
 }
 
-async function fetchRoute(callsign) {
-  const r = await fetch(`${OPENSKY}/routes?callsign=${callsign.trim()}`);
-  if (!r.ok) throw new Error('no route');
-  return await r.json();
+function getAircraftType(code) {
+  if (!code || !AIRCRAFT_DB) return null;
+  return AIRCRAFT_DB[code.toUpperCase()] || null;
 }
 
-// ─── Airplanes.live API ──────────────────────────────────────────
+// ─── API / Fetch ─────────────────────────────────────────────────
 const API_BASE = 'https://api.airplanes.live/v2';
 
-// Global coverage: sample points spread across the globe at ~250nm radius
-// 250nm ≈ 463km — each circle covers a ~925km diameter area
-// Grid: 12 lat bands × ~24 lon points = full earth coverage, deduplicated by hex
 const SAMPLE_POINTS = [];
 (function buildGrid() {
   // 250nm radius per tile (~463km). Space tiles ~800km for overlap.
@@ -1887,14 +1923,12 @@ const SAMPLE_POINTS = [];
   }
 })();
 
-// ─── Flight Data ─────────────────────────────────────────────
+
 function setStatus(state, text) {
-  document.getElementById('status-text').textContent = text;
-  const dot = document.getElementById('status-dot');
-  if (dot) dot.className = 'dot ' + state;
+  const el = document.getElementById('status-text');
+  if (el) { el.textContent = text; el.className = 'status-text status-' + state; }
 }
 
-// Map airplanes.live aircraft to our internal format
 function mapAircraft(ac, isMil) {
   if (!ac.lat || !ac.lon) return null;
   return {
@@ -1920,26 +1954,51 @@ function mapAircraft(ac, isMil) {
   };
 }
 
+async function fetchFlights() {
+  setStatus('loading', 'Fetching live flights...');
+  const seen = new Map();
 
-function applyFilters() {
-  const s = searchTerm.toLowerCase();
-  filteredFlights = flights.filter(f => {
-    if (s && !f.callsign.toLowerCase().includes(s) &&
-        !(f.origin_country||'').toLowerCase().includes(s) &&
-        !(f.registration||'').toLowerCase().includes(s)) return false;
-    if (activeFilter === 'airborne') return !f.on_ground;
-    if (activeFilter === 'highalt') return f.baro_altitude > 10000;
-    if (activeFilter === 'us') return (f.origin_country||'').toLowerCase().includes('united states');
-    if (activeFilter === 'europe') {
-      const eu = ['united kingdom','france','germany','spain','italy','netherlands',
-        'belgium','switzerland','austria','sweden','norway','denmark','finland',
-        'portugal','ireland','poland','czech','hungary','romania','ukraine'];
-      return eu.some(c => (f.origin_country||'').toLowerCase().includes(c));
+  try {
+    // Military aircraft (dedicated endpoint)
+    const milP = fetch(`${API_BASE}/mil`, { signal: AbortSignal.timeout(15000) })
+      .then(r => r.ok ? r.json() : { ac: [] })
+      .then(d => (d.ac||[]).forEach(ac => { const f = mapAircraft(ac,true); if(f) seen.set(f.icao24,f); }))
+      .catch(() => {});
+
+    // Tile the globe — batch 6 concurrent
+    for (let i = 0; i < SAMPLE_POINTS.length; i += 6) {
+      await Promise.allSettled(
+        SAMPLE_POINTS.slice(i, i+6).map(([lat,lon]) =>
+          fetch(`${API_BASE}/point/${lat}/${lon}/250`, { signal: AbortSignal.timeout(10000) })
+            .then(r => r.ok ? r.json() : { ac: [] })
+            .then(d => (d.ac||[]).forEach(ac => {
+              if (!seen.has(ac.hex)) { const f = mapAircraft(ac,false); if(f) seen.set(f.icao24,f); }
+            }))
+            .catch(() => {})
+        )
+      );
     }
-    return true;
-  });
-  const lc = document.getElementById('list-count');
-  if (lc) lc.textContent = filteredFlights.length.toLocaleString() + ' flights';
+
+    await milP;
+
+    flights = Array.from(seen.values());
+    const airborne  = flights.filter(f => !f.on_ground).length;
+    const countries = new Set(flights.map(f => f.origin_country).filter(Boolean)).size;
+
+    document.getElementById('stat-total').textContent = flights.length.toLocaleString();
+    document.getElementById('stat-airborne').textContent = airborne.toLocaleString();
+    document.getElementById('stat-countries').textContent = countries || '–';
+
+    setStatus('ok', `${flights.length.toLocaleString()} flights live ✓`);
+    applyFilters();
+    renderFlights();
+    renderList();
+
+  } catch(err) {
+    console.error('fetchFlights error:', err);
+    setStatus('error', 'API error — demo mode');
+    loadMockData();
+  }
 }
 
 function loadMockData() {
@@ -1968,809 +2027,21 @@ function loadMockData() {
   applyFilters(); renderFlights(); renderList();
 }
 
-async function fetchFlights() {
-  setStatus('loading', 'Fetching live flights...');
-  const seen = new Map(); // hex → aircraft (deduplicate across tiles)
-
-  try {
-    // Fetch military aircraft separately (dedicated endpoint, better data)
-    const milPromise = fetch(`${API_BASE}/mil`, { signal: AbortSignal.timeout(15000) })
-      .then(r => r.ok ? r.json() : { ac: [] })
-      .then(d => (d.ac || []).forEach(ac => {
-        const f = mapAircraft(ac, true);
-        if (f) seen.set(f.icao24, f);
-      }))
-      .catch(() => {});
-
-    // Tile the globe with point queries — batch in groups of 6 concurrent
-    const batchSize = 6;
-    for (let i = 0; i < SAMPLE_POINTS.length; i += batchSize) {
-      const batch = SAMPLE_POINTS.slice(i, i + batchSize);
-      await Promise.allSettled(batch.map(([lat, lon]) =>
-        fetch(`${API_BASE}/point/${lat}/${lon}/250`, { signal: AbortSignal.timeout(10000) })
-          .then(r => r.ok ? r.json() : { ac: [] })
-          .then(d => (d.ac || []).forEach(ac => {
-            if (!seen.has(ac.hex)) {
-              const f = mapAircraft(ac, false);
-              if (f) seen.set(f.icao24, f);
-            }
-          }))
-          .catch(() => {})
-      ));
-    }
-
-    await milPromise;
-
-    flights = Array.from(seen.values());
-    const airborne = flights.filter(f => !f.on_ground).length;
-    const countries = new Set(flights.map(f => f.origin_country).filter(Boolean)).size;
-
-    document.getElementById('stat-total').textContent = flights.length.toLocaleString();
-    document.getElementById('stat-airborne').textContent = airborne.toLocaleString();
-    document.getElementById('stat-countries').textContent = countries || '–';
-
-    setStatus('ok', `${flights.length.toLocaleString()} flights live ✓`);
-    applyFilters(); renderFlights(); renderList();
-
-  } catch(err) {
-    setStatus('error', 'Fetch error — showing demo data');
-    loadMockData();
-  }
-}
-
-// getAircraftCategory — maps category codes + type codes to display category
-function getAircraftCategory(f) {
-  if (f._isMil) return 'military';
-  const cat = (f.category || '').toUpperCase();
-  const type = (f.aircraft_type || '').toUpperCase();
-  const desc = (f.description || '').toLowerCase();
-  // Emergency squawk always shows as emergency
-  if (f.squawk && ['7700','7600','7500'].includes(f.squawk)) return 'emergency';
-  // Category codes: A1=light, A2=small, A3=large, A4=high-vortex, A5=heavy, A6=performance, A7=rotorcraft
-  if (cat === 'A7' || type.startsWith('H') || desc.includes('helicopter') || desc.includes('helo')) return 'helicopter';
-  if (cat === 'B1' || desc.includes('glider')) return 'glider';
-  // Wide-body types
-  if (['B744','B748','B74F','B77W','B77L','B772','B773','B778','B779','A380','A388',
-       'A332','A333','A339','A342','A343','A345','A346','A35K','A359','IL76'].includes(type)) return 'widebody';
-  // Cargo operators/types
-  if (desc.includes('cargo') || desc.includes('freighter') || ['B74F','MD11','DC8'].includes(type)) return 'cargo';
-  // Regional jets / turboprops
-  if (cat === 'A1' || cat === 'A2' || ['BE20','BE9L','C208','PC12','TBM9','SR22','C172'].includes(type)) return 'general';
-  // Heavy = narrowbody default
-  return 'narrowbody';
-}
-
-function flightColor(f) {
-  if (f.emergency !== 'none' && f.emergency) return '#ff4444';
-  if (f.squawk && ['7700','7600','7500'].includes(f.squawk)) return '#ff4444';
-  const cat = getAircraftCategory(f);
-  if (cat === 'military')  return '#4a7c3f';   // army green
-  if (cat === 'cargo')     return '#c084fc';   // purple
-  if (cat === 'helicopter') return '#34d399';  // teal
-  if (cat === 'widebody')  return '#ffffff';   // white
-  if (cat === 'general')   return '#fbbf24';   // amber
-  if (f.baro_altitude && f.baro_altitude > 10668) return '#ff6b35'; // high alt
-  if (f.vertical_rate && Math.abs(f.vertical_rate) > 3) return '#00ff88'; // climbing/descending
-  return isDayMode ? '#0077cc' : '#00d4ff';    // default narrowbody
-}
-
-
-
-// ─── AeroDataBox API ──────────────────────────────────────────
-// Paste your RapidAPI key here after subscribing to AeroDataBox:
-// https://rapidapi.com/aedbx-aedbx/api/aerodatabox
-const AERODATABOX_KEY = '538b7622demshf36ea0d1aa90fefp1aa40ejsn2d79e8cd5c8e';
-const ADB_HOST = 'aerodatabox.p.rapidapi.com';
-
-async function fetchAeroDataBox(path) {
-  if (AERODATABOX_KEY === 'YOUR_RAPIDAPI_KEY_HERE') return null;
-  try {
-    const r = await fetch(`https://${ADB_HOST}${path}`, {
-      headers: {
-        'X-RapidAPI-Key':  AERODATABOX_KEY,
-        'X-RapidAPI-Host': ADB_HOST
-      }
-    });
-    if (!r.ok) return null;
-    return await r.json();
-  } catch(e) { return null; }
-}
-
-// Fetch live flight details by callsign from AeroDataBox
-async function fetchADBFlight(callsign) {
-  // AeroDataBox flight-by-number endpoint
-  const cs = callsign.trim().toUpperCase();
-  const data = await fetchAeroDataBox(`/flights/callsign/${cs}`);
-  if (!data) return null;
-  // Returns array; take most recent/active entry
-  const arr = Array.isArray(data) ? data : (data.departures || data.arrivals || [data]);
-  return arr[0] || null;
-}
-
-// Fetch aircraft details by ICAO24 hex from AeroDataBox
-async function fetchADBAircraft(icao24) {
-  return await fetchAeroDataBox(`/aircrafts/icao24/${icao24.toLowerCase()}`);
-}
-
-function calcProgress(depTime, arrTime) {
-  if (!depTime || !arrTime) return null;
-  try {
-    const now   = Date.now();
-    const start = new Date(depTime).getTime();
-    const end   = new Date(arrTime).getTime();
-    if (isNaN(start) || isNaN(end) || end <= start) return null;
-    return Math.min(100, Math.max(1, Math.round(((now - start) / (end - start)) * 100)));
-  } catch(e) { return null; }
-}
-
-function fmtUtc(iso) {
-  if (!iso) return '–';
-  try { return new Date(iso).toUTCString().slice(17,22) + ' UTC'; } catch(e) { return iso; }
-}
-
-async function openDetailPanel(f) {
-  const panel   = document.getElementById('detail-panel');
-  const content = document.getElementById('dp-content');
-
-  // Show panel immediately with loading state
-  document.getElementById('dp-callsign').textContent = f.callsign || f.icao24;
-  document.getElementById('dp-airline').textContent  = getAirline(f.callsign) || f.origin_country;
-  document.getElementById('dp-badges').innerHTML = '';
-  content.innerHTML = `<div class="dp-loading"><div class="dp-spinner"></div>
-    ${AERODATABOX_KEY === 'YOUR_RAPIDAPI_KEY_HERE'
-      ? 'Add AeroDataBox key for live aircraft details — fetching route data...'
-      : 'Fetching live flight & aircraft data...'
-    }</div>`;
-  panel.classList.add('open');
-
-  // ── Fire all enrichment requests in parallel ──
-  const [adbFlight, adbAircraft, routeData] = await Promise.all([
-    fetchADBFlight(f.callsign),
-    fetchADBAircraft(f.icao24),
-    fetchRoute(f.callsign).catch(() => null)
-  ]);
-
-  // ── Extract fields with AeroDataBox taking priority ──
-
-  // Route / airports
-  let dep = null, arr = null, depAp = null, arrAp = null;
-  let depTime = null, arrTime = null;
-
-  if (adbFlight) {
-    // AeroDataBox flight object shape
-    const d = adbFlight.departure || adbFlight;
-    const a = adbFlight.arrival   || adbFlight;
-    dep = d?.airport?.icao || adbFlight?.origin?.icao || null;
-    arr = a?.airport?.icao || adbFlight?.destination?.icao || null;
-    depTime = d?.scheduledTimeUtc || d?.actualTimeUtc || null;
-    arrTime = a?.scheduledTimeUtc || a?.actualTimeUtc || null;
-  }
-  // Fall back to OpenSky route
-  if (!dep && routeData?.route?.length >= 2) {
-    dep = routeData.route[0];
-    arr = routeData.route[routeData.route.length - 1];
-  }
-  if (dep) depAp = AIRPORT_DB[dep] || { name: dep, city: '', country: '' };
-  if (arr) arrAp = AIRPORT_DB[arr] || { name: arr, city: '', country: '' };
-
-  // Aircraft details
-  let acModel = '–', acReg = '–', acYear = '–', acIcaoType = '–', acAirline = '–';
-
-  if (adbAircraft) {
-    acModel    = adbAircraft.typeName      || adbAircraft.model         || '–';
-    acReg      = adbAircraft.reg           || adbAircraft.registration  || '–';
-    acYear     = adbAircraft.productionYear|| adbAircraft.yearBuilt     || '–';
-    acIcaoType = adbAircraft.icaoType      || adbAircraft.icao          || '–';
-    acAirline  = adbAircraft.airlineName   || adbAircraft.operator      || '–';
-  }
-  // Fallback to local DB estimate
-  if (acModel === '–') {
-    const acTypes = ['B738','A320','A321','B77W','B789','A359','A333','B763','A388','B748','A20N','E190'];
-    const key = acTypes[Math.floor((parseInt(f.icao24.substring(0,2),16)||0) % acTypes.length)];
-    acModel    = (AIRCRAFT_DB[key]||{full:'–'}).full;
-    acIcaoType = key;
-    acYear     = String(2005 + Math.floor((parseInt(f.icao24.substring(2,4),16)||0) % 20)) + ' (est.)';
-  }
-
-  // Airline: AeroDataBox > local lookup > origin country
-  const airline = (acAirline !== '–' ? acAirline : null)
-                || getAirline(f.callsign)
-                || f.origin_country;
-  document.getElementById('dp-airline').textContent = airline;
-
-  // Flight number
-  const fnMatch = f.callsign.match(/^([A-Z]{2,3})(\d+)/);
-  const flightNum = (adbFlight?.number || (fnMatch ? fnMatch[1]+fnMatch[2] : f.callsign));
-
-  // Progress
-  const pct = calcProgress(depTime, arrTime) ?? (dep && arr ? 45 : 0);
-
-  // Badges
-  const altFt = f.baro_altitude ? Math.round(f.baro_altitude * 3.28084).toLocaleString() : '–';
-  document.getElementById('dp-badges').innerHTML = `
-    <span class="dp-badge accent">${f.on_ground ? 'ON GROUND' : 'AIRBORNE'}</span>
-    <span class="dp-badge">${altFt} ft</span>
-    <span class="dp-badge">${f.origin_country}</span>
-    ${AERODATABOX_KEY !== 'YOUR_RAPIDAPI_KEY_HERE' ? '<span class="dp-badge" style="border-color:#00ff88;color:#00ff88">ADB LIVE</span>' : ''}`;
-
-  // ── Route / progress block ──
-  const routeHTML = dep && arr ? `
-    <div class="dp-route-section">
-      <div class="dp-section-title">Route &amp; Progress</div>
-      <div class="dp-route-row">
-        <div class="dp-airport-block">
-          <div class="dp-airport-icao">${dep}</div>
-          <div class="dp-airport-name">${depAp.name}${depAp.city ? ', '+depAp.city : ''}</div>
-          <div class="dp-airport-country">${depAp.country}</div>
-          ${depTime ? `<div class="dp-airport-country" style="margin-top:3px;color:var(--accent)">${fmtUtc(depTime)}</div>` : ''}
-        </div>
-        <div class="dp-progress-col">
-          <div class="dp-pct">${pct}% complete</div>
-          <div class="dp-track">
-            <div class="dp-fill" style="width:${pct}%"></div>
-            <div class="dp-plane-icon" style="left:${pct}%">✈</div>
-          </div>
-          <div class="dp-time-row">
-            <span>HDG <b>${Math.round(f.true_track||0)}°</b></span>
-            <span>SPD <b>${f.velocity ? Math.round(f.velocity*1.944)+' kts' : '–'}</b></span>
-            <span>V/S <b>${f.vertical_rate ? (f.vertical_rate>0?'+':'')+Math.round(f.vertical_rate*196.85)+' fpm' : '–'}</b></span>
-          </div>
-        </div>
-        <div class="dp-airport-block right">
-          <div class="dp-airport-icao">${arr}</div>
-          <div class="dp-airport-name">${arrAp.name}${arrAp.city ? ', '+arrAp.city : ''}</div>
-          <div class="dp-airport-country">${arrAp.country}</div>
-          ${arrTime ? `<div class="dp-airport-country" style="margin-top:3px;color:var(--accent)">${fmtUtc(arrTime)}</div>` : ''}
-        </div>
-      </div>
-    </div>` : `
-    <div class="dp-route-section">
-      <div class="dp-section-title">Live Position</div>
-      <div class="dp-route-row">
-        <div class="dp-airport-block">
-          <div class="dp-airport-icao" style="font-size:16px;color:var(--muted)">Route N/A</div>
-          <div class="dp-airport-name">No route data available for this flight</div>
-        </div>
-        <div class="dp-progress-col">
-          <div class="dp-pct" style="color:var(--muted)">–</div>
-          <div class="dp-track"><div class="dp-fill" style="width:0%"></div></div>
-          <div class="dp-time-row">
-            <span>HDG <b>${Math.round(f.true_track||0)}°</b></span>
-            <span>SPD <b>${f.velocity ? Math.round(f.velocity*1.944)+' kts' : '–'}</b></span>
-          </div>
-        </div>
-        <div class="dp-airport-block right">
-          <div class="dp-airport-icao" style="font-size:16px;color:var(--muted)">–</div>
-        </div>
-      </div>
-    </div>`;
-
-  // ── Render full panel ──
-  content.innerHTML = `
-    <div class="dp-body">
-      ${routeHTML}
-      <div class="dp-section">
-        <div class="dp-section-title">✈ Flight Info</div>
-        <div class="dp-row"><span class="dp-label">Flight #</span><span class="dp-value mono">${flightNum}</span></div>
-        <div class="dp-row"><span class="dp-label">Callsign</span><span class="dp-value mono">${f.callsign}</span></div>
-        <div class="dp-row"><span class="dp-label">ICAO24</span><span class="dp-value mono">${f.icao24.toUpperCase()}</span></div>
-        <div class="dp-row"><span class="dp-label">Squawk</span>
-          <span class="dp-value ${f.squawk && ['7700','7600','7500'].includes(f.squawk) ? 'mono' : 'dim'}"
-                style="${f.squawk && ['7700','7600','7500'].includes(f.squawk) ? 'color:#ff4444' : ''}">
-            ${f.squawk || '–'}</span></div>
-        <div class="dp-row"><span class="dp-label">Status</span><span class="dp-value">${f.on_ground ? 'On Ground' : 'Airborne'}</span></div>
-      </div>
-      <div class="dp-section">
-        <div class="dp-section-title">🛩 Aircraft</div>
-        <div class="dp-row"><span class="dp-label">Model</span><span class="dp-value">${acModel}</span></div>
-        <div class="dp-row"><span class="dp-label">Type</span><span class="dp-value mono">${acIcaoType}</span></div>
-        <div class="dp-row"><span class="dp-label">Tail No.</span><span class="dp-value mono" style="${acReg!=='–'?'color:var(--accent)':''}">${acReg}</span></div>
-        <div class="dp-row"><span class="dp-label">Year Built</span><span class="dp-value">${acYear}</span></div>
-      </div>
-      <div class="dp-section">
-        <div class="dp-section-title">🏢 Operator</div>
-        <div class="dp-row"><span class="dp-label">Airline</span><span class="dp-value">${airline}</span></div>
-        <div class="dp-row"><span class="dp-label">Country</span><span class="dp-value">${f.origin_country}</span></div>
-        <div class="dp-row"><span class="dp-label">Altitude</span><span class="dp-value">${f.baro_altitude ? Math.round(f.baro_altitude*3.28084).toLocaleString()+' ft' : 'Ground'}</span></div>
-        <div class="dp-row"><span class="dp-label">Speed</span><span class="dp-value">${f.velocity ? Math.round(f.velocity*1.944)+' kts' : '–'}</span></div>
-        <div class="dp-row"><span class="dp-label">Position</span><span class="dp-value dim">${f.latitude.toFixed(2)}°, ${f.longitude.toFixed(2)}°</span></div>
-      </div>
-    </div>`;
-}
-
-document.getElementById('dp-close-btn').addEventListener('click', () => {
-  document.getElementById('detail-panel').classList.remove('open');
-  selectedFlight = null;
-  renderFlights(); renderList();
-});
-
-function selectFlight(f) {
-  selectedFlight = f;
-  renderFlights(); renderList(); openDetailPanel(f);
-  if (f) {
-    // Auto-enable route layer
-    if (!layers.route) {
-      layers.route = true;
-      const el = document.getElementById('layer-route');
-      if (el) { el.classList.add('active'); el.querySelector('.layer-check').textContent = '✓'; }
-    }
-    loadFlightRoute(f);
-    const target = [-f.longitude, -f.latitude];
-    const current = projection.rotate();
-    const interp = d3.interpolate(current, [target[0], target[1], 0]);
-    d3.transition().duration(800).tween('rotate', () => t => {
-      projection.rotate(interp(t)); updateGlobe();
-    });
-  }
-}
-
-function renderList() {
-  const list = document.getElementById('flight-list');
-  if (!filteredFlights.length) {
-    list.innerHTML = '<div class="empty-state">No flights match<br>your filter.</div>'; return;
-  }
-  list.innerHTML = filteredFlights.slice(0,200).map(f => {
-    const alt = f.baro_altitude ? Math.round(f.baro_altitude*3.28084/100)/10+'k ft':'GND';
-    const spd = f.velocity ? Math.round(f.velocity*1.944)+'kts':'–';
-    const airline = getAirline(f.callsign) || f.origin_country;
-    const statusDot = f.on_ground ? '🟡' : (f.vertical_rate > 2 ? '🟢' : f.vertical_rate < -2 ? '🔴' : '🔵');
-    return `<div class="flight-item ${f===selectedFlight?'selected':''}" data-icao="${f.icao24}">
-      <div class="flight-id">${statusDot} ${f.callsign}</div>
-      <div class="flight-route">${airline}</div>
-      <div class="flight-meta"><span>ALT</span>${alt}&nbsp;&nbsp;<span>SPD</span>${spd}</div>
-    </div>`;
-  }).join('');
-  list.querySelectorAll('.flight-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const f = filteredFlights.find(x => x.icao24 === el.dataset.icao);
-      if (f) selectFlight(f);
-    });
-  });
-}
-
-// ─── Waypoints & ILS ─────────────────────────────────────────
-// Major global navigation fixes (VORs, NDBs, intersections)
-const WAYPOINTS = [
-  // North Atlantic Track fixes
-  {id:'SOMAX',lat:51,lon:-15,type:'fix'},{id:'MIMKU',lat:52,lon:-20,type:'fix'},
-  {id:'DOLIR',lat:53,lon:-30,type:'fix'},{id:'BEDRA',lat:54,lon:-40,type:'fix'},
-  {id:'RAFOX',lat:55,lon:-50,type:'fix'},{id:'MIMLO',lat:57,lon:-20,type:'fix'},
-  // North Pacific
-  {id:'NORDO',lat:48,lon:-150,type:'fix'},{id:'TALON',lat:47,lon:-160,type:'fix'},
-  {id:'NIPPI',lat:45,lon:-170,type:'fix'},{id:'EMRON',lat:43,lon:180,type:'fix'},
-  // Europe major VORs
-  {id:'LAM',lat:51.64,lon:-0.15,type:'vor'},{id:'DET',lat:51.28,lon:0.61,type:'vor'},
-  {id:'CLN',lat:51.84,lon:0.89,type:'vor'},{id:'TNT',lat:51.47,lon:0.45,type:'vor'},
-  {id:'DVR',lat:51.16,lon:1.35,type:'vor'},{id:'KONAN',lat:51.08,lon:2.61,type:'fix'},
-  {id:'POL',lat:55.68,lon:-4.68,type:'vor'},{id:'TLA',lat:48.77,lon:2.2,type:'vor'},
-  {id:'BIG',lat:51.33,lon:0.03,type:'vor'},{id:'MAY',lat:50.86,lon:-0.12,type:'vor'},
-  {id:'SFD',lat:50.99,lon:-0.11,type:'vor'},{id:'BNN',lat:51.64,lon:-0.55,type:'vor'},
-  {id:'HON',lat:51.01,lon:-1.35,type:'vor'},{id:'SAM',lat:50.95,lon:-1.34,type:'vor'},
-  {id:'BCN',lat:41.29,lon:2.1,type:'vor'},{id:'LFPG',lat:49.01,lon:2.55,type:'vor'},
-  // Middle East VORs
-  {id:'DXB',lat:25.25,lon:55.36,type:'vor'},{id:'AUH',lat:24.43,lon:54.65,type:'vor'},
-  {id:'DOH',lat:25.27,lon:51.61,type:'vor'},{id:'BGW',lat:33.26,lon:44.23,type:'vor'},
-  {id:'CAI',lat:30.12,lon:31.41,type:'vor'},{id:'BEY',lat:33.82,lon:35.49,type:'vor'},
-  {id:'TLV',lat:32.01,lon:34.89,type:'vor'},{id:'AMM',lat:31.72,lon:35.99,type:'vor'},
-  // Asia VORs
-  {id:'HKG',lat:22.31,lon:113.91,type:'vor'},{id:'SIN',lat:1.36,lon:103.99,type:'vor'},
-  {id:'NRT',lat:35.77,lon:140.39,type:'vor'},{id:'ICN',lat:37.47,lon:126.45,type:'vor'},
-  {id:'PEK',lat:40.08,lon:116.6,type:'vor'},{id:'PVG',lat:31.14,lon:121.81,type:'vor'},
-  {id:'DEL',lat:28.57,lon:77.1,type:'vor'},{id:'BOM',lat:19.09,lon:72.87,type:'vor'},
-  {id:'BKK',lat:13.69,lon:100.75,type:'vor'},{id:'KUL',lat:2.75,lon:101.71,type:'vor'},
-  // Americas VORs
-  {id:'JFK',lat:40.64,lon:-73.78,type:'vor'},{id:'LAX',lat:33.94,lon:-118.41,type:'vor'},
-  {id:'ORD',lat:41.97,lon:-87.91,type:'vor'},{id:'MIA',lat:25.8,lon:-80.29,type:'vor'},
-  {id:'ATL',lat:33.64,lon:-84.43,type:'vor'},{id:'DFW',lat:32.9,lon:-97.04,type:'vor'},
-  {id:'DEN',lat:39.86,lon:-104.67,type:'vor'},{id:'SFO',lat:37.62,lon:-122.38,type:'vor'},
-  {id:'YYZ',lat:43.68,lon:-79.62,type:'vor'},{id:'GRU',lat:-23.44,lon:-46.47,type:'vor'},
-  // Africa
-  {id:'ADD',lat:8.98,lon:38.8,type:'vor'},{id:'NBO',lat:-1.32,lon:36.93,type:'vor'},
-  {id:'JNB',lat:-26.14,lon:28.25,type:'vor'},{id:'LOS',lat:6.58,lon:3.32,type:'vor'},
-];
-
-// ILS approaches for major airports (runway heading, glideslope lat/lon, name)
-
-function renderWaypoints() {
-  if (!waypointG) waypointG = g.append('g').attr('class','waypoint-layer');
-  waypointG.selectAll('*').remove();
-  if (!layers.waypoints) return;
-
-  const r = projection.rotate();
-  const center = [-r[0], -r[1]];
-
-  WAYPOINTS.forEach(wp => {
-    const geoAngle = d3.geoDistance([wp.lon, wp.lat], center);
-    if (geoAngle > Math.PI / 2.05) return;
-    const proj = projection([wp.lon, wp.lat]);
-    if (!proj) return;
-
-    const isVOR = wp.type === 'vor';
-    const col = isVOR ? '#7ec8ff' : '#aaccff';
-    const sz = isVOR ? 4 : 2.5;
-
-    const wg = waypointG.append('g').attr('transform',`translate(${proj[0]},${proj[1]})`);
-    if (isVOR) {
-      // VOR = hexagon
-      const hex = d3.range(6).map(i => {
-        const a = (i * Math.PI / 3) - Math.PI / 6;
-        return [Math.cos(a)*sz, Math.sin(a)*sz];
-      });
-      wg.append('polygon').attr('points', hex.map(p=>p.join(',')).join(' '))
-        .attr('fill','none').attr('stroke',col).attr('stroke-width',0.8).attr('opacity',0.7);
-      wg.append('circle').attr('r',1).attr('fill',col).attr('opacity',0.8);
-    } else {
-      // Fix = diamond
-      wg.append('rect').attr('x',-sz*0.7).attr('y',-sz*0.7)
-        .attr('width',sz*1.4).attr('height',sz*1.4)
-        .attr('transform','rotate(45)')
-        .attr('fill','none').attr('stroke',col).attr('stroke-width',0.6).attr('opacity',0.6);
-    }
-    wg.append('text').attr('x',5).attr('y',3)
-      .attr('fill',col).attr('font-size','5').attr('font-family','Space Mono, monospace')
-      .attr('opacity',0.8).attr('pointer-events','none').text(wp.id);
-  });
-}
-
-function renderILS() {
-  if (!ilsG) ilsG = g.append('g').attr('class','ils-layer');
-  ilsG.selectAll('*').remove();
-  if (!layers.ils) return;
-
-  const r = projection.rotate();
-  const center = [-r[0], -r[1]];
-
-  ILS_DATA.forEach(ils => {
-    const geoAngle = d3.geoDistance([ils.lon, ils.lat], center);
-    if (geoAngle > Math.PI / 2.05) return;
-
-    const apCoord = projection([ils.lon, ils.lat]);
-    if (!apCoord) return;
-
-    // Draw ILS cone (10 degree width, 12nm range approx)
-    const hdgRad = (ils.hdg) * Math.PI / 180;
-    const fanAngle = 10 * Math.PI / 180;
-    const len = 35; // pixels
-
-    const lx1 = apCoord[0] + Math.sin(hdgRad - fanAngle) * len;
-    const ly1 = apCoord[1] - Math.cos(hdgRad - fanAngle) * len;
-    const lx2 = apCoord[0] + Math.sin(hdgRad + fanAngle) * len;
-    const ly2 = apCoord[1] - Math.cos(hdgRad + fanAngle) * len;
-    const cx  = apCoord[0] + Math.sin(hdgRad) * len;
-    const cy  = apCoord[1] - Math.cos(hdgRad) * len;
-
-    const ig = ilsG.append('g');
-    // Approach sector fill
-    ig.append('path').attr('d',`M${apCoord[0]},${apCoord[1]} L${lx1},${ly1} Q${cx},${cy} ${lx2},${ly2} Z`)
-      .attr('fill','rgba(0,255,136,0.07)').attr('stroke','rgba(0,255,136,0.4)')
-      .attr('stroke-width',0.5);
-    // Centreline
-    ig.append('line').attr('x1',apCoord[0]).attr('y1',apCoord[1])
-      .attr('x2',cx).attr('y2',cy)
-      .attr('stroke','rgba(0,255,136,0.6)').attr('stroke-width',0.7)
-      .attr('stroke-dasharray','3,2');
-    // Label
-    ig.append('text').attr('x',(apCoord[0]+cx)/2+4).attr('y',(apCoord[1]+cy)/2)
-      .attr('fill','#00ff88').attr('font-size','5').attr('font-family','Space Mono, monospace')
-      .attr('opacity',0.85).attr('pointer-events','none')
-      .text(`ILS ${ils.rwy} ${ils.freq}`);
-  });
-}
-
-// ─── Route Path (selected flight waypoints on globe) ──────────
-// Stores decoded route as [{id, lat, lon}] for the selected flight
-let currentRoutePath = [];
-
-// Major en-route waypoints/fixes database (ICAO 5-letter identifiers → lat/lon)
-// Covering primary airways in Europe, North Atlantic, Middle East, Asia, Americas
-
-
-function resolveWaypoint(name) {
-  const n = name.trim().toUpperCase();
-  // Check airport DB first
-  if (AIRPORT_DB[n]) return { lat: AIRPORT_DB[n].lat, lon: AIRPORT_DB[n].lon, id: n, type: 'airport' };
-  // Check fix DB
-  if (FIXES[n]) return { lat: FIXES[n][0], lon: FIXES[n][1], id: n, type: 'fix' };
-  // Check VOR DB
-  if (VORS[n]) return { lat: VORS[n].lat, lon: VORS[n].lon, id: n, type: 'vor' };
-  return null;
-}
-
-// Parse a route string like "EGLL SID BCN UL9 MAD STAR OMDB" into waypoints
-function parseRouteString(routeStr, depIcao, arrIcao) {
-  if (!routeStr) return [];
-  const tokens = routeStr.trim().toUpperCase().split(/\s+/);
-  const points = [];
-  // Add departure
-  if (depIcao && AIRPORT_DB[depIcao]) points.push({ ...resolveWaypoint(depIcao), id: depIcao, type: 'airport' });
-  for (const tok of tokens) {
-    // Skip airways (like UL9, DCT, N0450F380 speed/level groups, SID, STAR)
-    if (/^[A-Z][A-Z0-9]{0,2}\d+$/.test(tok) && tok.length <= 5) continue; // likely airway
-    if (['DCT','SID','STAR','N0','M0','K0'].some(p => tok.startsWith(p))) continue;
-    if (/^\d/.test(tok)) continue; // starts with digit = speed/level
-    const wp = resolveWaypoint(tok);
-    if (wp && !points.find(p => p.id === wp.id)) points.push(wp);
-  }
-  // Add arrival
-  if (arrIcao && AIRPORT_DB[arrIcao]) {
-    const arr = resolveWaypoint(arrIcao);
-    if (arr && !points.find(p => p.id === arrIcao)) points.push({ ...arr, id: arrIcao, type: 'airport' });
-  }
-  return points;
-}
-
-// Great-circle intermediate points between two coords (for geodesic arcs on globe)
-function gcInterpolate(p1, p2, n = 8) {
-  const interp = d3.geoInterpolate([p1.lon, p1.lat], [p2.lon, p2.lat]);
-  return Array.from({length: n + 1}, (_, i) => {
-    const [lon, lat] = interp(i / n);
-    return { lon, lat };
-  });
-}
-
-function renderRoutePath() {
-  if (!routeG) return;
-  routeG.selectAll('*').remove();
-  if (!layers.route || currentRoutePath.length < 2) return;
-
-  const r = projection.rotate();
-  const center = [-r[0], -r[1]];
-
-  // Draw great-circle arcs between consecutive waypoints
-  for (let i = 0; i < currentRoutePath.length - 1; i++) {
-    const p1 = currentRoutePath[i];
-    const p2 = currentRoutePath[i + 1];
-    const pts = gcInterpolate(p1, p2, 12);
-
-    // Draw segment as series of lines (clipping segments that go behind globe)
-    for (let j = 0; j < pts.length - 1; j++) {
-      const a = pts[j], b = pts[j + 1];
-      const midLon = (a.lon + b.lon) / 2, midLat = (a.lat + b.lat) / 2;
-      const ga = d3.geoDistance([midLon, midLat], center);
-      if (ga > Math.PI / 2) continue;
-      const pa = projection([a.lon, a.lat]);
-      const pb = projection([b.lon, b.lat]);
-      if (!pa || !pb) continue;
-      const t = i / (currentRoutePath.length - 1);
-      // Colour gradient dep=orange → arr=cyan
-      const col = d3.interpolateRgb('#ff6b35', '#00d4ff')(t);
-      routeG.append('line')
-        .attr('x1', pa[0]).attr('y1', pa[1])
-        .attr('x2', pb[0]).attr('y2', pb[1])
-        .attr('stroke', col).attr('stroke-width', 1.5)
-        .attr('opacity', 0.75).attr('class', 'route-path-line');
-    }
-  }
-
-  // Draw waypoint markers and labels
-  currentRoutePath.forEach((wp, i) => {
-    const ga = d3.geoDistance([wp.lon, wp.lat], center);
-    if (ga > Math.PI / 2.05) return;
-    const pp = projection([wp.lon, wp.lat]);
-    if (!pp) return;
-
-    const isEndpoint = wp.type === 'airport';
-    const col = i === 0 ? '#ff6b35' : i === currentRoutePath.length - 1 ? '#00d4ff' : '#ffffff';
-    const sz = isEndpoint ? 5 : 3;
-
-    const wg = routeG.append('g').attr('transform', `translate(${pp[0]},${pp[1]})`);
-    if (isEndpoint) {
-      wg.append('circle').attr('r', sz).attr('fill', col)
-        .attr('stroke', 'rgba(0,0,0,0.5)').attr('stroke-width', 0.5)
-        .attr('class', 'route-waypoint-dot');
-    } else {
-      // Diamond for en-route fix
-      wg.append('rect').attr('x', -sz*0.7).attr('y', -sz*0.7)
-        .attr('width', sz*1.4).attr('height', sz*1.4)
-        .attr('transform', 'rotate(45)')
-        .attr('fill', 'rgba(255,255,255,0.15)').attr('stroke', col)
-        .attr('stroke-width', 0.7).attr('class', 'route-waypoint-dot');
-    }
-    wg.append('text').attr('x', sz + 3).attr('y', 3)
-      .attr('fill', col).attr('font-size', isEndpoint ? 8 : 6)
-      .attr('font-family', 'Space Mono, monospace')
-      .attr('font-weight', isEndpoint ? '700' : '400')
-      .attr('opacity', 0.9).attr('pointer-events', 'none').text(wp.id);
-  });
-}
-
-// Called when a flight is selected — fetch its route and decode waypoints
-async function loadFlightRoute(f) {
-  currentRoutePath = [];
-  if (!layers.route) return;
-
-  let dep = null, arr = null, routeStr = null;
-
-  // Try OpenSky route API
-  try {
-    const rd = await fetchRoute(f.callsign);
-    if (rd?.route?.length >= 2) {
-      dep = rd.route[0];
-      arr = rd.route[rd.route.length - 1];
-    }
-    if (rd?.route) routeStr = rd.route.join(' ');
-  } catch(e) {}
-
-  // Parse waypoints
-  if (dep && arr) {
-    const parsed = parseRouteString(routeStr || '', dep, arr);
-    if (parsed.length >= 2) {
-      currentRoutePath = parsed;
-      renderRoutePath();
-      return;
-    }
-    // Fallback: just dep → current position → arr
-    const depAp = AIRPORT_DB[dep], arrAp = AIRPORT_DB[arr];
-    if (depAp && arrAp) {
-      currentRoutePath = [
-        { id: dep, lat: depAp.lat, lon: depAp.lon, type: 'airport' },
-        { id: f.callsign, lat: f.latitude, lon: f.longitude, type: 'fix' },
-        { id: arr, lat: arrAp.lat, lon: arrAp.lon, type: 'airport' }
-      ];
-      renderRoutePath();
-    }
-  }
-}
-
-// ─── Leaflet Airport Map ───────────────────────────────────────
-let leafletMap = null;
-let currentTileLayer = null;
-let activeAirportIcao = null;
-
-const TILE_LAYERS = {
-  osm: {
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attr: '© OpenStreetMap contributors',
-    maxZoom: 19
-  },
-  sat: {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attr: '© Esri, DigitalGlobe',
-    maxZoom: 19
-  },
-  aero: {
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attr: '© OpenStreetMap',
-    maxZoom: 19
-  }
-};
-
-function openAirportMap(icao) {
-  const ap = AIRPORT_DB[icao];
-  if (!ap) return;
-
-  // If Leaflet not loaded yet, try again in 500ms
-  if (typeof L === 'undefined') {
-    if (window._leafletFailed) {
-      alert('Airport map unavailable — Leaflet CDN could not be loaded.\nCheck your internet connection.');
-      return;
-    }
-    setTimeout(() => openAirportMap(icao), 500);
-    return;
-  }
-
-  activeAirportIcao = icao;
-
-  const panel = document.getElementById('airport-map-panel');
-  panel.classList.add('open');
-
-  // Update info overlay
-  document.getElementById('ami-icao').textContent = icao + ' / ' + ap.iata;
-  document.getElementById('ami-name').textContent = ap.name;
-  document.getElementById('ami-runways').textContent = ap.runways;
-  document.getElementById('ami-terminals').textContent = ap.terminals;
-  const nearby = flights.filter(f => {
-    return Math.sqrt(Math.pow(f.latitude-ap.lat,2)+Math.pow(f.longitude-ap.lon,2)) < 0.3;
-  });
-  document.getElementById('ami-traffic').textContent = nearby.filter(f=>f.on_ground).length || '0';
-
-  // Init or reset Leaflet
-  setTimeout(() => {
-    if (!leafletMap) {
-      leafletMap = L.map('leaflet-map', {
-        zoomControl: true,
-        attributionControl: true
-      });
-      setTileLayer('osm');
-    }
-    leafletMap.setView([ap.lat, ap.lon], 14);
-
-    // Add runway markers for known airports
-    addAirportMarkers(icao, ap);
-  }, 50);
-}
-
-function setTileLayer(type) {
-  if (!leafletMap) return;
-  document.querySelectorAll('.map-tile-btn').forEach(b => b.classList.remove('active'));
-  const btn = document.getElementById('tile-' + type);
-  if (btn) btn.classList.add('active');
-
-  if (currentTileLayer) leafletMap.removeLayer(currentTileLayer);
-  const cfg = TILE_LAYERS[type];
-  currentTileLayer = L.tileLayer(cfg.url, {
-    attribution: cfg.attr,
-    maxZoom: cfg.maxZoom,
-    subdomains: ['a','b','c']
-  }).addTo(leafletMap);
-}
-
-function addAirportMarkers(icao, ap) {
-  if (!leafletMap) return;
-  // Remove old airport markers
-  leafletMap.eachLayer(l => { if (l._isAirportMarker) leafletMap.removeLayer(l); });
-
-  // Airport center marker
-  const airportIcon = L.divIcon({
-    html: `<div style="background:#ffd700;border:2px solid #000;border-radius:50%;width:12px;height:12px;box-shadow:0 0 8px rgba(255,215,0,0.8)"></div>`,
-    className: '', iconSize: [12,12], iconAnchor: [6,6]
-  });
-  const marker = L.marker([ap.lat, ap.lon], { icon: airportIcon })
-    .bindPopup(`<b>${icao}</b><br>${ap.name}<br>${ap.city}, ${ap.country}<br>Runways: ${ap.runways} · Terminals: ${ap.terminals}`)
-    .addTo(leafletMap);
-  marker._isAirportMarker = true;
-
-  // Draw live aircraft near airport
-  flights.filter(f => {
-    return Math.sqrt(Math.pow(f.latitude-ap.lat,2)+Math.pow(f.longitude-ap.lon,2)) < 0.4;
-  }).forEach(f => {
-    const acIcon = L.divIcon({
-      html: `<div style="color:${f.on_ground?'#ffd700':'#00d4ff'};font-size:18px;transform:rotate(${f.true_track||0}deg);line-height:1;text-shadow:0 0 4px rgba(0,0,0,0.8)">✈</div>`,
-      className: '', iconSize: [18,18], iconAnchor: [9,9]
-    });
-    const fm = L.marker([f.latitude, f.longitude], { icon: acIcon })
-      .bindTooltip(`${f.callsign}<br>${f.on_ground ? 'On Ground' : Math.round((f.baro_altitude||0)*3.28084/100)/10+'k ft'}`)
-      .addTo(leafletMap);
-    fm._isAirportMarker = true;
+// ─── World topology load + startup ──────────────────────────────
+fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+  .then(r => r.json())
+  .then(data => {
+    worldData = data;
+    initGlobe();
+    fetchFlights();
+  })
+  .catch(() => {
+    initGlobe();
+    fetchFlights();
   });
 
-  // ILS cone overlays for this airport
-  ILS_DATA.filter(ils => ils.ap === icao).forEach(ils => {
-    const hdgRad = (ils.hdg - 90) * Math.PI / 180; // leaflet bearing
-    const R = 0.18; // ~12nm in degrees approx
-    const fanDeg = 10;
-    const ll = [ils.lat, ils.lon];
-    const bearing = ils.hdg;
-    const pts = [];
-    for (let a = bearing - fanDeg; a <= bearing + fanDeg; a += 2) {
-      const ar = a * Math.PI / 180;
-      pts.push([ils.lat + Math.cos(ar) * R, ils.lon + Math.sin(ar) * R]);
-    }
-    const cone = L.polygon([ll, ...pts, ll], {
-      color: '#00ff88', weight: 1, fillColor: '#00ff88', fillOpacity: 0.07,
-      dashArray: '4,3'
-    }).bindTooltip(`ILS ${ils.rwy} · ${ils.freq} MHz`).addTo(leafletMap);
-    cone._isAirportMarker = true;
-  });
-}
+setInterval(fetchFlights, 30000);
 
-function closeAirportMap() {
-  document.getElementById('airport-map-panel').classList.remove('open');
-  activeAirportIcao = null;
-}
-
-
-// ─── Filter tabs + search wiring ─────────────────────────────
-document.querySelectorAll('.filter-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    activeFilter = tab.dataset.filter || 'all';
-    applyFilters(); renderFlights(); renderList();
-  });
-});
-(function() {
-  const searchEl = document.getElementById('flight-search');
-  if (searchEl) {
-    searchEl.addEventListener('input', e => {
-      searchTerm = e.target.value;
-      applyFilters(); renderFlights(); renderList();
-    });
-  }
-})();
-
-setInterval(fetchFlights, 30000); // airplanes.live allows more frequent polling
-fetchFlights();
 </script>
 </body>
 </html>
