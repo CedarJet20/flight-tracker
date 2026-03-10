@@ -1240,147 +1240,6 @@ window.addEventListener('resize', () => {
   }, 150);
 });
 
-// ─── Airplanes.live API ──────────────────────────────────────────
-const API_BASE = 'https://api.airplanes.live/v2';
-
-// Global coverage: sample points spread across the globe at ~250nm radius
-// 250nm ≈ 463km — each circle covers a ~925km diameter area
-// Grid: 12 lat bands × ~24 lon points = full earth coverage, deduplicated by hex
-const SAMPLE_POINTS = [];
-(function buildGrid() {
-  // Lat bands from -80 to +80, lon wraps 0-360
-  const latBands = [-70, -50, -30, -10, 10, 30, 50, 70];
-  const lonCounts = [  6,   9,  12,  14, 14,  12,  9,   6];
-  latBands.forEach((lat, i) => {
-    const n = lonCounts[i];
-    for (let j = 0; j < n; j++) {
-      SAMPLE_POINTS.push([lat, Math.round(j * 360 / n) - 180]);
-    }
-  });
-  // Add equatorial belt extra density
-  for (let lon = -180; lon < 180; lon += 30) SAMPLE_POINTS.push([0, lon]);
-})();
-
-// ─── Flight Data ─────────────────────────────────────────────
-function setStatus(state, text) {
-  document.getElementById('status-text').textContent = text;
-  const dot = document.getElementById('status-dot');
-  if (dot) dot.className = 'dot ' + state;
-}
-
-// Map airplanes.live aircraft to our internal format
-function mapAircraft(ac, isMil) {
-  if (!ac.lat || !ac.lon) return null;
-  return {
-    icao24: ac.hex,
-    callsign: (ac.flight||ac.r||ac.hex).trim(),
-    origin_country: ac.ownOp || '',
-    registration: ac.r || '',
-    aircraft_type: ac.t || '',
-    description: ac.desc || '',
-    operator: ac.ownOp || '',
-    longitude: ac.lon,
-    latitude: ac.lat,
-    baro_altitude: typeof ac.alt_baro === 'number' ? ac.alt_baro * 0.3048 : null, // ft→m
-    on_ground: ac.alt_baro === 'ground' || ac.gs < 10,
-    velocity: ac.gs ? ac.gs * 0.514444 : 0, // kts→m/s
-    true_track: ac.track || ac.true_heading || 0,
-    vertical_rate: ac.baro_rate ? ac.baro_rate * 0.00508 : 0, // ft/min→m/s
-    squawk: ac.squawk || null,
-    category: ac.category || '',
-    emergency: ac.emergency || 'none',
-    _isMil: isMil || !!(ac.dbFlags & 1),
-    _raw: ac
-  };
-}
-
-async function fetchFlights() {
-  setStatus('loading', 'Fetching live flights...');
-  const seen = new Map(); // hex → aircraft (deduplicate across tiles)
-
-  try {
-    // Fetch military aircraft separately (dedicated endpoint, better data)
-    const milPromise = fetch(`${API_BASE}/mil`, { signal: AbortSignal.timeout(15000) })
-      .then(r => r.ok ? r.json() : { ac: [] })
-      .then(d => (d.ac || []).forEach(ac => {
-        const f = mapAircraft(ac, true);
-        if (f) seen.set(f.icao24, f);
-      }))
-      .catch(() => {});
-
-    // Tile the globe with point queries — batch in groups of 6 concurrent
-    const batchSize = 6;
-    for (let i = 0; i < SAMPLE_POINTS.length; i += batchSize) {
-      const batch = SAMPLE_POINTS.slice(i, i + batchSize);
-      await Promise.allSettled(batch.map(([lat, lon]) =>
-        fetch(`${API_BASE}/point/${lat}/${lon}/250`, { signal: AbortSignal.timeout(10000) })
-          .then(r => r.ok ? r.json() : { ac: [] })
-          .then(d => (d.ac || []).forEach(ac => {
-            if (!seen.has(ac.hex)) {
-              const f = mapAircraft(ac, false);
-              if (f) seen.set(f.icao24, f);
-            }
-          }))
-          .catch(() => {})
-      ));
-    }
-
-    await milPromise;
-
-    flights = Array.from(seen.values());
-    const airborne = flights.filter(f => !f.on_ground).length;
-    const countries = new Set(flights.map(f => f.origin_country).filter(Boolean)).size;
-
-    document.getElementById('stat-total').textContent = flights.length.toLocaleString();
-    document.getElementById('stat-airborne').textContent = airborne.toLocaleString();
-    document.getElementById('stat-countries').textContent = countries || '–';
-
-    setStatus('ok', `${flights.length.toLocaleString()} flights live ✓`);
-    applyFilters(); renderFlights(); renderList();
-
-  } catch(err) {
-    setStatus('error', 'Fetch error — showing demo data');
-    loadMockData();
-  }
-}
-
-// getAircraftCategory — maps category codes + type codes to display category
-function getAircraftCategory(f) {
-  if (f._isMil) return 'military';
-  const cat = (f.category || '').toUpperCase();
-  const type = (f.aircraft_type || '').toUpperCase();
-  const desc = (f.description || '').toLowerCase();
-  // Emergency squawk always shows as emergency
-  if (f.squawk && ['7700','7600','7500'].includes(f.squawk)) return 'emergency';
-  // Category codes: A1=light, A2=small, A3=large, A4=high-vortex, A5=heavy, A6=performance, A7=rotorcraft
-  if (cat === 'A7' || type.startsWith('H') || desc.includes('helicopter') || desc.includes('helo')) return 'helicopter';
-  if (cat === 'B1' || desc.includes('glider')) return 'glider';
-  // Wide-body types
-  if (['B744','B748','B74F','B77W','B77L','B772','B773','B778','B779','A380','A388',
-       'A332','A333','A339','A342','A343','A345','A346','A35K','A359','IL76'].includes(type)) return 'widebody';
-  // Cargo operators/types
-  if (desc.includes('cargo') || desc.includes('freighter') || ['B74F','MD11','DC8'].includes(type)) return 'cargo';
-  // Regional jets / turboprops
-  if (cat === 'A1' || cat === 'A2' || ['BE20','BE9L','C208','PC12','TBM9','SR22','C172'].includes(type)) return 'general';
-  // Heavy = narrowbody default
-  return 'narrowbody';
-}
-
-function flightColor(f) {
-  if (f.emergency !== 'none' && f.emergency) return '#ff4444';
-  if (f.squawk && ['7700','7600','7500'].includes(f.squawk)) return '#ff4444';
-  const cat = getAircraftCategory(f);
-  if (cat === 'military')  return '#4a7c3f';   // army green
-  if (cat === 'cargo')     return '#c084fc';   // purple
-  if (cat === 'helicopter') return '#34d399';  // teal
-  if (cat === 'widebody')  return '#ffffff';   // white
-  if (cat === 'general')   return '#fbbf24';   // amber
-  if (f.baro_altitude && f.baro_altitude > 10668) return '#ff6b35'; // high alt
-  if (f.vertical_rate && Math.abs(f.vertical_rate) > 3) return '#00ff88'; // climbing/descending
-  return isDayMode ? '#0077cc' : '#00d4ff';    // default narrowbody
-}
-
-
 // ─── Flight Trails ────────────────────────────────────────────
 const flightTrails = new Map(); // icao24 → [{lon,lat,ts}]
 const MAX_TRAIL_POINTS = 20;
@@ -1854,6 +1713,148 @@ async function fetchRoute(callsign) {
   if (!r.ok) throw new Error('no route');
   return await r.json();
 }
+
+// ─── Airplanes.live API ──────────────────────────────────────────
+const API_BASE = 'https://api.airplanes.live/v2';
+
+// Global coverage: sample points spread across the globe at ~250nm radius
+// 250nm ≈ 463km — each circle covers a ~925km diameter area
+// Grid: 12 lat bands × ~24 lon points = full earth coverage, deduplicated by hex
+const SAMPLE_POINTS = [];
+(function buildGrid() {
+  // Lat bands from -80 to +80, lon wraps 0-360
+  const latBands = [-70, -50, -30, -10, 10, 30, 50, 70];
+  const lonCounts = [  6,   9,  12,  14, 14,  12,  9,   6];
+  latBands.forEach((lat, i) => {
+    const n = lonCounts[i];
+    for (let j = 0; j < n; j++) {
+      SAMPLE_POINTS.push([lat, Math.round(j * 360 / n) - 180]);
+    }
+  });
+  // Add equatorial belt extra density
+  for (let lon = -180; lon < 180; lon += 30) SAMPLE_POINTS.push([0, lon]);
+})();
+
+// ─── Flight Data ─────────────────────────────────────────────
+function setStatus(state, text) {
+  document.getElementById('status-text').textContent = text;
+  const dot = document.getElementById('status-dot');
+  if (dot) dot.className = 'dot ' + state;
+}
+
+// Map airplanes.live aircraft to our internal format
+function mapAircraft(ac, isMil) {
+  if (!ac.lat || !ac.lon) return null;
+  return {
+    icao24: ac.hex,
+    callsign: (ac.flight||ac.r||ac.hex).trim(),
+    origin_country: ac.ownOp || '',
+    registration: ac.r || '',
+    aircraft_type: ac.t || '',
+    description: ac.desc || '',
+    operator: ac.ownOp || '',
+    longitude: ac.lon,
+    latitude: ac.lat,
+    baro_altitude: typeof ac.alt_baro === 'number' ? ac.alt_baro * 0.3048 : null, // ft→m
+    on_ground: ac.alt_baro === 'ground' || ac.gs < 10,
+    velocity: ac.gs ? ac.gs * 0.514444 : 0, // kts→m/s
+    true_track: ac.track || ac.true_heading || 0,
+    vertical_rate: ac.baro_rate ? ac.baro_rate * 0.00508 : 0, // ft/min→m/s
+    squawk: ac.squawk || null,
+    category: ac.category || '',
+    emergency: ac.emergency || 'none',
+    _isMil: isMil || !!(ac.dbFlags & 1),
+    _raw: ac
+  };
+}
+
+async function fetchFlights() {
+  setStatus('loading', 'Fetching live flights...');
+  const seen = new Map(); // hex → aircraft (deduplicate across tiles)
+
+  try {
+    // Fetch military aircraft separately (dedicated endpoint, better data)
+    const milPromise = fetch(`${API_BASE}/mil`, { signal: AbortSignal.timeout(15000) })
+      .then(r => r.ok ? r.json() : { ac: [] })
+      .then(d => (d.ac || []).forEach(ac => {
+        const f = mapAircraft(ac, true);
+        if (f) seen.set(f.icao24, f);
+      }))
+      .catch(() => {});
+
+    // Tile the globe with point queries — batch in groups of 6 concurrent
+    const batchSize = 6;
+    for (let i = 0; i < SAMPLE_POINTS.length; i += batchSize) {
+      const batch = SAMPLE_POINTS.slice(i, i + batchSize);
+      await Promise.allSettled(batch.map(([lat, lon]) =>
+        fetch(`${API_BASE}/point/${lat}/${lon}/250`, { signal: AbortSignal.timeout(10000) })
+          .then(r => r.ok ? r.json() : { ac: [] })
+          .then(d => (d.ac || []).forEach(ac => {
+            if (!seen.has(ac.hex)) {
+              const f = mapAircraft(ac, false);
+              if (f) seen.set(f.icao24, f);
+            }
+          }))
+          .catch(() => {})
+      ));
+    }
+
+    await milPromise;
+
+    flights = Array.from(seen.values());
+    const airborne = flights.filter(f => !f.on_ground).length;
+    const countries = new Set(flights.map(f => f.origin_country).filter(Boolean)).size;
+
+    document.getElementById('stat-total').textContent = flights.length.toLocaleString();
+    document.getElementById('stat-airborne').textContent = airborne.toLocaleString();
+    document.getElementById('stat-countries').textContent = countries || '–';
+
+    setStatus('ok', `${flights.length.toLocaleString()} flights live ✓`);
+    applyFilters(); renderFlights(); renderList();
+
+  } catch(err) {
+    setStatus('error', 'Fetch error — showing demo data');
+    loadMockData();
+  }
+}
+
+// getAircraftCategory — maps category codes + type codes to display category
+function getAircraftCategory(f) {
+  if (f._isMil) return 'military';
+  const cat = (f.category || '').toUpperCase();
+  const type = (f.aircraft_type || '').toUpperCase();
+  const desc = (f.description || '').toLowerCase();
+  // Emergency squawk always shows as emergency
+  if (f.squawk && ['7700','7600','7500'].includes(f.squawk)) return 'emergency';
+  // Category codes: A1=light, A2=small, A3=large, A4=high-vortex, A5=heavy, A6=performance, A7=rotorcraft
+  if (cat === 'A7' || type.startsWith('H') || desc.includes('helicopter') || desc.includes('helo')) return 'helicopter';
+  if (cat === 'B1' || desc.includes('glider')) return 'glider';
+  // Wide-body types
+  if (['B744','B748','B74F','B77W','B77L','B772','B773','B778','B779','A380','A388',
+       'A332','A333','A339','A342','A343','A345','A346','A35K','A359','IL76'].includes(type)) return 'widebody';
+  // Cargo operators/types
+  if (desc.includes('cargo') || desc.includes('freighter') || ['B74F','MD11','DC8'].includes(type)) return 'cargo';
+  // Regional jets / turboprops
+  if (cat === 'A1' || cat === 'A2' || ['BE20','BE9L','C208','PC12','TBM9','SR22','C172'].includes(type)) return 'general';
+  // Heavy = narrowbody default
+  return 'narrowbody';
+}
+
+function flightColor(f) {
+  if (f.emergency !== 'none' && f.emergency) return '#ff4444';
+  if (f.squawk && ['7700','7600','7500'].includes(f.squawk)) return '#ff4444';
+  const cat = getAircraftCategory(f);
+  if (cat === 'military')  return '#4a7c3f';   // army green
+  if (cat === 'cargo')     return '#c084fc';   // purple
+  if (cat === 'helicopter') return '#34d399';  // teal
+  if (cat === 'widebody')  return '#ffffff';   // white
+  if (cat === 'general')   return '#fbbf24';   // amber
+  if (f.baro_altitude && f.baro_altitude > 10668) return '#ff6b35'; // high alt
+  if (f.vertical_rate && Math.abs(f.vertical_rate) > 3) return '#00ff88'; // climbing/descending
+  return isDayMode ? '#0077cc' : '#00d4ff';    // default narrowbody
+}
+
+
 
 // ─── AeroDataBox API ──────────────────────────────────────────
 // Paste your RapidAPI key here after subscribing to AeroDataBox:
