@@ -1329,10 +1329,10 @@ fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
 
 // ─── Drag to rotate ───────────────────────────────────────────
 let isDragging = false;
-let dragStart = null, rotationStart = null;
+let dragStart = null, rotationStart = null, lastDragTime = 0, lastDragX = 0, lastDragY = 0, dragVelX = 0, dragVelY = 0;
 
 // ── Smooth drag with inertia ─────────────────────────────────
-let lastDragTime = 0, dragVelX = 0, dragVelY = 0, lastDragX = 0, lastDragY = 0;
+
 let inertiaFrame = null;
 
 function applyInertia() {
@@ -1346,7 +1346,7 @@ function applyInertia() {
 }
 
 function renderGlobeOnly() {
-  // Fast path: only redraw land/borders/graticule — skip flights during drag
+  // Fast path during drag/zoom: redraw globe + reproject aircraft
   if (!g) return;
   const t = getTheme();
   svg.style('background', t.ocean);
@@ -1359,6 +1359,33 @@ function renderGlobeOnly() {
   if (layers.airports && typeof AIRPORT_DB !== 'undefined') renderAirports();
   if (layers.waypoints) renderWaypoints();
   if (layers.route) renderRoutePath();
+  // Reproject aircraft positions to new globe orientation
+  if (flightG && filteredFlights && filteredFlights.length) {
+    const r = projection.rotate();
+    const center = [-r[0], -r[1]];
+    flightG.selectAll('g.aircraft-group').each(function(f) {
+      if (!f) return;
+      const coords = [f.longitude, f.latitude];
+      const geoAngle = d3.geoDistance(coords, center);
+      if (geoAngle > Math.PI / 2) {
+        d3.select(this).attr('visibility', 'hidden');
+        return;
+      }
+      const proj = projection(coords);
+      if (!proj) { d3.select(this).attr('visibility', 'hidden'); return; }
+      const sc = getIconScale(getAircraftCategory(f), f === selectedFlight, f.on_ground);
+      d3.select(this)
+        .attr('visibility', 'visible')
+        .attr('transform', `translate(${proj[0]},${proj[1]}) rotate(${f.true_track||0}) scale(${sc})`);
+    });
+    // Also move hit circles
+    flightG.selectAll('circle.hit-area').each(function(f) {
+      if (!f) return;
+      const proj = projection([f.longitude, f.latitude]);
+      if (!proj) return;
+      d3.select(this).attr('cx', proj[0]).attr('cy', proj[1]);
+    });
+  }
 }
 
 svg.call(d3.drag()
@@ -1568,6 +1595,8 @@ function renderFlights() {
 
     // ── Draw aircraft icon ─────────────────────────────────
     const gp = flightG.append('g')
+      .attr('class', 'aircraft-group')
+      .datum(f)
       .attr('transform', `translate(${proj[0]},${proj[1]}) rotate(${f.true_track||0}) scale(${sc})`)
       .attr('opacity', f.on_ground ? 0.5 : 0.92)
       .style('cursor', 'pointer');
@@ -1585,6 +1614,8 @@ function renderFlights() {
 
     // Invisible hit area (doesn't rotate with icon)
     flightG.append('circle')
+      .attr('class', 'hit-area')
+      .datum(f)
       .attr('cx', proj[0]).attr('cy', proj[1])
       .attr('r', Math.max(6, sc * 5))
       .attr('fill', 'transparent')
@@ -1846,17 +1877,14 @@ const API_BASE = 'https://api.airplanes.live/v2';
 // Grid: 12 lat bands × ~24 lon points = full earth coverage, deduplicated by hex
 const SAMPLE_POINTS = [];
 (function buildGrid() {
-  // Lat bands from -80 to +80, lon wraps 0-360
-  const latBands = [-70, -50, -30, -10, 10, 30, 50, 70];
-  const lonCounts = [  6,   9,  12,  14, 14,  12,  9,   6];
-  latBands.forEach((lat, i) => {
-    const n = lonCounts[i];
-    for (let j = 0; j < n; j++) {
-      SAMPLE_POINTS.push([lat, Math.round(j * 360 / n) - 180]);
+  // 250nm radius per tile (~463km). Space tiles ~800km for overlap.
+  for (let lat = -76; lat <= 76; lat += 14) {
+    const cosLat = Math.max(0.1, Math.cos(lat * Math.PI / 180));
+    const lonStep = Math.round(14 / cosLat);
+    for (let lon = -180; lon < 180; lon += lonStep) {
+      SAMPLE_POINTS.push([lat, lon]);
     }
-  });
-  // Add equatorial belt extra density
-  for (let lon = -180; lon < 180; lon += 30) SAMPLE_POINTS.push([0, lon]);
+  }
 })();
 
 // ─── Flight Data ─────────────────────────────────────────────
