@@ -6,2306 +6,470 @@
 <title>Global Flight Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
 
-  /* ── Theme Variables ── */
-  :root {
-    --bg: #050a14;
-    --surface: #0b1525;
-    --border: #1a2d4a;
-    --accent: #00d4ff;
-    --accent2: #ff6b35;
-    --text: #c8dff5;
-    --muted: #4a6a8a;
-    --ocean-fill: #071020;
-    --land-fill: #0f2040;
-    --land-stroke: #2a4a7a;
-    --border-stroke: #3a6090;
-    --grat-stroke: #0d1e35;
-    --globe-glow-color: #00d4ff;
-  }
 
-  body.day-mode {
-    --bg: #e8f0f8;
-    --surface: #f5f8fc;
-    --border: #c0d0e0;
-    --accent: #0077cc;
-    --accent2: #e05a20;
-    --text: #1a2a3a;
-    --muted: #7090a8;
-    --ocean-fill: #a8c8e8;
-    --land-fill: #d4e8c8;
-    --land-stroke: #90b870;
-    --border-stroke: #70a050;
-    --grat-stroke: #c0d8e8;
-    --globe-glow-color: #0077cc;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: background 0.4s, color 0.4s;
-  }
-
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
-    z-index: 10;
-    flex-shrink: 0;
-    gap: 12px;
-    transition: background 0.4s, border-color 0.4s;
-  }
-
-  .logo {
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    color: var(--accent);
-    text-transform: uppercase;
-    flex-shrink: 0;
-  }
-  .logo span { color: var(--accent2); }
-
-  .stats-bar { display: flex; gap: 20px; align-items: center; }
-  .stat { text-align: center; }
-  .stat-val {
-    font-family: 'Space Mono', monospace;
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--accent);
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 8px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-
-[2166 lines total]",
-        "uuid": "87b1e7a5-e3c8-4d08-aa4b-a786d718f000"
-      }
-    ],
-    "is_error": false,
-    "structured_content": null,
-    "meta": null,
-    "message": null,
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "display_content": {
-      "type": "json_block",
-      "json_block": "{\"language\": \"html\", \"code\": \"<!DOCTYPE html>\
-<html lang=\\\"en\\\">\
-<head>\
-<meta charset=\\\"UTF-8\\\">\
-<meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1.0\\\">\
-<title>Global Flight Tracker</title>\
-<script src=\\\"https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js\\\"></script>\
-<script src=\\\"https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js\\\"></script>\
-<style>\
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');\
-\
-  /* \─\─ Theme Variables \─\─ */\
-  :root {\
-    --bg: #050a14;\
-    --surface: #0b1525;\
-    --border: #1a2d4a;\
-    --accent: #00d4ff;\
-    --accent2: #ff6b35;\
-    --text: #c8dff5;\
-    --muted: #4a6a8a;\
-    --ocean-fill: #071020;\
-    --land-fill: #0f2040;\
-    --land-stroke: #2a4a7a;\
-    --border-stroke: #3a6090;\
-    --grat-stroke: #0d1e35;\
-    --globe-glow-color: #00d4ff;\
-  }\
-\
-  body.day-mode {\
-    --bg: #e8f0f8;\
-    --surface: #f5f8fc;\
-    --border: #c0d0e0;\
-    --accent: #0077cc;\
-    --accent2: #e05a20;\
-    --text: #1a2a3a;\
-    --muted: #7090a8;\
-    --ocean-fill: #a8c8e8;\
-    --land-fill: #d4e8c8;\
-    --land-stroke: #90b870;\
-    --border-stroke: #70a050;\
-    --grat-stroke: #c0d8e8;\
-    --globe-glow-color: #0077cc;\
-  }\
-\
-  * { margin: 0; padding: 0; box-sizing: border-box; }\
-\
-  body {\
-    background: var(--bg);\
-    color: var(--text);\
-    font-family: 'Syne', sans-serif;\
-    height: 100vh;\
-    overflow: hidden;\
-    display: flex;\
-    flex-direction: column;\
-    transition: background 0.4s, color 0.4s;\
-  }\
-\
-  header {\
-    display: flex;\
-    align-items: center;\
-    justify-content: space-between;\
-    padding: 10px 20px;\
-    border-bottom: 1px solid var(--border);\
-    background: var(--surface);\
-    z-index: 10;\
-    flex-shrink: 0;\
-    gap: 12px;\
-    transition: background 0.4s, border-color 0.4s;\
-  }\
-\
-  .logo {\
-    font-family: 'Space Mono', monospace;\
-    font-size: 13px;\
-    font-weight: 700;\
-    letter-spacing: 0.2em;\
-    color: var(--accent);\
-    text-transform: uppercase;\
-    flex-shrink: 0;\
-  }\
-  .logo span { color: var(--accent2); }\
-\
-  .stats-bar { display: flex; gap: 20px; align-items: center; }\
-  .stat { text-align: center; }\
-  .stat-val {\
-    font-family: 'Space Mono', monospace;\
-    font-size: 17px;\
-    font-weight: 700;\
-    color: var(--accent);\
-    line-height: 1;\
-  }\
-  .stat-label {\
-    font-size: 8px;\
-    letter-spacing: 0.15em;\
-    text-transform: uppercase;\
-    color: var(--muted);\
-    margin-top: 2px;\
-  }\
-\
-  .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }\
-\
-\", \"filename\": \"/mnt/user-data/outputs/flight-tracker.html\"}"
-    }
-  },
-  {
-    "start_timestamp": "2026-03-09T11:29:47.417541Z",
-    "stop_timestamp": "2026-03-09T11:29:48.076808Z",
-    "flags": null,
-    "type": "tool_use",
-    "id": "toolu_012JHFoqZzcPN2WPyLTetF2H",
-    "name": "view",
-    "input": {
-      "description": "Read CSS for main layout and globe container",
-      "path": "/mnt/user-data/outputs/flight-tracker.html",
-      "view_range": [
-        100,
-        260
-      ]
-    },
-    "message": "Read CSS for main layout and globe container",
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "context": null,
-    "display_content": {
-      "type": "text",
-      "text": "Read CSS for main layout and globe container"
-    },
-    "approval_options": null,
-    "approval_key": null,
-    "is_mcp_app": null
-  },
-  {
-    "start_timestamp": null,
-    "stop_timestamp": null,
-    "flags": null,
-    "type": "tool_result",
-    "tool_use_id": "toolu_012JHFoqZzcPN2WPyLTetF2H",
-    "name": "view",
-    "content": [
-      {
-        "type": "text",
-        "text": "   100	
-  .btn {
-    padding: 5px 11px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,180,255,0.05); }
-  .btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,180,255,0.08); }
-  .btn.refresh { border-color: var(--accent2); color: var(--accent2); }
-  .btn.refresh:hover { background: rgba(255,107,53,0.1); }
-
-  /* Day/Night toggle */
-  .theme-toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    background: transparent;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    color: var(--text);
-    transition: all 0.2s;
-    text-transform: uppercase;
-  }
-  .theme-toggle:hover { border-color: var(--accent); }
-  .theme-icon { font-size: 13px; line-height: 1; }
-
-  #status {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: pulse 2s infinite; }
-  .dot.live { background: #00ff88; }
-  .dot.loading { background: var(--accent2); animation: blink 0.5s infinite; }
-  .dot.error { background: #ff4444; animation: none; }
-
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  @keyframes blink  { 0%,100%{opacity:1} 50%{opacity:0} }
-
-  .main { flex: 1; display: flex; overflow: hidden; }
-
-  #globe-container {
-    flex: 1;
-    position: relative;
-    cursor: grab;
-    overflow: hidden;
-    transition: background 0.4s;
-    background: var(--bg);
-  }
-  #globe-container:active { cursor: grabbing; }
-  #globe-svg { width: 100%; height: 100%; }
-
-  /* Layer controls overlay */
-  .layer-panel {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: rgba(11,21,37,0.88);
-    border: 1px solid var(--border);
-    padding: 10px 12px;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    z-index: 20;
-    min-width: 148px;
-    transition: background 0.3s;
-  }
-  body.day-mode .layer-panel { background: rgba(240,246,252,0.92); }
-
-  .layer-title {
-    font-size: 8px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 8px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid var(--border);
-  }
-  .layer-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    color: var(--muted);
-    transition: color 0.15s;
-    user-select: none;
-  }
-  .layer-item:last-child { margin-bottom: 0; }
-  .layer-item:hover { color: var(--text); }
-  .layer-item.active { color: var(--text); }
-  .layer-check {
-    width: 12px; height: 12px;
-    border: 1px solid var(--border);
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 8px;
-    transition: all 0.15s;
-  }
-  .layer-item.active .layer-check {
-    border-color: var(--accent);
-    background: rgba(0,180,255,0.15);
-    color: var(--accent);
-  }
-  .layer-swatch {
-    width: 10px; height: 3px;
-    flex-shrink: 0;
-    border-radius: 1px;
-  }
-
-  .sidebar {
-    width: 272px;
-    background: var(--surface);
-    border-left: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    flex-shrink: 0;
-    transition: background 0.4s, border-color 0.4s;
-  }
-  .sidebar-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 9px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-  }
-  .filter-row {
-    padding: 8px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-  }
-  .filter-btn {
-    padding: 3px 8px;
-    font-size: 8px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-family: 'Space Mono', monospace;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-[2166 lines total]",
-        "uuid": "12d40b3e-f502-45e8-9c79-04cbef602308"
-      }
-    ],
-    "is_error": false,
-    "structured_content": null,
-    "meta": null,
-    "message": null,
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "display_content": {
-      "type": "json_block",
-      "json_block": "{\"language\": \"html\", \"code\": \"\
-  .btn {\
-    padding: 5px 11px;\
-    border: 1px solid var(--border);\
-    background: transparent;\
-    color: var(--text);\
-    font-family: 'Space Mono', monospace;\
-    font-size: 9px;\
-    letter-spacing: 0.1em;\
-    cursor: pointer;\
-    text-transform: uppercase;\
-    transition: all 0.2s;\
-    white-space: nowrap;\
-  }\
-  .btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,180,255,0.05); }\
-  .btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,180,255,0.08); }\
-  .btn.refresh { border-color: var(--accent2); color: var(--accent2); }\
-  .btn.refresh:hover { background: rgba(255,107,53,0.1); }\
-\
-  /* Day/Night toggle */\
-  .theme-toggle {\
-    display: flex;\
-    align-items: center;\
-    gap: 6px;\
-    padding: 4px 10px;\
-    border: 1px solid var(--border);\
-    cursor: pointer;\
-    background: transparent;\
-    font-family: 'Space Mono', monospace;\
-    font-size: 9px;\
-    letter-spacing: 0.1em;\
-    color: var(--text);\
-    transition: all 0.2s;\
-    text-transform: uppercase;\
-  }\
-  .theme-toggle:hover { border-color: var(--accent); }\
-  .theme-icon { font-size: 13px; line-height: 1; }\
-\
-  #status {\
-    font-family: 'Space Mono', monospace;\
-    font-size: 9px;\
-    color: var(--muted);\
-    letter-spacing: 0.1em;\
-    display: flex;\
-    align-items: center;\
-    gap: 6px;\
-  }\
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: pulse 2s infinite; }\
-  .dot.live { background: #00ff88; }\
-  .dot.loading { background: var(--accent2); animation: blink 0.5s infinite; }\
-  .dot.error { background: #ff4444; animation: none; }\
-\
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }\
-  @keyframes blink  { 0%,100%{opacity:1} 50%{opacity:0} }\
-\
-  .main { flex: 1; display: flex; overflow: hidden; }\
-\
-  #globe-container {\
-    flex: 1;\
-    position: relative;\
-    cursor: grab;\
-    overflow: hidden;\
-    transition: background 0.4s;\
-    background: var(--bg);\
-  }\
-  #globe-container:active { cursor: grabbing; }\
-  #globe-svg { width: 100%; height: 100%; }\
-\
-  /* Layer controls overlay */\
-  .layer-panel {\
-    position: absolute;\
-    top: 12px;\
-    left: 12px;\
-    background: rgba(11,21,37,0.88);\
-    border: 1px solid var(--border);\
-    padding: 10px 12px;\
-    font-family: 'Space Mono', monospace;\
-    font-size: 9px;\
-    letter-spacing: 0.1em;\
-    z-index: 20;\
-    min-width: 148px;\
-    transition: background 0.3s;\
-  }\
-  body.day-mode .layer-panel { background: rgba(240,246,252,0.92); }\
-\
-  .layer-title {\
-    font-size: 8px;\
-    letter-spacing: 0.2em;\
-    text-transform: uppercase;\
-    color: var(--muted);\
-    margin-bottom: 8px;\
-    padding-bottom: 5px;\
-    border-bottom: 1px solid var(--border);\
-  }\
-  .layer-item {\
-    display: flex;\
-    align-items: center;\
-    gap: 8px;\
-    margin-bottom: 6px;\
-    cursor: pointer;\
-    color: var(--muted);\
-    transition: color 0.15s;\
-    user-select: none;\
-  }\
-  .layer-item:last-child { margin-bottom: 0; }\
-  .layer-item:hover { color: var(--text); }\
-  .layer-item.active { color: var(--text); }\
-  .layer-check {\
-    width: 12px; height: 12px;\
-    border: 1px solid var(--border);\
-    flex-shrink: 0;\
-    display: flex; align-items: center; justify-content: center;\
-    font-size: 8px;\
-    transition: all 0.15s;\
-  }\
-  .layer-item.active .layer-check {\
-    border-color: var(--accent);\
-    background: rgba(0,180,255,0.15);\
-    color: var(--accent);\
-  }\
-  .layer-swatch {\
-    width: 10px; height: 3px;\
-    flex-shrink: 0;\
-    border-radius: 1px;\
-  }\
-\
-  .sidebar {\
-    width: 272px;\
-    background: var(--surface);\
-    border-left: 1px solid var(--border);\
-    display: flex;\
-    flex-direction: column;\
-    overflow: hidden;\
-    flex-shrink: 0;\
-    transition: background 0.4s, border-color 0.4s;\
-  }\
-  .sidebar-header {\
-    padding: 12px 16px;\
-    border-bottom: 1px solid var(--border);\
-    font-size: 9px;\
-    letter-spacing: 0.15em;\
-    text-transform: uppercase;\
-    color: var(--muted);\
-    font-family: 'Space Mono', monospace;\
-  }\
-  .filter-row {\
-    padding: 8px 16px;\
-    border-bottom: 1px solid var(--border);\
-    display: flex;\
-    gap: 5px;\
-    flex-wrap: wrap;\
-  }\
-  .filter-btn {\
-    padding: 3px 8px;\
-    font-size: 8px;\
-    letter-spacing: 0.1em;\
-    text-transform: uppercase;\
-    font-family: 'Space Mono', monospace;\
-    border: 1px solid var(--border);\
-    background: transparent;\
-    color: var(--muted);\
-\", \"filename\": \"/mnt/user-data/outputs/flight-tracker.html\"}"
-    }
-  },
-  {
-    "start_timestamp": "2026-03-09T11:29:50.646215Z",
-    "stop_timestamp": "2026-03-09T11:29:51.886420Z",
-    "flags": null,
-    "type": "tool_use",
-    "id": "toolu_012DD1uNgKAoZrALws5wkPDn",
-    "name": "view",
-    "input": {
-      "description": "Read globe init and projection setup",
-      "path": "/mnt/user-data/outputs/flight-tracker.html",
-      "view_range": [
-        580,
-        720
-      ]
-    },
-    "message": "Read globe init and projection setup",
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "context": null,
-    "display_content": {
-      "type": "text",
-      "text": "Read globe init and projection setup"
-    },
-    "approval_options": null,
-    "approval_key": null,
-    "is_mcp_app": null
-  },
-  {
-    "start_timestamp": null,
-    "stop_timestamp": null,
-    "flags": null,
-    "type": "tool_result",
-    "tool_use_id": "toolu_012DD1uNgKAoZrALws5wkPDn",
-    "name": "view",
-    "content": [
-      {
-        "type": "text",
-        "text": "   580	  const el = document.getElementById('layer-' + id);
-  if (!el) return;
-  el.classList.toggle('active', layers[id]);
-  el.querySelector('.layer-check').textContent = layers[id] ? '\u2713' : '';
-  if (id === 'airports') { showAirports = layers[id]; renderAirports(); return; }
-  if (id === 'trails') { renderFlights(); return; }
-  if (id === 'waypoints') { renderWaypoints(); return; }
-  if (id === 'ils') { renderILS(); return; }
-  if (worldData) { initGlobe(); renderFlights(); }
+:root {
+  --bg: #050a14;
+  --surface: #0b1525;
+  --border: #1a2d4a;
+  --accent: #00d4ff;
+  --accent2: #ff6b35;
+  --accent3: #00ff88;
+  --text: #c8d8e8;
+  --text-dim: #5a7a9a;
+  --sidebar-w: 280px;
+  --header-h: 48px;
 }
 
-['borders','graticule','airspace','flights','airports','trails','waypoints','ils'].forEach(id => {
-  const el = document.getElementById('layer-' + id);
-  if (el) el.addEventListener('click', () => toggleLayer(id));
-});
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-// ─── Globe Setup ──────────────────────────────────────────────
-const container = document.getElementById('globe-container');
-const svg = d3.select('#globe-svg');
-let width = container.clientWidth;
-let height = container.clientHeight;
-
-const projection = d3.geoOrthographic()
-  .scale(Math.min(width, height) * 0.42)
-  .translate([width / 2, height / 2])
-  .clipAngle(90)
-  .precision(0.3);
-
-const path = d3.geoPath().projection(projection);
-const graticule = d3.geoGraticule()();
-const sphere = {type: 'Sphere'};
-
-let g, landG, gratG, bordersG, airspaceG, flightG, airportG, waypointG, ilsG;
-let showAirports = true;
-let worldData = null;
-let flights = [];
-let filteredFlights = [];
-let selectedFlight = null;
-let activeFilter = 'all';
-let searchTerm = '';
-let autoRotate = false;
-let rotateTimer;
-
-// Pre-built simplified airspace polygons for major FIRs (Flight Information Regions)
-// These are representative bounding boxes for key airspace regions worldwide
-const AIRSPACE_REGIONS = [
-  // ── NORTH AMERICA ──────────────────────────────────────────────
-  { name:'New York ARTCC',    id:'ZNY',  coords:[[-79,39],[-66,39],[-66,47],[-79,47],[-79,39]] },
-  { name:'Boston ARTCC',      id:'ZBW',  coords:[[-73,40],[-66,40],[-66,47],[-73,47],[-73,40]] },
-  { name:'Washington ARTCC',  id:'ZDC',  coords:[[-82,36],[-73,36],[-73,41],[-82,41],[-82,36]] },
-  { name:'Atlanta ARTCC',     id:'ZTL',  coords:[[-90,30],[-80,30],[-80,36],[-90,36],[-90,30]] },
-  { name:'Miami ARTCC',       id:'ZMA',  coords:[[-87,22],[-76,22],[-76,31],[-87,31],[-87,22]] },
-  { name:'Jacksonville ARTCC',id:'ZJX',  coords:[[-87,28],[-78,28],[-78,34],[-87,34],[-87,28]] },
-  { name:'Chicago ARTCC',     id:'ZAU',  coords:[[-94,38],[-83,38],[-83,47],[-94,47],[-94,38]] },
-  { name:'Cleveland ARTCC',   id:'ZOB',  coords:[[-84,38],[-74,38],[-74,44],[-84,44],[-84,38]] },
-  { name:'Indianapolis ARTCC',id:'ZID',  coords:[[-90,36],[-83,36],[-83,42],[-90,42],[-90,36]] },
-  { name:'Memphis ARTCC',     id:'ZME',  coords:[[-94,33],[-87,33],[-87,38],[-94,38],[-94,33]] },
-  { name:'Houston ARTCC',     id:'ZHU',  coords:[[-100,26],[-88,26],[-88,33],[-100,33],[-100,26]] },
-  { name:'Dallas/Ft Worth',   id:'ZFW',  coords:[[-100,31],[-93,31],[-93,36],[-100,36],[-100,31]] },
-  { name:'Kansas City ARTCC', id:'ZKC',  coords:[[-102,36],[-92,36],[-92,43],[-102,43],[-102,36]] },
-  { name:'Minneapolis ARTCC', id:'ZMP',  coords:[[-104,43],[-89,43],[-89,49],[-104,49],[-104,43]] },
-  { name:'Denver ARTCC',      id:'ZDV',  coords:[[-109,36],[-100,36],[-100,44],[-109,44],[-109,36]] },
-  { name:'Albuquerque ARTCC', id:'ZAB',  coords:[[-114,28],[-103,28],[-103,37],[-114,37],[-114,28]] },
-  { name:'Los Angeles ARTCC', id:'ZLA',  coords:[[-122,30],[-113,30],[-113,37],[-122,37],[-122,30]] },
-  { name:'Seattle ARTCC',     id:'ZSE',  coords:[[-127,42],[-115,42],[-115,50],[-127,50],[-127,42]] },
-  { name:'Oakland Oceanic',   id:'ZOA',  coords:[[-180,15],[-127,15],[-127,48],[-180,48],[-180,15]] },
-  { name:'Anchorage ARTCC',   id:'ZAN',  coords:[[-168,54],[-141,54],[-141,72],[-168,72],[-168,54]] },
-  { name:'Gander Oceanic',    id:'CZQX', coords:[[-60,45],[-30,45],[-30,62],[-60,62],[-60,45]] },
-  { name:'Shanwick Oceanic',  id:'EGGX', coords:[[-30,45],[-8,45],[-8,61],[-30,61],[-30,45]] },
-  { name:'Santa Maria Oceanic',id:'LPPO',coords:[[-40,25],[-15,25],[-15,42],[-40,42],[-40,25]] },
-  { name:'New York Oceanic',  id:'KZWY', coords:[[-55,27],[-30,27],[-30,45],[-55,45],[-55,27]] },
-  // ── EUROPE ─────────────────────────────────────────────────────
-  { name:'London FIR',        id:'EGTT', coords:[[-6,49],[2,49],[2,57],[-6,57],[-6,49]] },
-  { name:'London UIR',        id:'EGPX', coords:[[-6,55],[0,55],[0,61],[-6,61],[-6,55]] },
-  { name:'Scottish FIR',      id:'EGPX', coords:[[-8,54],[-1,54],[-1,61],[-8,61],[-8,54]] },
-  { name:'Paris FIR',         id:'LFFF', coords:[[-5,43],[8,43],[8,51],[-5,51],[-5,43]] },
-  { name:'Bordeaux FIR',      id:'LFBB', coords:[[-8,41],[-1,41],[-1,47],[-8,47],[-8,41]] },
-  { name:'Marseille FIR',     id:'LFMM', coords:[[2,41],[9,41],[9,47],[2,47],[2,41]] },
-  { name:'Reims FIR',         id:'LFRR', coords:[[-4,48],[8,48],[8,52],[-4,52],[-4,48]] },
-  { name:'Brest Oceanic',     id:'LFRR', coords:[[-15,45],[-6,45],[-6,52],[-15,52],[-15,45]] },
-  { name:'Maastricht UAC',    id:'EDYY', coords:[[3,48],[15,48],[15,53],[3,53],[3,48]] },
-  { name:'Langen FIR',        id:'EDGG', coords:[[6,47],[15,47],[15,52],[6,52],[6,47]] },
-  { name:'Bremen FIR',        id:'EDWW', coords:[[6,52],[15,52],[15,56],[6,56],[6,52]] },
-  { name:'Berlin FIR',        id:'EDBB', coords:[[10,50],[15,50],[15,55],[10,55],[10,50]] },
-  { name:'Madrid FIR',        id:'LECM', coords:[[-10,35],[4,35],[4,44],[-10,44],[-10,35]] },
-  { name:'Barcelona FIR',     id:'LECB', coords:[[-2,39],[5,39],[5,44],[-2,44],[-2,39]] },
-  { name:'Canarias FIR',      id:'GCCC', coords:[[-22,24],[-11,24],[-11,32],[-22,32],[-22,24]] },
-  { name:'Rome FIR',          id:'LIRR', coords:[[7,36],[19,36],[19,44],[7,44],[7,36]] },
-  { name:'Milano FIR',        id:'LIMM', coords:[[6,43],[15,43],[15,48],[6,48],[6,43]] },
-  { name:'Amsterdam FIR',     id:'EHAA', coords:[[2,50],[8,50],[8,54],[2,54],[2,50]] },
-  { name:'Brussels FIR',      id:'EBBU', coords:[[2,49],[7,49],[7,52],[2,52],[2,49]] },
-  { name:'Switzerland FIR',   id:'LSAZ', coords:[[5,45],[11,45],[11,48],[5,48],[5,45]] },
-  { name:'Vienna FIR',        id:'LOVV', coords:[[9,46],[18,46],[18,50],[9,50],[9,46]] },
-  { name:'Prague FIR',        id:'LKAA', coords:[[11,48],[19,48],[19,52],[11,52],[11,48]] },
-  { name:'Budapest FIR',      id:'LHCC', coords:[[15,44],[23,44],[23,49],[15,49],[15,44]] },
-  { name:'Warsaw FIR',        id:'EPWW', coords:[[14,48],[24,48],[24,55],[14,55],[14,48]] },
-  { name:'Bratislava FIR',    id:'LZBB', coords:[[16,47],[22,47],[22,50],[16,50],[16,47]] },
-  { name:'Bucharest FIR',     id:'LRBB', coords:[[21,43],[30,43],[30,49],[21,49],[21,43]] },
-  { name:'Sofia FIR',         id:'LBSR', coords:[[21,40],[29,40],[29,45],[21,45],[21,40]] },
-  { name:'Athens FIR',        id:'LGGG', coords:[[19,34],[28,34],[28,42],[19,42],[19,34]] },
-  { name:'Istanbul FIR',      id:'LTAA', coords:[[25,35],[37,35],[37,42],[25,42],[25,35]] },
-  { name:'Ankara FIR',        id:'LTAA', coords:[[30,36],[44,36],[44,42],[30,42],[30,36]] },
-  { name:'Helsinki FIR',      id:'EFIN', coords:[[19,58],[32,58],[32,70],[19,70],[19,58]] },
-  { name:'Stockholm FIR',     id:'ESOS', coords:[[11,55],[25,55],[25,65],[11,65],[11,55]] },
-  { name:'Oslo FIR',          id:'ENOR', coords:[[4,57],[20,57],[20,65],[4,65],[4,57]] },
-  { name:'Copenhagen FIR',    id:'EKDK', coords:[[7,53],[16,53],[16,58],[7,58],[7,53]] },
-  // ── MIDDLE EAST ────────────────────────────────────────────────
-  { name:'Dubai FIR',         id:'OMAE', coords:[[51,22],[60,22],[60,27],[51,27],[51,22]] },
-  { name:'Abu Dhabi FIR',     id:'OMAE', coords:[[50,22],[58,22],[58,26],[50,26],[50,22]] },
-  { name:'Bahrain FIR',       id:'OBBB', coords:[[46,22],[57,22],[57,30],[46,30],[46,22]] },
-  { name:'Doha FIR',          id:'OTDF', coords:[[49,23],[57,23],[57,28],[49,28],[49,23]] },
-  { name:'Jeddah FIR',        id:'OEJD', coords:[[32,15],[50,15],[50,30],[32,30],[32,15]] },
-  { name:'Riyadh FIR',        id:'OERY', coords:[[44,15],[60,15],[60,28],[44,28],[44,15]] },
-  { name:'Kuwait FIR',        id:'OKAC', coords:[[45,27],[50,27],[50,31],[45,31],[45,27]] },
-  { name:'Muscat FIR',        id:'OOMM', coords:[[52,16],[62,16],[62,26],[52,26],[52,16]] },
-  { name:'Tehran FIR',        id:'OIIX', coords:[[44,25],[64,25],[64,40],[44,40],[44,25]] },
-  { name:'Baghdad FIR',       id:'ORBB', coords:[[38,29],[50,29],[50,38],[38,38],[38,29]] },
-  { name:'Beirut FIR',        id:'OLBB', coords:[[34,31],[40,31],[40,37],[34,37],[34,31]] },
-  { name:'Cairo FIR',         id:'HECC', coords:[[24,18],[38,18],[38,32],[24,32],[24,18]] },
-  { name:'Tripoli FIR',       id:'HLLL', coords:[[9,20],[25,20],[25,35],[9,35],[9,20]] },
-  // ── ASIA ───────────────────────────────────────────────────────
-  { name:'Delhi FIR',         id:'VIDF', coords:[[63,20],[80,20],[80,32],[63,32],[63,20]] },
-  { name:'Mumbai FIR',        id:'VABB', coords:[[62,8],[80,8],[80,26],[62,26],[62,8]] },
-  { name:'Chennai FIR',       id:'VOMF', coords:[[74,6],[88,6],[88,22],[74,22],[74,6]] },
-  { name:'Kolkata FIR',       id:'VECF', coords:[[80,20],[98,20],[98,30],[80,30],[80,20]] },
-  { name:'Karachi FIR',       id:'OPKR', coords:[[60,20],[75,20],[75,32],[60,32],[60,20]] },
-  { name:'Lahore FIR',        id:'OPLR', coords:[[70,27],[78,27],[78,38],[70,38],[70,27]] },
-  { name:'Dhaka FIR',         id:'VGFR', coords:[[86,20],[94,20],[94,27],[86,27],[86,20]] },
-  { name:'Kathmandu FIR',     id:'VNKT', coords:[[79,25],[89,25],[89,30],[79,30],[79,25]] },
-  { name:'Kabul FIR',         id:'OAKX', coords:[[60,29],[75,29],[75,39],[60,39],[60,29]] },
-  { name:'Colombo FIR',       id:'VCCC', coords:[[75,4],[85,4],[85,12],[75,12],[75,4]] },
-  { name:'Rangoon FIR',       id:'VYYY', coords:[[92,10],[102,10],[102,28],[92,28],[92,10]] },
-  { name:'Bangkok FIR',       id:'VTBB', coords:[[97,5],[107,5],[107,22],[97,22],[97,5]] },
-  { name:'Ho Chi Minh FIR',   id:'VVHM', coords:[[102,8],[116,8],[116,22],[102,22],[102,8]] },
-  { name:'Hanoi FIR',         id:'VVHH', coords:[[100,18],[110,18],[110,26],[100,26],[100,18]] },
-  { name:'Phnom Penh FIR',    id:'VDPF', coords:[[100,9],[108,9],[108,16],[100,16],[100,9]] },
-  { name:'Vientiane FIR',     id:'VLVT', coords:[[99,14],[107,14],[107,23],[99,23],[99,14]] },
-  { name:'Kuala Lumpur FIR',  id:'WMFC', coords:[[99,0],[110,0],[110,8],[99,8],[99,0]] },
-  { name:'Singapore FIR',     id:'WSSS', coords:[[100,-8],[116,-8],[116,10],[100,10],[100,-8]] },
-  { name:'Jakarta FIR',       id:'WIIF', coords:[[105,-9],[116,-9],[116,-4],[105,-4],[105,-9]] },
-  { name:'Ujung Pandang FIR', id:'WAAF', coords:[[114,-12],[126,-12],[126,0],[114,0],[114,-12]] },
-[2166 lines total]",
-        "uuid": "cc7c4f55-c5f4-461f-aab8-739664566f63"
-      }
-    ],
-    "is_error": false,
-    "structured_content": null,
-    "meta": null,
-    "message": null,
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "display_content": {
-      "type": "json_block",
-      "json_block": "{\"language\": \"html\", \"code\": \"  const el = document.getElementById('layer-' + id);\
-  if (!el) return;\
-  el.classList.toggle('active', layers[id]);\
-  el.querySelector('.layer-check').textContent = layers[id] ? '\\u2713' : '';\
-  if (id === 'airports') { showAirports = layers[id]; renderAirports(); return; }\
-  if (id === 'trails') { renderFlights(); return; }\
-  if (id === 'waypoints') { renderWaypoints(); return; }\
-  if (id === 'ils') { renderILS(); return; }\
-  if (worldData) { initGlobe(); renderFlights(); }\
-}\
-\
-['borders','graticule','airspace','flights','airports','trails','waypoints','ils'].forEach(id => {\
-  const el = document.getElementById('layer-' + id);\
-  if (el) el.addEventListener('click', () => toggleLayer(id));\
-});\
-\
-// \─\─\─ Globe Setup \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-const container = document.getElementById('globe-container');\
-const svg = d3.select('#globe-svg');\
-let width = container.clientWidth;\
-let height = container.clientHeight;\
-\
-const projection = d3.geoOrthographic()\
-  .scale(Math.min(width, height) * 0.42)\
-  .translate([width / 2, height / 2])\
-  .clipAngle(90)\
-  .precision(0.3);\
-\
-const path = d3.geoPath().projection(projection);\
-const graticule = d3.geoGraticule()();\
-const sphere = {type: 'Sphere'};\
-\
-let g, landG, gratG, bordersG, airspaceG, flightG, airportG, waypointG, ilsG;\
-let showAirports = true;\
-let worldData = null;\
-let flights = [];\
-let filteredFlights = [];\
-let selectedFlight = null;\
-let activeFilter = 'all';\
-let searchTerm = '';\
-let autoRotate = false;\
-let rotateTimer;\
-\
-// Pre-built simplified airspace polygons for major FIRs (Flight Information Regions)\
-// These are representative bounding boxes for key airspace regions worldwide\
-const AIRSPACE_REGIONS = [\
-  // \─\─ NORTH AMERICA \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-  { name:'New York ARTCC',    id:'ZNY',  coords:[[-79,39],[-66,39],[-66,47],[-79,47],[-79,39]] },\
-  { name:'Boston ARTCC',      id:'ZBW',  coords:[[-73,40],[-66,40],[-66,47],[-73,47],[-73,40]] },\
-  { name:'Washington ARTCC',  id:'ZDC',  coords:[[-82,36],[-73,36],[-73,41],[-82,41],[-82,36]] },\
-  { name:'Atlanta ARTCC',     id:'ZTL',  coords:[[-90,30],[-80,30],[-80,36],[-90,36],[-90,30]] },\
-  { name:'Miami ARTCC',       id:'ZMA',  coords:[[-87,22],[-76,22],[-76,31],[-87,31],[-87,22]] },\
-  { name:'Jacksonville ARTCC',id:'ZJX',  coords:[[-87,28],[-78,28],[-78,34],[-87,34],[-87,28]] },\
-  { name:'Chicago ARTCC',     id:'ZAU',  coords:[[-94,38],[-83,38],[-83,47],[-94,47],[-94,38]] },\
-  { name:'Cleveland ARTCC',   id:'ZOB',  coords:[[-84,38],[-74,38],[-74,44],[-84,44],[-84,38]] },\
-  { name:'Indianapolis ARTCC',id:'ZID',  coords:[[-90,36],[-83,36],[-83,42],[-90,42],[-90,36]] },\
-  { name:'Memphis ARTCC',     id:'ZME',  coords:[[-94,33],[-87,33],[-87,38],[-94,38],[-94,33]] },\
-  { name:'Houston ARTCC',     id:'ZHU',  coords:[[-100,26],[-88,26],[-88,33],[-100,33],[-100,26]] },\
-  { name:'Dallas/Ft Worth',   id:'ZFW',  coords:[[-100,31],[-93,31],[-93,36],[-100,36],[-100,31]] },\
-  { name:'Kansas City ARTCC', id:'ZKC',  coords:[[-102,36],[-92,36],[-92,43],[-102,43],[-102,36]] },\
-  { name:'Minneapolis ARTCC', id:'ZMP',  coords:[[-104,43],[-89,43],[-89,49],[-104,49],[-104,43]] },\
-  { name:'Denver ARTCC',      id:'ZDV',  coords:[[-109,36],[-100,36],[-100,44],[-109,44],[-109,36]] },\
-  { name:'Albuquerque ARTCC', id:'ZAB',  coords:[[-114,28],[-103,28],[-103,37],[-114,37],[-114,28]] },\
-  { name:'Los Angeles ARTCC', id:'ZLA',  coords:[[-122,30],[-113,30],[-113,37],[-122,37],[-122,30]] },\
-  { name:'Seattle ARTCC',     id:'ZSE',  coords:[[-127,42],[-115,42],[-115,50],[-127,50],[-127,42]] },\
-  { name:'Oakland Oceanic',   id:'ZOA',  coords:[[-180,15],[-127,15],[-127,48],[-180,48],[-180,15]] },\
-  { name:'Anchorage ARTCC',   id:'ZAN',  coords:[[-168,54],[-141,54],[-141,72],[-168,72],[-168,54]] },\
-  { name:'Gander Oceanic',    id:'CZQX', coords:[[-60,45],[-30,45],[-30,62],[-60,62],[-60,45]] },\
-  { name:'Shanwick Oceanic',  id:'EGGX', coords:[[-30,45],[-8,45],[-8,61],[-30,61],[-30,45]] },\
-  { name:'Santa Maria Oceanic',id:'LPPO',coords:[[-40,25],[-15,25],[-15,42],[-40,42],[-40,25]] },\
-  { name:'New York Oceanic',  id:'KZWY', coords:[[-55,27],[-30,27],[-30,45],[-55,45],[-55,27]] },\
-  // \─\─ EUROPE \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-  { name:'London FIR',        id:'EGTT', coords:[[-6,49],[2,49],[2,57],[-6,57],[-6,49]] },\
-  { name:'London UIR',        id:'EGPX', coords:[[-6,55],[0,55],[0,61],[-6,61],[-6,55]] },\
-  { name:'Scottish FIR',      id:'EGPX', coords:[[-8,54],[-1,54],[-1,61],[-8,61],[-8,54]] },\
-  { name:'Paris FIR',         id:'LFFF', coords:[[-5,43],[8,43],[8,51],[-5,51],[-5,43]] },\
-  { name:'Bordeaux FIR',      id:'LFBB', coords:[[-8,41],[-1,41],[-1,47],[-8,47],[-8,41]] },\
-  { name:'Marseille FIR',     id:'LFMM', coords:[[2,41],[9,41],[9,47],[2,47],[2,41]] },\
-  { name:'Reims FIR',         id:'LFRR', coords:[[-4,48],[8,48],[8,52],[-4,52],[-4,48]] },\
-  { name:'Brest Oceanic',     id:'LFRR', coords:[[-15,45],[-6,45],[-6,52],[-15,52],[-15,45]] },\
-  { name:'Maastricht UAC',    id:'EDYY', coords:[[3,48],[15,48],[15,53],[3,53],[3,48]] },\
-  { name:'Langen FIR',        id:'EDGG', coords:[[6,47],[15,47],[15,52],[6,52],[6,47]] },\
-  { name:'Bremen FIR',        id:'EDWW', coords:[[6,52],[15,52],[15,56],[6,56],[6,52]] },\
-  { name:'Berlin FIR',        id:'EDBB', coords:[[10,50],[15,50],[15,55],[10,55],[10,50]] },\
-  { name:'Madrid FIR',        id:'LECM', coords:[[-10,35],[4,35],[4,44],[-10,44],[-10,35]] },\
-  { name:'Barcelona FIR',     id:'LECB', coords:[[-2,39],[5,39],[5,44],[-2,44],[-2,39]] },\
-  { name:'Canarias FIR',      id:'GCCC', coords:[[-22,24],[-11,24],[-11,32],[-22,32],[-22,24]] },\
-  { name:'Rome FIR',          id:'LIRR', coords:[[7,36],[19,36],[19,44],[7,44],[7,36]] },\
-  { name:'Milano FIR',        id:'LIMM', coords:[[6,43],[15,43],[15,48],[6,48],[6,43]] },\
-  { name:'Amsterdam FIR',     id:'EHAA', coords:[[2,50],[8,50],[8,54],[2,54],[2,50]] },\
-  { name:'Brussels FIR',      id:'EBBU', coords:[[2,49],[7,49],[7,52],[2,52],[2,49]] },\
-  { name:'Switzerland FIR',   id:'LSAZ', coords:[[5,45],[11,45],[11,48],[5,48],[5,45]] },\
-  { name:'Vienna FIR',        id:'LOVV', coords:[[9,46],[18,46],[18,50],[9,50],[9,46]] },\
-  { name:'Prague FIR',        id:'LKAA', coords:[[11,48],[19,48],[19,52],[11,52],[11,48]] },\
-  { name:'Budapest FIR',      id:'LHCC', coords:[[15,44],[23,44],[23,49],[15,49],[15,44]] },\
-  { name:'Warsaw FIR',        id:'EPWW', coords:[[14,48],[24,48],[24,55],[14,55],[14,48]] },\
-  { name:'Bratislava FIR',    id:'LZBB', coords:[[16,47],[22,47],[22,50],[16,50],[16,47]] },\
-  { name:'Bucharest FIR',     id:'LRBB', coords:[[21,43],[30,43],[30,49],[21,49],[21,43]] },\
-  { name:'Sofia FIR',         id:'LBSR', coords:[[21,40],[29,40],[29,45],[21,45],[21,40]] },\
-  { name:'Athens FIR',        id:'LGGG', coords:[[19,34],[28,34],[28,42],[19,42],[19,34]] },\
-  { name:'Istanbul FIR',      id:'LTAA', coords:[[25,35],[37,35],[37,42],[25,42],[25,35]] },\
-  { name:'Ankara FIR',        id:'LTAA', coords:[[30,36],[44,36],[44,42],[30,42],[30,36]] },\
-  { name:'Helsinki FIR',      id:'EFIN', coords:[[19,58],[32,58],[32,70],[19,70],[19,58]] },\
-  { name:'Stockholm FIR',     id:'ESOS', coords:[[11,55],[25,55],[25,65],[11,65],[11,55]] },\
-  { name:'Oslo FIR',          id:'ENOR', coords:[[4,57],[20,57],[20,65],[4,65],[4,57]] },\
-  { name:'Copenhagen FIR',    id:'EKDK', coords:[[7,53],[16,53],[16,58],[7,58],[7,53]] },\
-  // \─\─ MIDDLE EAST \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-  { name:'Dubai FIR',         id:'OMAE', coords:[[51,22],[60,22],[60,27],[51,27],[51,22]] },\
-  { name:'Abu Dhabi FIR',     id:'OMAE', coords:[[50,22],[58,22],[58,26],[50,26],[50,22]] },\
-  { name:'Bahrain FIR',       id:'OBBB', coords:[[46,22],[57,22],[57,30],[46,30],[46,22]] },\
-  { name:'Doha FIR',          id:'OTDF', coords:[[49,23],[57,23],[57,28],[49,28],[49,23]] },\
-  { name:'Jeddah FIR',        id:'OEJD', coords:[[32,15],[50,15],[50,30],[32,30],[32,15]] },\
-  { name:'Riyadh FIR',        id:'OERY', coords:[[44,15],[60,15],[60,28],[44,28],[44,15]] },\
-  { name:'Kuwait FIR',        id:'OKAC', coords:[[45,27],[50,27],[50,31],[45,31],[45,27]] },\
-  { name:'Muscat FIR',        id:'OOMM', coords:[[52,16],[62,16],[62,26],[52,26],[52,16]] },\
-  { name:'Tehran FIR',        id:'OIIX', coords:[[44,25],[64,25],[64,40],[44,40],[44,25]] },\
-  { name:'Baghdad FIR',       id:'ORBB', coords:[[38,29],[50,29],[50,38],[38,38],[38,29]] },\
-  { name:'Beirut FIR',        id:'OLBB', coords:[[34,31],[40,31],[40,37],[34,37],[34,31]] },\
-  { name:'Cairo FIR',         id:'HECC', coords:[[24,18],[38,18],[38,32],[24,32],[24,18]] },\
-  { name:'Tripoli FIR',       id:'HLLL', coords:[[9,20],[25,20],[25,35],[9,35],[9,20]] },\
-  // \─\─ ASIA \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-  { name:'Delhi FIR',         id:'VIDF', coords:[[63,20],[80,20],[80,32],[63,32],[63,20]] },\
-  { name:'Mumbai FIR',        id:'VABB', coords:[[62,8],[80,8],[80,26],[62,26],[62,8]] },\
-  { name:'Chennai FIR',       id:'VOMF', coords:[[74,6],[88,6],[88,22],[74,22],[74,6]] },\
-  { name:'Kolkata FIR',       id:'VECF', coords:[[80,20],[98,20],[98,30],[80,30],[80,20]] },\
-  { name:'Karachi FIR',       id:'OPKR', coords:[[60,20],[75,20],[75,32],[60,32],[60,20]] },\
-  { name:'Lahore FIR',        id:'OPLR', coords:[[70,27],[78,27],[78,38],[70,38],[70,27]] },\
-  { name:'Dhaka FIR',         id:'VGFR', coords:[[86,20],[94,20],[94,27],[86,27],[86,20]] },\
-  { name:'Kathmandu FIR',     id:'VNKT', coords:[[79,25],[89,25],[89,30],[79,30],[79,25]] },\
-  { name:'Kabul FIR',         id:'OAKX', coords:[[60,29],[75,29],[75,39],[60,39],[60,29]] },\
-  { name:'Colombo FIR',       id:'VCCC', coords:[[75,4],[85,4],[85,12],[75,12],[75,4]] },\
-  { name:'Rangoon FIR',       id:'VYYY', coords:[[92,10],[102,10],[102,28],[92,28],[92,10]] },\
-  { name:'Bangkok FIR',       id:'VTBB', coords:[[97,5],[107,5],[107,22],[97,22],[97,5]] },\
-  { name:'Ho Chi Minh FIR',   id:'VVHM', coords:[[102,8],[116,8],[116,22],[102,22],[102,8]] },\
-  { name:'Hanoi FIR',         id:'VVHH', coords:[[100,18],[110,18],[110,26],[100,26],[100,18]] },\
-  { name:'Phnom Penh FIR',    id:'VDPF', coords:[[100,9],[108,9],[108,16],[100,16],[100,9]] },\
-  { name:'Vientiane FIR',     id:'VLVT', coords:[[99,14],[107,14],[107,23],[99,23],[99,14]] },\
-  { name:'Kuala Lumpur FIR',  id:'WMFC', coords:[[99,0],[110,0],[110,8],[99,8],[99,0]] },\
-  { name:'Singapore FIR',     id:'WSSS', coords:[[100,-8],[116,-8],[116,10],[100,10],[100,-8]] },\
-  { name:'Jakarta FIR',       id:'WIIF', coords:[[105,-9],[116,-9],[116,-4],[105,-4],[105,-9]] },\
-  { name:'Ujung Pandang FIR', id:'WAAF', coords:[[114,-12],[126,-12],[126,0],[114,0],[114,-12]] },\
-\", \"filename\": \"/mnt/user-data/outputs/flight-tracker.html\"}"
-    }
-  },
-  {
-    "start_timestamp": "2026-03-09T11:29:54.441727Z",
-    "stop_timestamp": "2026-03-09T11:29:55.918296Z",
-    "flags": null,
-    "type": "tool_use",
-    "id": "toolu_016zCmQhTWqSaPgZ5J48XdZP",
-    "name": "view",
-    "input": {
-      "description": "Read fetchFlights and airport panel code",
-      "path": "/mnt/user-data/outputs/flight-tracker.html",
-      "view_range": [
-        1065,
-        1170
-      ]
-    },
-    "message": "Read fetchFlights and airport panel code",
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "context": null,
-    "display_content": {
-      "type": "text",
-      "text": "Read fetchFlights and airport panel code"
-    },
-    "approval_options": null,
-    "approval_key": null,
-    "is_mcp_app": null
-  },
-  {
-    "start_timestamp": null,
-    "stop_timestamp": null,
-    "flags": null,
-    "type": "tool_result",
-    "tool_use_id": "toolu_016zCmQhTWqSaPgZ5J48XdZP",
-    "name": "view",
-    "content": [
-      {
-        "type": "text",
-        "text": "  1065	    if (!dragStart) return;
-    const dx = event.x - dragStart[0];
-    const dy = event.y - dragStart[1];
-    projection.rotate([rotationStart[0] + dx * 0.3, rotationStart[1] - dy * 0.3]);
-    updateGlobe();
-  })
-  .on('end', () => { isDragging = false; })
-);
-
-svg.call(d3.zoom()
-  .scaleExtent([0.5, 8])
-  .on('zoom', event => {
-    projection.scale(Math.min(width, height) * 0.42 * event.transform.k);
-    updateGlobe();
-  })
-);
-
-// ─── Auto Rotate ─────────────────────────────────────────────
-function startAutoRotate() {
-  if (rotateTimer) return;
-  rotateTimer = d3.timer(() => {
-    if (!isDragging && autoRotate) {
-      const r = projection.rotate();
-      projection.rotate([r[0] + 0.08, r[1]]);
-      updateGlobe();
-    }
-  });
-}
-startAutoRotate();
-
-document.getElementById('auto-rotate-btn').addEventListener('click', function() {
-  autoRotate = !autoRotate;
-  this.classList.toggle('active', autoRotate);
-  this.textContent = autoRotate ? 'Auto-Rotate' : 'Auto-Rotate';
-});
-
-window.addEventListener('resize', () => { initGlobe(); renderFlights(); });
-
-// ─── OpenSky Data Fetch ───────────────────────────────────────
-const OPENSKY = 'https://opensky-network.org/api';
-
-// ─── Flight Data ─────────────────────────────────────────────
-function setStatus(state, text) {
-  document.getElementById('status-text').textContent = text;
-  document.getElementById('status-dot').className = 'dot ' + state;
+body {
+  font-family: 'Space Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
 }
 
-async function fetchFlights() {
-  setStatus('loading', 'Fetching live flights...');
-  try {
-    const r = await fetch('https://opensky-network.org/api/states/all', { signal: AbortSignal.timeout(30000) });
-    if (!r.ok) throw new Error('API error ' + r.status);
-    const data = await r.json();
-    if (!data || !data.states) throw new Error('No data');
-
-    flights = data.states
-      .filter(s => s[6] !== null && s[5] !== null)
-      .map(s => ({
-        icao24: s[0],
-        callsign: (s[1]||'').trim() || s[0],
-        origin_country: s[2]||'?',
-        longitude: s[5], latitude: s[6],
-        baro_altitude: s[7], on_ground: s[8],
-        velocity: s[9], true_track: s[10]||0,
-        vertical_rate: s[11], geo_altitude: s[13], squawk: s[14]
-      }));
-
-    const airborne = flights.filter(f => !f.on_ground).length;
-    const countries = new Set(flights.map(f => f.origin_country)).size;
-    document.getElementById('stat-total').textContent = flights.length.toLocaleString();
-    document.getElementById('stat-airborne').textContent = airborne.toLocaleString();
-    document.getElementById('stat-countries').textContent = countries;
-    setStatus('live', `${flights.length.toLocaleString()} flights live`);
-    applyFilters(); renderFlights(); renderList();
-  } catch(err) {
-    const msg = err.message.includes('401') ? 'Auth error \u2013 check credentials'
-              : err.message.includes('429') ? 'Rate limited \u2013 retry soon'
-              : err.message.includes('Failed to fetch') ? 'CORS blocked \u2013 need proxy'
-              : 'Error: ' + err.message;
-    setStatus('error', msg);
-    
-  }
+body.day-mode {
+  --bg: #e8f0f8;
+  --surface: #d0dcea;
+  --border: #a0b8cc;
+  --text: #1a2a3a;
+  --text-dim: #5a7a9a;
 }
 
-function loadMockData() {
-  const airlines = ['BAW','UAL','DAL','AAL','SWA','AFR','DLH','IBE','KLM','EZY','RYR','EK','QTR','SIA','CPA','JAL','ANA','THY'];
-  const countries = ['United States','United Kingdom','France','Germany','Spain','Netherlands','United Arab Emirates','Singapore','Japan','China','Brazil','Australia','Canada','Turkey'];
-  flights = [];
-  for (let i = 0; i < 900; i++) {
-    const al = airlines[Math.floor(Math.random()*airlines.length)];
-    flights.push({
-      icao24: Math.random().toString(16).substr(2,6),
-      callsign: al + Math.floor(Math.random()*9000+1000),
-      origin_country: countries[Math.floor(Math.random()*countries.length)],
-      longitude: Math.random()*360-180, latitude: Math.random()*140-70,
-      baro_altitude: Math.random()*12000+1000, on_ground: Math.random()<0.05,
-      velocity: Math.random()*300+150, true_track: Math.random()*360,
-      vertical_rate: (Math.random()-0.5)*20, geo_altitude: null, squawk: null
-    });
-  }
-  document.getElementById('stat-total').textContent = flights.length.toLocaleString()+'*';
-  document.getElementById('stat-airborne').textContent = flights.filter(f=>!f.on_ground).length.toLocaleString()+'*';
-  document.getElementById('stat-countries').textContent = '14*';
-  setStatus('error','Demo mode (API unavailable)');
-  applyFilters(); renderFlights(); renderList();
-}
-[2166 lines total]",
-        "uuid": "591cf713-e32f-4d78-b8f9-0a8ecb646a80"
-      }
-    ],
-    "is_error": false,
-    "structured_content": null,
-    "meta": null,
-    "message": null,
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "display_content": {
-      "type": "json_block",
-      "json_block": "{\"language\": \"html\", \"code\": \"    if (!dragStart) return;\
-    const dx = event.x - dragStart[0];\
-    const dy = event.y - dragStart[1];\
-    projection.rotate([rotationStart[0] + dx * 0.3, rotationStart[1] - dy * 0.3]);\
-    updateGlobe();\
-  })\
-  .on('end', () => { isDragging = false; })\
-);\
-\
-svg.call(d3.zoom()\
-  .scaleExtent([0.5, 8])\
-  .on('zoom', event => {\
-    projection.scale(Math.min(width, height) * 0.42 * event.transform.k);\
-    updateGlobe();\
-  })\
-);\
-\
-// \─\─\─ Auto Rotate \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-function startAutoRotate() {\
-  if (rotateTimer) return;\
-  rotateTimer = d3.timer(() => {\
-    if (!isDragging && autoRotate) {\
-      const r = projection.rotate();\
-      projection.rotate([r[0] + 0.08, r[1]]);\
-      updateGlobe();\
-    }\
-  });\
-}\
-startAutoRotate();\
-\
-document.getElementById('auto-rotate-btn').addEventListener('click', function() {\
-  autoRotate = !autoRotate;\
-  this.classList.toggle('active', autoRotate);\
-  this.textContent = autoRotate ? 'Auto-Rotate' : 'Auto-Rotate';\
-});\
-\
-window.addEventListener('resize', () => { initGlobe(); renderFlights(); });\
-\
-// \─\─\─ OpenSky Data Fetch \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-const OPENSKY = 'https://opensky-network.org/api';\
-\
-// \─\─\─ Flight Data \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-function setStatus(state, text) {\
-  document.getElementById('status-text').textContent = text;\
-  document.getElementById('status-dot').className = 'dot ' + state;\
-}\
-\
-async function fetchFlights() {\
-  setStatus('loading', 'Fetching live flights...');\
-  try {\
-    const r = await fetch('https://opensky-network.org/api/states/all', { signal: AbortSignal.timeout(30000) });\
-    if (!r.ok) throw new Error('API error ' + r.status);\
-    const data = await r.json();\
-    if (!data || !data.states) throw new Error('No data');\
-\
-    flights = data.states\
-      .filter(s => s[6] !== null && s[5] !== null)\
-      .map(s => ({\
-        icao24: s[0],\
-        callsign: (s[1]||'').trim() || s[0],\
-        origin_country: s[2]||'?',\
-        longitude: s[5], latitude: s[6],\
-        baro_altitude: s[7], on_ground: s[8],\
-        velocity: s[9], true_track: s[10]||0,\
-        vertical_rate: s[11], geo_altitude: s[13], squawk: s[14]\
-      }));\
-\
-    const airborne = flights.filter(f => !f.on_ground).length;\
-    const countries = new Set(flights.map(f => f.origin_country)).size;\
-    document.getElementById('stat-total').textContent = flights.length.toLocaleString();\
-    document.getElementById('stat-airborne').textContent = airborne.toLocaleString();\
-    document.getElementById('stat-countries').textContent = countries;\
-    setStatus('live', `${flights.length.toLocaleString()} flights live`);\
-    applyFilters(); renderFlights(); renderList();\
-  } catch(err) {\
-    const msg = err.message.includes('401') ? 'Auth error \\u2013 check credentials'\
-              : err.message.includes('429') ? 'Rate limited \\u2013 retry soon'\
-              : err.message.includes('Failed to fetch') ? 'CORS blocked \\u2013 need proxy'\
-              : 'Error: ' + err.message;\
-    setStatus('error', msg);\
-    \
-  }\
-}\
-\
-function loadMockData() {\
-  const airlines = ['BAW','UAL','DAL','AAL','SWA','AFR','DLH','IBE','KLM','EZY','RYR','EK','QTR','SIA','CPA','JAL','ANA','THY'];\
-  const countries = ['United States','United Kingdom','France','Germany','Spain','Netherlands','United Arab Emirates','Singapore','Japan','China','Brazil','Australia','Canada','Turkey'];\
-  flights = [];\
-  for (let i = 0; i < 900; i++) {\
-    const al = airlines[Math.floor(Math.random()*airlines.length)];\
-    flights.push({\
-      icao24: Math.random().toString(16).substr(2,6),\
-      callsign: al + Math.floor(Math.random()*9000+1000),\
-      origin_country: countries[Math.floor(Math.random()*countries.length)],\
-      longitude: Math.random()*360-180, latitude: Math.random()*140-70,\
-      baro_altitude: Math.random()*12000+1000, on_ground: Math.random()<0.05,\
-      velocity: Math.random()*300+150, true_track: Math.random()*360,\
-      vertical_rate: (Math.random()-0.5)*20, geo_altitude: null, squawk: null\
-    });\
-  }\
-  document.getElementById('stat-total').textContent = flights.length.toLocaleString()+'*';\
-  document.getElementById('stat-airborne').textContent = flights.filter(f=>!f.on_ground).length.toLocaleString()+'*';\
-  document.getElementById('stat-countries').textContent = '14*';\
-  setStatus('error','Demo mode (API unavailable)');\
-  applyFilters(); renderFlights(); renderList();\
-}\
-\", \"filename\": \"/mnt/user-data/outputs/flight-tracker.html\"}"
-    }
-  },
-  {
-    "start_timestamp": "2026-03-09T11:29:57.959459Z",
-    "stop_timestamp": "2026-03-09T11:29:58.604799Z",
-    "flags": null,
-    "type": "tool_use",
-    "id": "toolu_011QCJfssuTpPWTsktr6HPM6",
-    "name": "view",
-    "input": {
-      "description": "Read openAirportPanel function",
-      "path": "/mnt/user-data/outputs/flight-tracker.html",
-      "view_range": [
-        1750,
-        1870
-      ]
-    },
-    "message": "Read openAirportPanel function",
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "context": null,
-    "display_content": {
-      "type": "text",
-      "text": "Read openAirportPanel function"
-    },
-    "approval_options": null,
-    "approval_key": null,
-    "is_mcp_app": null
-  },
-  {
-    "start_timestamp": null,
-    "stop_timestamp": null,
-    "flags": null,
-    "type": "tool_result",
-    "tool_use_id": "toolu_011QCJfssuTpPWTsktr6HPM6",
-    "name": "view",
-    "content": [
-      {
-        "type": "text",
-        "text": "  1750	  if (AERODATABOX_KEY === 'YOUR_RAPIDAPI_KEY_HERE') return null;
-  try {
-    const r = await fetch(`https://${ADB_HOST}${path}`, {
-      headers: {
-        'X-RapidAPI-Key':  AERODATABOX_KEY,
-        'X-RapidAPI-Host': ADB_HOST
-      }
-    });
-    if (!r.ok) return null;
-    return await r.json();
-  } catch(e) { return null; }
+header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  background: rgba(5,10,20,0.95);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  gap: 24px;
 }
 
-// Fetch live flight details by callsign from AeroDataBox
-async function fetchADBFlight(callsign) {
-  // AeroDataBox flight-by-number endpoint
-  const cs = callsign.trim().toUpperCase();
-  const data = await fetchAeroDataBox(`/flights/callsign/${cs}`);
-  if (!data) return null;
-  // Returns array; take most recent/active entry
-  const arr = Array.isArray(data) ? data : (data.departures || data.arrivals || [data]);
-  return arr[0] || null;
+body.day-mode header { background: rgba(232,240,248,0.95); }
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--accent);
+}
+.logo span { color: var(--accent2); }
+
+.stats-bar {
+  display: flex;
+  gap: 20px;
+  flex: 1;
+  justify-content: center;
 }
 
-// Fetch aircraft details by ICAO24 hex from AeroDataBox
-async function fetchADBAircraft(icao24) {
-  return await fetchAeroDataBox(`/aircrafts/icao24/${icao24.toLowerCase()}`);
+.stat { text-align: center; }
+.stat-val { font-size: 16px; font-weight: 700; color: var(--accent); }
+.stat-lbl { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
+
+.header-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-function calcProgress(depTime, arrTime) {
-  if (!depTime || !arrTime) return null;
-  try {
-    const now   = Date.now();
-    const start = new Date(depTime).getTime();
-    const end   = new Date(arrTime).getTime();
-    if (isNaN(start) || isNaN(end) || end <= start) return null;
-    return Math.min(100, Math.max(1, Math.round(((now - start) / (end - start)) * 100)));
-  } catch(e) { return null; }
+.status-text {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-right: 8px;
 }
 
-function fmtUtc(iso) {
-  if (!iso) return '\u2013';
-  try { return new Date(iso).toUTCString().slice(17,22) + ' UTC'; } catch(e) { return iso; }
+.btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+.main {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  overflow: hidden;
 }
 
-async function openDetailPanel(f) {
-  const panel   = document.getElementById('detail-panel');
-  const content = document.getElementById('dp-content');
-
-  // Show panel immediately with loading state
-  document.getElementById('dp-callsign').textContent = f.callsign || f.icao24;
-  document.getElementById('dp-airline').textContent  = getAirline(f.callsign) || f.origin_country;
-  document.getElementById('dp-badges').innerHTML = '';
-  content.innerHTML = `<div class=\"dp-loading\"><div class=\"dp-spinner\"></div>
-    ${AERODATABOX_KEY === 'YOUR_RAPIDAPI_KEY_HERE'
-      ? 'Add AeroDataBox key for live aircraft details \u2014 fetching route data...'
-      : 'Fetching live flight & aircraft data...'
-    }</div>`;
-  panel.classList.add('open');
-
-  // ── Fire all enrichment requests in parallel ──
-  const [adbFlight, adbAircraft, routeData] = await Promise.all([
-    fetchADBFlight(f.callsign),
-    fetchADBAircraft(f.icao24),
-    fetchRoute(f.callsign).catch(() => null)
-  ]);
-
-  // ── Extract fields with AeroDataBox taking priority ──
-
-  // Route / airports
-  let dep = null, arr = null, depAp = null, arrAp = null;
-  let depTime = null, arrTime = null;
-
-  if (adbFlight) {
-    // AeroDataBox flight object shape
-    const d = adbFlight.departure || adbFlight;
-    const a = adbFlight.arrival   || adbFlight;
-    dep = d?.airport?.icao || adbFlight?.origin?.icao || null;
-    arr = a?.airport?.icao || adbFlight?.destination?.icao || null;
-    depTime = d?.scheduledTimeUtc || d?.actualTimeUtc || null;
-    arrTime = a?.scheduledTimeUtc || a?.actualTimeUtc || null;
-  }
-  // Fall back to OpenSky route
-  if (!dep && routeData?.route?.length >= 2) {
-    dep = routeData.route[0];
-    arr = routeData.route[routeData.route.length - 1];
-  }
-  if (dep) depAp = AIRPORT_DB[dep] || { name: dep, city: '', country: '' };
-  if (arr) arrAp = AIRPORT_DB[arr] || { name: arr, city: '', country: '' };
-
-  // Aircraft details
-  let acModel = '\u2013', acReg = '\u2013', acYear = '\u2013', acIcaoType = '\u2013', acAirline = '\u2013';
-
-  if (adbAircraft) {
-    acModel    = adbAircraft.typeName      || adbAircraft.model         || '\u2013';
-    acReg      = adbAircraft.reg           || adbAircraft.registration  || '\u2013';
-    acYear     = adbAircraft.productionYear|| adbAircraft.yearBuilt     || '\u2013';
-    acIcaoType = adbAircraft.icaoType      || adbAircraft.icao          || '\u2013';
-    acAirline  = adbAircraft.airlineName   || adbAircraft.operator      || '\u2013';
-  }
-  // Fallback to local DB estimate
-  if (acModel === '\u2013') {
-    const acTypes = ['B738','A320','A321','B77W','B789','A359','A333','B763','A388','B748','A20N','E190'];
-    const key = acTypes[Math.floor((parseInt(f.icao24.substring(0,2),16)||0) % acTypes.length)];
-    acModel    = (AIRCRAFT_DB[key]||{full:'\u2013'}).full;
-    acIcaoType = key;
-    acYear     = String(2005 + Math.floor((parseInt(f.icao24.substring(2,4),16)||0) % 20)) + ' (est.)';
-  }
-
-  // Airline: AeroDataBox > local lookup > origin country
-  const airline = (acAirline !== '\u2013' ? acAirline : null)
-                || getAirline(f.callsign)
-                || f.origin_country;
-  document.getElementById('dp-airline').textContent = airline;
-
-  // Flight number
-  const fnMatch = f.callsign.match(/^([A-Z]{2,3})(\\d+)/);
-  const flightNum = (adbFlight?.number || (fnMatch ? fnMatch[1]+fnMatch[2] : f.callsign));
-
-  // Progress
-  const pct = calcProgress(depTime, arrTime) ?? (dep && arr ? 45 : 0);
-[2166 lines total]",
-        "uuid": "70e6ab4d-fdfa-4778-b485-fc21a73cccce"
-      }
-    ],
-    "is_error": false,
-    "structured_content": null,
-    "meta": null,
-    "message": null,
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "display_content": {
-      "type": "json_block",
-      "json_block": "{\"language\": \"html\", \"code\": \"  if (AERODATABOX_KEY === 'YOUR_RAPIDAPI_KEY_HERE') return null;\
-  try {\
-    const r = await fetch(`https://${ADB_HOST}${path}`, {\
-      headers: {\
-        'X-RapidAPI-Key':  AERODATABOX_KEY,\
-        'X-RapidAPI-Host': ADB_HOST\
-      }\
-    });\
-    if (!r.ok) return null;\
-    return await r.json();\
-  } catch(e) { return null; }\
-}\
-\
-// Fetch live flight details by callsign from AeroDataBox\
-async function fetchADBFlight(callsign) {\
-  // AeroDataBox flight-by-number endpoint\
-  const cs = callsign.trim().toUpperCase();\
-  const data = await fetchAeroDataBox(`/flights/callsign/${cs}`);\
-  if (!data) return null;\
-  // Returns array; take most recent/active entry\
-  const arr = Array.isArray(data) ? data : (data.departures || data.arrivals || [data]);\
-  return arr[0] || null;\
-}\
-\
-// Fetch aircraft details by ICAO24 hex from AeroDataBox\
-async function fetchADBAircraft(icao24) {\
-  return await fetchAeroDataBox(`/aircrafts/icao24/${icao24.toLowerCase()}`);\
-}\
-\
-function calcProgress(depTime, arrTime) {\
-  if (!depTime || !arrTime) return null;\
-  try {\
-    const now   = Date.now();\
-    const start = new Date(depTime).getTime();\
-    const end   = new Date(arrTime).getTime();\
-    if (isNaN(start) || isNaN(end) || end <= start) return null;\
-    return Math.min(100, Math.max(1, Math.round(((now - start) / (end - start)) * 100)));\
-  } catch(e) { return null; }\
-}\
-\
-function fmtUtc(iso) {\
-  if (!iso) return '\\u2013';\
-  try { return new Date(iso).toUTCString().slice(17,22) + ' UTC'; } catch(e) { return iso; }\
-}\
-\
-async function openDetailPanel(f) {\
-  const panel   = document.getElementById('detail-panel');\
-  const content = document.getElementById('dp-content');\
-\
-  // Show panel immediately with loading state\
-  document.getElementById('dp-callsign').textContent = f.callsign || f.icao24;\
-  document.getElementById('dp-airline').textContent  = getAirline(f.callsign) || f.origin_country;\
-  document.getElementById('dp-badges').innerHTML = '';\
-  content.innerHTML = `<div class=\\\"dp-loading\\\"><div class=\\\"dp-spinner\\\"></div>\
-    ${AERODATABOX_KEY === 'YOUR_RAPIDAPI_KEY_HERE'\
-      ? 'Add AeroDataBox key for live aircraft details \\u2014 fetching route data...'\
-      : 'Fetching live flight & aircraft data...'\
-    }</div>`;\
-  panel.classList.add('open');\
-\
-  // \─\─ Fire all enrichment requests in parallel \─\─\
-  const [adbFlight, adbAircraft, routeData] = await Promise.all([\
-    fetchADBFlight(f.callsign),\
-    fetchADBAircraft(f.icao24),\
-    fetchRoute(f.callsign).catch(() => null)\
-  ]);\
-\
-  // \─\─ Extract fields with AeroDataBox taking priority \─\─\
-\
-  // Route / airports\
-  let dep = null, arr = null, depAp = null, arrAp = null;\
-  let depTime = null, arrTime = null;\
-\
-  if (adbFlight) {\
-    // AeroDataBox flight object shape\
-    const d = adbFlight.departure || adbFlight;\
-    const a = adbFlight.arrival   || adbFlight;\
-    dep = d?.airport?.icao || adbFlight?.origin?.icao || null;\
-    arr = a?.airport?.icao || adbFlight?.destination?.icao || null;\
-    depTime = d?.scheduledTimeUtc || d?.actualTimeUtc || null;\
-    arrTime = a?.scheduledTimeUtc || a?.actualTimeUtc || null;\
-  }\
-  // Fall back to OpenSky route\
-  if (!dep && routeData?.route?.length >= 2) {\
-    dep = routeData.route[0];\
-    arr = routeData.route[routeData.route.length - 1];\
-  }\
-  if (dep) depAp = AIRPORT_DB[dep] || { name: dep, city: '', country: '' };\
-  if (arr) arrAp = AIRPORT_DB[arr] || { name: arr, city: '', country: '' };\
-\
-  // Aircraft details\
-  let acModel = '\\u2013', acReg = '\\u2013', acYear = '\\u2013', acIcaoType = '\\u2013', acAirline = '\\u2013';\
-\
-  if (adbAircraft) {\
-    acModel    = adbAircraft.typeName      || adbAircraft.model         || '\\u2013';\
-    acReg      = adbAircraft.reg           || adbAircraft.registration  || '\\u2013';\
-    acYear     = adbAircraft.productionYear|| adbAircraft.yearBuilt     || '\\u2013';\
-    acIcaoType = adbAircraft.icaoType      || adbAircraft.icao          || '\\u2013';\
-    acAirline  = adbAircraft.airlineName   || adbAircraft.operator      || '\\u2013';\
-  }\
-  // Fallback to local DB estimate\
-  if (acModel === '\\u2013') {\
-    const acTypes = ['B738','A320','A321','B77W','B789','A359','A333','B763','A388','B748','A20N','E190'];\
-    const key = acTypes[Math.floor((parseInt(f.icao24.substring(0,2),16)||0) % acTypes.length)];\
-    acModel    = (AIRCRAFT_DB[key]||{full:'\\u2013'}).full;\
-    acIcaoType = key;\
-    acYear     = String(2005 + Math.floor((parseInt(f.icao24.substring(2,4),16)||0) % 20)) + ' (est.)';\
-  }\
-\
-  // Airline: AeroDataBox > local lookup > origin country\
-  const airline = (acAirline !== '\\u2013' ? acAirline : null)\
-                || getAirline(f.callsign)\
-                || f.origin_country;\
-  document.getElementById('dp-airline').textContent = airline;\
-\
-  // Flight number\
-  const fnMatch = f.callsign.match(/^([A-Z]{2,3})(\\\\d+)/);\
-  const flightNum = (adbFlight?.number || (fnMatch ? fnMatch[1]+fnMatch[2] : f.callsign));\
-\
-  // Progress\
-  const pct = calcProgress(depTime, arrTime) ?? (dep && arr ? 45 : 0);\
-\", \"filename\": \"/mnt/user-data/outputs/flight-tracker.html\"}"
-    }
-  },
-  {
-    "start_timestamp": "2026-03-09T11:30:01.404593Z",
-    "stop_timestamp": "2026-03-09T11:30:02.669099Z",
-    "flags": null,
-    "type": "tool_use",
-    "id": "toolu_01Hi3wPjqbgxCQmzPd5wvAiV",
-    "name": "view",
-    "input": {
-      "description": "Read openAirportPanel function",
-      "path": "/mnt/user-data/outputs/flight-tracker.html",
-      "view_range": [
-        1960,
-        2060
-      ]
-    },
-    "message": "Read openAirportPanel function",
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "context": null,
-    "display_content": {
-      "type": "text",
-      "text": "Read openAirportPanel function"
-    },
-    "approval_options": null,
-    "approval_key": null,
-    "is_mcp_app": null
-  },
-  {
-    "start_timestamp": null,
-    "stop_timestamp": null,
-    "flags": null,
-    "type": "tool_result",
-    "tool_use_id": "toolu_01Hi3wPjqbgxCQmzPd5wvAiV",
-    "name": "view",
-    "content": [
-      {
-        "type": "text",
-        "text": "  1960	        <div class=\"dp-row\"><span class=\"dp-label\">Position</span><span class=\"dp-value dim\">${f.latitude.toFixed(2)}\u00b0, ${f.longitude.toFixed(2)}\u00b0</span></div>
-      </div>
-    </div>`;
+#globe-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #0a1628 0%, #050a14 70%);
 }
 
-document.getElementById('dp-close-btn').addEventListener('click', () => {
-  document.getElementById('detail-panel').classList.remove('open');
-  selectedFlight = null;
-  renderFlights(); renderList();
-});
+#globe-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+}
+#globe-svg:active { cursor: grabbing; }
 
-function selectFlight(f) {
-  selectedFlight = f;
-  renderFlights(); renderList(); openDetailPanel(f);
-  if (f) {
-    const target = [-f.longitude, -f.latitude];
-    const current = projection.rotate();
-    const interp = d3.interpolate(current, [target[0], target[1], 0]);
-    d3.transition().duration(800).tween('rotate', () => t => {
-      projection.rotate(interp(t)); updateGlobe();
-    });
-  }
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-function renderList() {
-  const list = document.getElementById('flight-list');
-  if (!filteredFlights.length) {
-    list.innerHTML = '<div class=\"empty-state\">No flights match<br>your filter.</div>'; return;
-  }
-  list.innerHTML = filteredFlights.slice(0,200).map(f => {
-    const alt = f.baro_altitude ? Math.round(f.baro_altitude*3.28084/100)/10+'k ft':'GND';
-    const spd = f.velocity ? Math.round(f.velocity*1.944)+'kts':'\u2013';
-    const airline = getAirline(f.callsign) || f.origin_country;
-    const statusDot = f.on_ground ? '\ud83d\udfe1' : (f.vertical_rate > 2 ? '\ud83d\udfe2' : f.vertical_rate < -2 ? '\ud83d\udd34' : '\ud83d\udd35');
-    return `<div class=\"flight-item ${f===selectedFlight?'selected':''}\" data-icao=\"${f.icao24}\">
-      <div class=\"flight-id\">${statusDot} ${f.callsign}</div>
-      <div class=\"flight-route\">${airline}</div>
-      <div class=\"flight-meta\"><span>ALT</span>${alt}&nbsp;&nbsp;<span>SPD</span>${spd}</div>
-    </div>`;
-  }).join('');
-  list.querySelectorAll('.flight-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const f = filteredFlights.find(x => x.icao24 === el.dataset.icao);
-      if (f) selectFlight(f);
-    });
-  });
+.layers-panel {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
 }
 
-// ─── Waypoints & ILS ─────────────────────────────────────────
-// Major global navigation fixes (VORs, NDBs, intersections)
-const WAYPOINTS = [
-  // North Atlantic Track fixes
-  {id:'SOMAX',lat:51,lon:-15,type:'fix'},{id:'MIMKU',lat:52,lon:-20,type:'fix'},
-  {id:'DOLIR',lat:53,lon:-30,type:'fix'},{id:'BEDRA',lat:54,lon:-40,type:'fix'},
-  {id:'RAFOX',lat:55,lon:-50,type:'fix'},{id:'MIMLO',lat:57,lon:-20,type:'fix'},
-  // North Pacific
-  {id:'NORDO',lat:48,lon:-150,type:'fix'},{id:'TALON',lat:47,lon:-160,type:'fix'},
-  {id:'NIPPI',lat:45,lon:-170,type:'fix'},{id:'EMRON',lat:43,lon:180,type:'fix'},
-  // Europe major VORs
-  {id:'LAM',lat:51.64,lon:-0.15,type:'vor'},{id:'DET',lat:51.28,lon:0.61,type:'vor'},
-  {id:'CLN',lat:51.84,lon:0.89,type:'vor'},{id:'TNT',lat:51.47,lon:0.45,type:'vor'},
-  {id:'DVR',lat:51.16,lon:1.35,type:'vor'},{id:'KONAN',lat:51.08,lon:2.61,type:'fix'},
-  {id:'POL',lat:55.68,lon:-4.68,type:'vor'},{id:'TLA',lat:48.77,lon:2.2,type:'vor'},
-  {id:'BIG',lat:51.33,lon:0.03,type:'vor'},{id:'MAY',lat:50.86,lon:-0.12,type:'vor'},
-  {id:'SFD',lat:50.99,lon:-0.11,type:'vor'},{id:'BNN',lat:51.64,lon:-0.55,type:'vor'},
-  {id:'HON',lat:51.01,lon:-1.35,type:'vor'},{id:'SAM',lat:50.95,lon:-1.34,type:'vor'},
-  {id:'BCN',lat:41.29,lon:2.1,type:'vor'},{id:'LFPG',lat:49.01,lon:2.55,type:'vor'},
-  // Middle East VORs
-  {id:'DXB',lat:25.25,lon:55.36,type:'vor'},{id:'AUH',lat:24.43,lon:54.65,type:'vor'},
-  {id:'DOH',lat:25.27,lon:51.61,type:'vor'},{id:'BGW',lat:33.26,lon:44.23,type:'vor'},
-  {id:'CAI',lat:30.12,lon:31.41,type:'vor'},{id:'BEY',lat:33.82,lon:35.49,type:'vor'},
-  {id:'TLV',lat:32.01,lon:34.89,type:'vor'},{id:'AMM',lat:31.72,lon:35.99,type:'vor'},
-  // Asia VORs
-  {id:'HKG',lat:22.31,lon:113.91,type:'vor'},{id:'SIN',lat:1.36,lon:103.99,type:'vor'},
-  {id:'NRT',lat:35.77,lon:140.39,type:'vor'},{id:'ICN',lat:37.47,lon:126.45,type:'vor'},
-  {id:'PEK',lat:40.08,lon:116.6,type:'vor'},{id:'PVG',lat:31.14,lon:121.81,type:'vor'},
-  {id:'DEL',lat:28.57,lon:77.1,type:'vor'},{id:'BOM',lat:19.09,lon:72.87,type:'vor'},
-  {id:'BKK',lat:13.69,lon:100.75,type:'vor'},{id:'KUL',lat:2.75,lon:101.71,type:'vor'},
-  // Americas VORs
-  {id:'JFK',lat:40.64,lon:-73.78,type:'vor'},{id:'LAX',lat:33.94,lon:-118.41,type:'vor'},
-  {id:'ORD',lat:41.97,lon:-87.91,type:'vor'},{id:'MIA',lat:25.8,lon:-80.29,type:'vor'},
-  {id:'ATL',lat:33.64,lon:-84.43,type:'vor'},{id:'DFW',lat:32.9,lon:-97.04,type:'vor'},
-  {id:'DEN',lat:39.86,lon:-104.67,type:'vor'},{id:'SFO',lat:37.62,lon:-122.38,type:'vor'},
-  {id:'YYZ',lat:43.68,lon:-79.62,type:'vor'},{id:'GRU',lat:-23.44,lon:-46.47,type:'vor'},
-  // Africa
-  {id:'ADD',lat:8.98,lon:38.8,type:'vor'},{id:'NBO',lat:-1.32,lon:36.93,type:'vor'},
-  {id:'JNB',lat:-26.14,lon:28.25,type:'vor'},{id:'LOS',lat:6.58,lon:3.32,type:'vor'},
-];
-
-// ILS approaches for major airports (runway heading, glideslope lat/lon, name)
-const ILS_DATA = [
-  // London Heathrow
-  {ap:'EGLL',rwy:'27L',lat:51.477,lon:-0.461,hdg:270,gs_lat:51.477,gs_lon:-0.11,freq:'109.5',dme:'ILLS',range:12},
-  {ap:'EGLL',rwy:'09R',lat:51.477,lon:-0.077,hdg:90,gs_lat:51.477,gs_lon:-0.43,freq:'110.3',dme:'ILSR',range:12},
-  // Paris CDG
-  {ap:'LFPG',rwy:'27L',lat:49.017,lon:2.548,hdg:270,gs_lat:49.017,gs_lon:2.85,freq:'109.75',dme:'CGN',range:12},
-  {ap:'LFPG',rwy:'09R',lat:49.017,lon:2.85,hdg:90,gs_lat:49.017,gs_lon:2.55,freq:'110.55',dme:'CGS',range:12},
-  // Frankfurt
-  {ap:'EDDF',rwy:'25C',lat:50.027,lon:8.562,hdg:250,gs_lat:50.041,gs_lon:8.85,freq:'111.15',dme:'FFM',range:15},
-  // Dubai
-  {ap:'OMDB',rwy:'30L',lat:25.252,lon:55.366,hdg:300,gs_lat:25.23,gs_lon:55.58,freq:'110.9',dme:'IDB',range:12},
-[2166 lines total]",
-        "uuid": "4ad1de64-824a-4e44-aa6f-a690e257464e"
-      }
-    ],
-    "is_error": false,
-    "structured_content": null,
-    "meta": null,
-    "message": null,
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "display_content": {
-      "type": "json_block",
-      "json_block": "{\"language\": \"html\", \"code\": \"        <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Position</span><span class=\\\"dp-value dim\\\">${f.latitude.toFixed(2)}\\u00b0, ${f.longitude.toFixed(2)}\\u00b0</span></div>\
-      </div>\
-    </div>`;\
-}\
-\
-document.getElementById('dp-close-btn').addEventListener('click', () => {\
-  document.getElementById('detail-panel').classList.remove('open');\
-  selectedFlight = null;\
-  renderFlights(); renderList();\
-});\
-\
-function selectFlight(f) {\
-  selectedFlight = f;\
-  renderFlights(); renderList(); openDetailPanel(f);\
-  if (f) {\
-    const target = [-f.longitude, -f.latitude];\
-    const current = projection.rotate();\
-    const interp = d3.interpolate(current, [target[0], target[1], 0]);\
-    d3.transition().duration(800).tween('rotate', () => t => {\
-      projection.rotate(interp(t)); updateGlobe();\
-    });\
-  }\
-}\
-\
-function renderList() {\
-  const list = document.getElementById('flight-list');\
-  if (!filteredFlights.length) {\
-    list.innerHTML = '<div class=\\\"empty-state\\\">No flights match<br>your filter.</div>'; return;\
-  }\
-  list.innerHTML = filteredFlights.slice(0,200).map(f => {\
-    const alt = f.baro_altitude ? Math.round(f.baro_altitude*3.28084/100)/10+'k ft':'GND';\
-    const spd = f.velocity ? Math.round(f.velocity*1.944)+'kts':'\\u2013';\
-    const airline = getAirline(f.callsign) || f.origin_country;\
-    const statusDot = f.on_ground ? '\\ud83d\\udfe1' : (f.vertical_rate > 2 ? '\\ud83d\\udfe2' : f.vertical_rate < -2 ? '\\ud83d\\udd34' : '\\ud83d\\udd35');\
-    return `<div class=\\\"flight-item ${f===selectedFlight?'selected':''}\\\" data-icao=\\\"${f.icao24}\\\">\
-      <div class=\\\"flight-id\\\">${statusDot} ${f.callsign}</div>\
-      <div class=\\\"flight-route\\\">${airline}</div>\
-      <div class=\\\"flight-meta\\\"><span>ALT</span>${alt}&nbsp;&nbsp;<span>SPD</span>${spd}</div>\
-    </div>`;\
-  }).join('');\
-  list.querySelectorAll('.flight-item').forEach(el => {\
-    el.addEventListener('click', () => {\
-      const f = filteredFlights.find(x => x.icao24 === el.dataset.icao);\
-      if (f) selectFlight(f);\
-    });\
-  });\
-}\
-\
-// \─\─\─ Waypoints & ILS \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-// Major global navigation fixes (VORs, NDBs, intersections)\
-const WAYPOINTS = [\
-  // North Atlantic Track fixes\
-  {id:'SOMAX',lat:51,lon:-15,type:'fix'},{id:'MIMKU',lat:52,lon:-20,type:'fix'},\
-  {id:'DOLIR',lat:53,lon:-30,type:'fix'},{id:'BEDRA',lat:54,lon:-40,type:'fix'},\
-  {id:'RAFOX',lat:55,lon:-50,type:'fix'},{id:'MIMLO',lat:57,lon:-20,type:'fix'},\
-  // North Pacific\
-  {id:'NORDO',lat:48,lon:-150,type:'fix'},{id:'TALON',lat:47,lon:-160,type:'fix'},\
-  {id:'NIPPI',lat:45,lon:-170,type:'fix'},{id:'EMRON',lat:43,lon:180,type:'fix'},\
-  // Europe major VORs\
-  {id:'LAM',lat:51.64,lon:-0.15,type:'vor'},{id:'DET',lat:51.28,lon:0.61,type:'vor'},\
-  {id:'CLN',lat:51.84,lon:0.89,type:'vor'},{id:'TNT',lat:51.47,lon:0.45,type:'vor'},\
-  {id:'DVR',lat:51.16,lon:1.35,type:'vor'},{id:'KONAN',lat:51.08,lon:2.61,type:'fix'},\
-  {id:'POL',lat:55.68,lon:-4.68,type:'vor'},{id:'TLA',lat:48.77,lon:2.2,type:'vor'},\
-  {id:'BIG',lat:51.33,lon:0.03,type:'vor'},{id:'MAY',lat:50.86,lon:-0.12,type:'vor'},\
-  {id:'SFD',lat:50.99,lon:-0.11,type:'vor'},{id:'BNN',lat:51.64,lon:-0.55,type:'vor'},\
-  {id:'HON',lat:51.01,lon:-1.35,type:'vor'},{id:'SAM',lat:50.95,lon:-1.34,type:'vor'},\
-  {id:'BCN',lat:41.29,lon:2.1,type:'vor'},{id:'LFPG',lat:49.01,lon:2.55,type:'vor'},\
-  // Middle East VORs\
-  {id:'DXB',lat:25.25,lon:55.36,type:'vor'},{id:'AUH',lat:24.43,lon:54.65,type:'vor'},\
-  {id:'DOH',lat:25.27,lon:51.61,type:'vor'},{id:'BGW',lat:33.26,lon:44.23,type:'vor'},\
-  {id:'CAI',lat:30.12,lon:31.41,type:'vor'},{id:'BEY',lat:33.82,lon:35.49,type:'vor'},\
-  {id:'TLV',lat:32.01,lon:34.89,type:'vor'},{id:'AMM',lat:31.72,lon:35.99,type:'vor'},\
-  // Asia VORs\
-  {id:'HKG',lat:22.31,lon:113.91,type:'vor'},{id:'SIN',lat:1.36,lon:103.99,type:'vor'},\
-  {id:'NRT',lat:35.77,lon:140.39,type:'vor'},{id:'ICN',lat:37.47,lon:126.45,type:'vor'},\
-  {id:'PEK',lat:40.08,lon:116.6,type:'vor'},{id:'PVG',lat:31.14,lon:121.81,type:'vor'},\
-  {id:'DEL',lat:28.57,lon:77.1,type:'vor'},{id:'BOM',lat:19.09,lon:72.87,type:'vor'},\
-  {id:'BKK',lat:13.69,lon:100.75,type:'vor'},{id:'KUL',lat:2.75,lon:101.71,type:'vor'},\
-  // Americas VORs\
-  {id:'JFK',lat:40.64,lon:-73.78,type:'vor'},{id:'LAX',lat:33.94,lon:-118.41,type:'vor'},\
-  {id:'ORD',lat:41.97,lon:-87.91,type:'vor'},{id:'MIA',lat:25.8,lon:-80.29,type:'vor'},\
-  {id:'ATL',lat:33.64,lon:-84.43,type:'vor'},{id:'DFW',lat:32.9,lon:-97.04,type:'vor'},\
-  {id:'DEN',lat:39.86,lon:-104.67,type:'vor'},{id:'SFO',lat:37.62,lon:-122.38,type:'vor'},\
-  {id:'YYZ',lat:43.68,lon:-79.62,type:'vor'},{id:'GRU',lat:-23.44,lon:-46.47,type:'vor'},\
-  // Africa\
-  {id:'ADD',lat:8.98,lon:38.8,type:'vor'},{id:'NBO',lat:-1.32,lon:36.93,type:'vor'},\
-  {id:'JNB',lat:-26.14,lon:28.25,type:'vor'},{id:'LOS',lat:6.58,lon:3.32,type:'vor'},\
-];\
-\
-// ILS approaches for major airports (runway heading, glideslope lat/lon, name)\
-const ILS_DATA = [\
-  // London Heathrow\
-  {ap:'EGLL',rwy:'27L',lat:51.477,lon:-0.461,hdg:270,gs_lat:51.477,gs_lon:-0.11,freq:'109.5',dme:'ILLS',range:12},\
-  {ap:'EGLL',rwy:'09R',lat:51.477,lon:-0.077,hdg:90,gs_lat:51.477,gs_lon:-0.43,freq:'110.3',dme:'ILSR',range:12},\
-  // Paris CDG\
-  {ap:'LFPG',rwy:'27L',lat:49.017,lon:2.548,hdg:270,gs_lat:49.017,gs_lon:2.85,freq:'109.75',dme:'CGN',range:12},\
-  {ap:'LFPG',rwy:'09R',lat:49.017,lon:2.85,hdg:90,gs_lat:49.017,gs_lon:2.55,freq:'110.55',dme:'CGS',range:12},\
-  // Frankfurt\
-  {ap:'EDDF',rwy:'25C',lat:50.027,lon:8.562,hdg:250,gs_lat:50.041,gs_lon:8.85,freq:'111.15',dme:'FFM',range:15},\
-  // Dubai\
-  {ap:'OMDB',rwy:'30L',lat:25.252,lon:55.366,hdg:300,gs_lat:25.23,gs_lon:55.58,freq:'110.9',dme:'IDB',range:12},\
-\", \"filename\": \"/mnt/user-data/outputs/flight-tracker.html\"}"
-    }
-  },
-  {
-    "start_timestamp": "2026-03-09T11:30:04.685288Z",
-    "stop_timestamp": "2026-03-09T11:30:10.059042Z",
-    "flags": null,
-    "type": "text",
-    "text": "Good, I now have the full picture. Let me plan this carefully:
-
-1. **Route waypoints layer** \u2014 fetch actual filed route waypoints per selected flight from the Aviationstack or OpenSky route API, draw them as a connected path on the globe
-2. **Leaflet tile map** \u2014 a second view that slides in when you zoom past a threshold (or click an airport), showing OSM tiles with runway detail
-
-The key architectural decision: rather than replacing the globe, I'll add a **Leaflet panel** that opens alongside (or replaces the globe area) when you click \"Zoom to Airport\" \u2014 it shows the real OSM aeronautical tiles. On the globe, I'll add a proper **route waypoints layer** that draws the filed route for the selected flight.",
-    "citations": []
-  },
-  {
-    "start_timestamp": "2026-03-09T11:30:10.233367Z",
-    "stop_timestamp": "2026-03-09T11:30:11.294325Z",
-    "flags": null,
-    "type": "tool_use",
-    "id": "toolu_01KkTSuAPgdv3jCWBU3tRCiq",
-    "name": "view",
-    "input": {
-      "description": "Read airport panel open function",
-      "path": "/mnt/user-data/outputs/flight-tracker.html",
-      "view_range": [
-        1680,
-        1760
-      ]
-    },
-    "message": "Read airport panel open function",
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "context": null,
-    "display_content": {
-      "type": "text",
-      "text": "Read airport panel open function"
-    },
-    "approval_options": null,
-    "approval_key": null,
-    "is_mcp_app": null
-  },
-  {
-    "start_timestamp": null,
-    "stop_timestamp": null,
-    "flags": null,
-    "type": "tool_result",
-    "tool_use_id": "toolu_01KkTSuAPgdv3jCWBU3tRCiq",
-    "name": "view",
-    "content": [
-      {
-        "type": "text",
-        "text": "  1680	  document.getElementById('dp-airline').textContent  = ap.name;
-  document.getElementById('dp-badges').innerHTML = `
-    <span class=\"dp-badge accent\">${ap.size.toUpperCase()} HUB</span>
-    <span class=\"dp-badge\">\u2708 ${ap.runways} RUNWAYS</span>
-    <span class=\"dp-badge\">\ud83c\udfe2 ${ap.terminals} TERMINALS</span>`;
-  document.getElementById('dp-content').innerHTML = `
-    <div class=\"dp-section\">
-      <div class=\"dp-section-title\">\u2708 Airport Info</div>
-      <div class=\"dp-row\"><span class=\"dp-label\">Full Name</span><span class=\"dp-value\">${ap.name}</span></div>
-      <div class=\"dp-row\"><span class=\"dp-label\">ICAO / IATA</span><span class=\"dp-value mono\">${icao} / ${ap.iata}</span></div>
-      <div class=\"dp-row\"><span class=\"dp-label\">City</span><span class=\"dp-value\">${ap.city}</span></div>
-      <div class=\"dp-row\"><span class=\"dp-label\">Country</span><span class=\"dp-value\">${ap.country}</span></div>
-      <div class=\"dp-row\"><span class=\"dp-label\">Coordinates</span><span class=\"dp-value dim\">${ap.lat.toFixed(4)}\u00b0, ${ap.lon.toFixed(4)}\u00b0</span></div>
-    </div>
-    <div class=\"dp-section\">
-      <div class=\"dp-section-title\">\ud83c\udfd7 Infrastructure</div>
-      <div class=\"dp-row\"><span class=\"dp-label\">Runways</span><span class=\"dp-value\" style=\"color:var(--accent)\">${ap.runways}</span></div>
-      <div class=\"dp-row\"><span class=\"dp-label\">Terminals</span><span class=\"dp-value\" style=\"color:var(--accent)\">${ap.terminals}</span></div>
-      <div class=\"dp-row\"><span class=\"dp-label\">Hub Size</span><span class=\"dp-value\">${ap.size.charAt(0).toUpperCase()+ap.size.slice(1)}</span></div>
-    </div>
-    <div class=\"dp-section\">
-      <div class=\"dp-section-title\">\u2708 Live Traffic</div>
-      <div class=\"dp-row\"><span class=\"dp-label\">On Ground</span><span class=\"dp-value\" style=\"color:#ffd700\" id=\"ap-ground-count\">counting...</span></div>
-      <div class=\"dp-row\"><span class=\"dp-label\">Departing</span><span class=\"dp-value\" style=\"color:#00ff88\" id=\"ap-dep-count\">\u2013</span></div>
-      <div class=\"dp-row\"><span class=\"dp-label\">Arriving</span><span class=\"dp-value\" style=\"color:#ff6b35\" id=\"ap-arr-count\">\u2013</span></div>
-    </div>`;
-  panel.classList.add('open');
-
-  // Count live aircraft near this airport
-  setTimeout(() => {
-    const nearby = flights.filter(f => {
-      const dist = Math.sqrt(Math.pow(f.latitude - ap.lat, 2) + Math.pow(f.longitude - ap.lon, 2));
-      return dist < 0.5;
-    });
-    const onGround = nearby.filter(f => f.on_ground).length;
-    const departing = nearby.filter(f => !f.on_ground && f.vertical_rate > 1).length;
-    const arriving  = nearby.filter(f => !f.on_ground && f.vertical_rate < -1).length;
-    const groundEl = document.getElementById('ap-ground-count');
-    const depEl    = document.getElementById('ap-dep-count');
-    const arrEl    = document.getElementById('ap-arr-count');
-    if (groundEl) groundEl.textContent = onGround || '0';
-    if (depEl)    depEl.textContent    = departing || '0';
-    if (arrEl)    arrEl.textContent    = arriving  || '0';
-  }, 100);
+.layers-title {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  padding: 4px 12px 8px;
+  text-transform: uppercase;
 }
 
+.layer-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  transition: background 0.15s;
+  gap: 8px;
+}
+.layer-row:hover { background: rgba(0,212,255,0.06); }
+.layer-row.active { color: var(--accent); }
 
-function getAirline(callsign) {
-  if (!callsign) return null;
-  const cs = callsign.trim().toUpperCase().replace(/[0-9].*$/, ''); // strip trailing numbers
-  // Try 3-char ICAO, then 2-char IATA, then partial
-  return AIRLINE_DB[cs] ||
-         AIRLINE_DB[callsign.substring(0,3).toUpperCase()] ||
-         AIRLINE_DB[callsign.substring(0,2).toUpperCase()] ||
-         null;
+.layer-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.layer-row.active .layer-dot { background: var(--accent); }
+
+.flight-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
-async function fetchRoute(callsign) {
-  const r = await fetch(`${OPENSKY}/routes?callsign=${callsign.trim()}`);
-  if (!r.ok) throw new Error('no route');
-  return await r.json();
+.flight-list::-webkit-scrollbar { width: 4px; }
+.flight-list::-webkit-scrollbar-track { background: var(--bg); }
+.flight-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+.list-header {
+  padding: 8px 12px 4px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 2;
 }
 
-// ─── AeroDataBox API ──────────────────────────────────────────
-// Paste your RapidAPI key here after subscribing to AeroDataBox:
-// https://rapidapi.com/aedbx-aedbx/api/aerodatabox
-const AERODATABOX_KEY = '538b7622demshf36ea0d1aa90fefp1aa40ejsn2d79e8cd5c8e';
-const ADB_HOST = 'aerodatabox.p.rapidapi.com';
+#flight-search {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 4px 8px;
+  width: 100%;
+  outline: none;
+}
+#flight-search:focus { border-color: var(--accent); }
 
-async function fetchAeroDataBox(path) {
-  if (AERODATABOX_KEY === 'YOUR_RAPIDAPI_KEY_HERE') return null;
-  try {
-    const r = await fetch(`https://${ADB_HOST}${path}`, {
-      headers: {
-        'X-RapidAPI-Key':  AERODATABOX_KEY,
-        'X-RapidAPI-Host': ADB_HOST
-      }
-    });
-    if (!r.ok) return null;
-    return await r.json();
-  } catch(e) { return null; }
-[2166 lines total]",
-        "uuid": "4866ace2-1517-4155-81cf-28ea7961b86b"
-      }
-    ],
-    "is_error": false,
-    "structured_content": null,
-    "meta": null,
-    "message": null,
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "file",
-    "display_content": {
-      "type": "json_block",
-      "json_block": "{\"language\": \"html\", \"code\": \"  document.getElementById('dp-airline').textContent  = ap.name;\
-  document.getElementById('dp-badges').innerHTML = `\
-    <span class=\\\"dp-badge accent\\\">${ap.size.toUpperCase()} HUB</span>\
-    <span class=\\\"dp-badge\\\">\\u2708 ${ap.runways} RUNWAYS</span>\
-    <span class=\\\"dp-badge\\\">\\ud83c\\udfe2 ${ap.terminals} TERMINALS</span>`;\
-  document.getElementById('dp-content').innerHTML = `\
-    <div class=\\\"dp-section\\\">\
-      <div class=\\\"dp-section-title\\\">\\u2708 Airport Info</div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Full Name</span><span class=\\\"dp-value\\\">${ap.name}</span></div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">ICAO / IATA</span><span class=\\\"dp-value mono\\\">${icao} / ${ap.iata}</span></div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">City</span><span class=\\\"dp-value\\\">${ap.city}</span></div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Country</span><span class=\\\"dp-value\\\">${ap.country}</span></div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Coordinates</span><span class=\\\"dp-value dim\\\">${ap.lat.toFixed(4)}\\u00b0, ${ap.lon.toFixed(4)}\\u00b0</span></div>\
-    </div>\
-    <div class=\\\"dp-section\\\">\
-      <div class=\\\"dp-section-title\\\">\\ud83c\\udfd7 Infrastructure</div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Runways</span><span class=\\\"dp-value\\\" style=\\\"color:var(--accent)\\\">${ap.runways}</span></div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Terminals</span><span class=\\\"dp-value\\\" style=\\\"color:var(--accent)\\\">${ap.terminals}</span></div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Hub Size</span><span class=\\\"dp-value\\\">${ap.size.charAt(0).toUpperCase()+ap.size.slice(1)}</span></div>\
-    </div>\
-    <div class=\\\"dp-section\\\">\
-      <div class=\\\"dp-section-title\\\">\\u2708 Live Traffic</div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">On Ground</span><span class=\\\"dp-value\\\" style=\\\"color:#ffd700\\\" id=\\\"ap-ground-count\\\">counting...</span></div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Departing</span><span class=\\\"dp-value\\\" style=\\\"color:#00ff88\\\" id=\\\"ap-dep-count\\\">\\u2013</span></div>\
-      <div class=\\\"dp-row\\\"><span class=\\\"dp-label\\\">Arriving</span><span class=\\\"dp-value\\\" style=\\\"color:#ff6b35\\\" id=\\\"ap-arr-count\\\">\\u2013</span></div>\
-    </div>`;\
-  panel.classList.add('open');\
-\
-  // Count live aircraft near this airport\
-  setTimeout(() => {\
-    const nearby = flights.filter(f => {\
-      const dist = Math.sqrt(Math.pow(f.latitude - ap.lat, 2) + Math.pow(f.longitude - ap.lon, 2));\
-      return dist < 0.5;\
-    });\
-    const onGround = nearby.filter(f => f.on_ground).length;\
-    const departing = nearby.filter(f => !f.on_ground && f.vertical_rate > 1).length;\
-    const arriving  = nearby.filter(f => !f.on_ground && f.vertical_rate < -1).length;\
-    const groundEl = document.getElementById('ap-ground-count');\
-    const depEl    = document.getElementById('ap-dep-count');\
-    const arrEl    = document.getElementById('ap-arr-count');\
-    if (groundEl) groundEl.textContent = onGround || '0';\
-    if (depEl)    depEl.textContent    = departing || '0';\
-    if (arrEl)    arrEl.textContent    = arriving  || '0';\
-  }, 100);\
-}\
-\
-\
-function getAirline(callsign) {\
-  if (!callsign) return null;\
-  const cs = callsign.trim().toUpperCase().replace(/[0-9].*$/, ''); // strip trailing numbers\
-  // Try 3-char ICAO, then 2-char IATA, then partial\
-  return AIRLINE_DB[cs] ||\
-         AIRLINE_DB[callsign.substring(0,3).toUpperCase()] ||\
-         AIRLINE_DB[callsign.substring(0,2).toUpperCase()] ||\
-         null;\
-}\
-\
-async function fetchRoute(callsign) {\
-  const r = await fetch(`${OPENSKY}/routes?callsign=${callsign.trim()}`);\
-  if (!r.ok) throw new Error('no route');\
-  return await r.json();\
-}\
-\
-// \─\─\─ AeroDataBox API \─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\─\
-// Paste your RapidAPI key here after subscribing to AeroDataBox:\
-// https://rapidapi.com/aedbx-aedbx/api/aerodatabox\
-const AERODATABOX_KEY = '538b7622demshf36ea0d1aa90fefp1aa40ejsn2d79e8cd5c8e';\
-const ADB_HOST = 'aerodatabox.p.rapidapi.com';\
-\
-async function fetchAeroDataBox(path) {\
-  if (AERODATABOX_KEY === 'YOUR_RAPIDAPI_KEY_HERE') return null;\
-  try {\
-    const r = await fetch(`https://${ADB_HOST}${path}`, {\
-      headers: {\
-        'X-RapidAPI-Key':  AERODATABOX_KEY,\
-        'X-RapidAPI-Host': ADB_HOST\
-      }\
-    });\
-    if (!r.ok) return null;\
-    return await r.json();\
-  } catch(e) { return null; }\
-\", \"filename\": \"/mnt/user-data/outputs/flight-tracker.html\"}"
-    }
-  },
-  {
-    "start_timestamp": "2026-03-09T11:30:13.382562Z",
-    "stop_timestamp": "2026-03-09T11:30:13.616985Z",
-    "flags": null,
-    "type": "text",
-    "text": "Now I have everything I need. Let me implement both features:",
-    "citations": []
-  },
-  {
-    "start_timestamp": "2026-03-09T11:30:13.805055Z",
-    "stop_timestamp": "2026-03-09T11:30:16.369353Z",
-    "flags": null,
-    "type": "tool_use",
-    "id": "toolu_01835h6w9UzsfRxNoZg7TMc5",
-    "name": "str_replace",
-    "input": {
-      "description": "Add Leaflet CSS/JS to head",
-      "path": "/mnt/user-data/outputs/flight-tracker.html",
-      "old_str": "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js\"></script>
-<script src=\"https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js\"></script>",
-      "new_str": "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js\"></script>
-<script src=\"https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js\"></script>
-<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\"/>
-<script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\"></script>"
-    },
-    "message": "Add Leaflet CSS/JS to head",
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "edit",
-    "context": null,
-    "display_content": {
-      "type": "text",
-      "text": "Add Leaflet CSS/JS to head"
-    },
-    "approval_options": null,
-    "approval_key": null,
-    "is_mcp_app": null
-  },
-  {
-    "start_timestamp": null,
-    "stop_timestamp": null,
-    "flags": null,
-    "type": "tool_result",
-    "tool_use_id": "toolu_01835h6w9UzsfRxNoZg7TMc5",
-    "name": "str_replace",
-    "content": [
-      {
-        "type": "text",
-        "text": "Successfully replaced string in /mnt/user-data/outputs/flight-tracker.html",
-        "uuid": "664a61dd-80e8-4b36-8222-8effec243a07"
-      }
-    ],
-    "is_error": false,
-    "structured_content": null,
-    "meta": null,
-    "message": null,
-    "integration_name": null,
-    "integration_icon_url": null,
-    "icon_name": "edit",
-    "display_content": {
-      "type": "text",
-      "text": "Successfully replaced string in /mnt/user-data/outputs/flight-tracker.html"
-    }
-  },
-  {
-    "start_timestamp": "2026-03-09T11:30:18.008789Z",
-    "stop_timestamp": "2026-03-09T11:30:18.416018Z",
-    "flags": null,
-    "type": "text",
-    "text": "Now add CSS for the Leaflet map panel and route waypoints:",
-    "citations": []
-  },
-  {
-    "start_timestamp": "2026-03-09T11:30:18.610184Z",
-    "stop_timestamp": "2026-03-09T11:30:33.806256Z",
-    "flags": null,
-    "type": "tool_use",
-    "id": "toolu_01Q8G1q46CqEFLYeJmP3hZaS",
-    "name": "str_replace",
-    "input": {
-      "description": "Add CSS for Leaflet panel, route waypoints, and airport zoom button",
-      "new_str": "  /* ── Leaflet Airport Map Panel ───────────────────────────── */
-  #airport-map-panel {
-    position: absolute;
-    inset: 0;
-    z-index: 50;
-    display: none;
-    flex-direction: column;
-    background: var(--bg);
-  }
-  #airport-map-panel.open { display: flex; }
+.filter-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
 
-  #airport-map-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-    z-index: 2;
-  }
-  #airport-map-title {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    flex: 1;
-  }
-  #airport-map-subtitle {
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-  }
-  .map-tile-btn {
-    padding: 4px 9px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    font-size: 8px;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-  .map-tile-btn:hover, .map-tile-btn.active {
-    border-color: var(--accent); color: var(--accent);
-    background: rgba(0,180,255,0.08);
-  }
-  #airport-map-close {
-    width: 28px; height: 28px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-size: 15px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-  }
-  #airport-map-close:hover { border-color: var(--accent2); color: var(--accent2); }
+.filter-tab {
+  font-size: 9px;
+  padding: 2px 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+.filter-tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
-  #airport-map-body { flex: 1; position: relative; overflow: hidden; }
-  #leaflet-map { width: 100%; height: 100%; }
+.flight-item {
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(26,45,74,0.5);
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.flight-item:hover { background: rgba(0,212,255,0.06); }
+.flight-item.selected { background: rgba(0,212,255,0.12); border-left: 2px solid var(--accent); }
 
-  /* Airport info overlay on map */
-  #airport-map-info {
-    position: absolute;
-    bottom: 16px; left: 16px;
-    background: rgba(11,21,37,0.93);
-    border: 1px solid var(--border);
-    padding: 10px 14px;
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    z-index: 1000;
-    min-width: 200px;
-    pointer-events: none;
-  }
-  body.day-mode #airport-map-info { background: rgba(245,248,252,0.95); }
-  #airport-map-info .ami-icao { font-size: 14px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
-  #airport-map-info .ami-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 3px; color: var(--muted); }
-  #airport-map-info .ami-row b { color: var(--text); }
+.flight-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 
-  /* Zoom-to-airport button inside airport detail panel */
-  .zoom-to-map-btn {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-    padding: 7px;
-    border: 1px solid var(--accent);
-    background: rgba(0,180,255,0.07);
-    color: var(--accent);
-    font-family: 'Space Mono', monospace;
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-  .zoom-to-map-btn:hover { background: rgba(0,180,255,0.18); }
+.flight-info { flex: 1; min-width: 0; }
+.flight-cs { font-size: 11px; font-weight: 700; color: var(--text); }
+.flight-airline { font-size: 9px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.flight-meta { font-size: 9px; color: var(--text-dim); text-align: right; }
 
-  /* Route waypoints drawn on globe */
-  .route-waypoint-dot { pointer-events: none; }
-  .route-path-line { pointer-events: none; }
-",
-      "old_str": "  .dp-time-row b { color:var(--text); font-weight:700; }
+.status-loading { color: var(--accent2); }
+.status-ok { color: var(--accent3); }
+.status-error { color: #ff4444; }
+
+.tooltip {
+  position: fixed;
+  background: rgba(5,10,20,0.95);
+  border: 1px solid var(--accent);
+  padding: 6px 10px;
+  font-size: 10px;
+  pointer-events: none;
+  z-index: 500;
+  display: none;
+  max-width: 200px;
+  backdrop-filter: blur(4px);
+}
+
+/* Detail panel */
+.detail-panel {
+  position: fixed;
+  top: var(--header-h);
+  right: var(--sidebar-w);
+  width: 320px;
+  max-height: calc(100vh - var(--header-h));
+  background: rgba(5,10,20,0.97);
+  border: 1px solid var(--border);
+  border-right: none;
+  overflow-y: auto;
+  z-index: 200;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  display: none;
+}
+.detail-panel.open {
+  transform: translateX(0);
+  display: block;
+}
+
+.dp-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.dp-title { font-size: 14px; font-weight: 700; color: var(--accent); }
+.dp-close {
+  background: none; border: none; color: var(--text-dim);
+  cursor: pointer; font-size: 16px; padding: 0 4px;
+}
+.dp-close:hover { color: var(--text); }
+
+.dp-body { padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dp-section { grid-column: 1 / -1; }
+.dp-section-title { font-size: 9px; letter-spacing: 2px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; }
+.dp-row { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; border-bottom: 1px solid rgba(26,45,74,0.4); }
+.dp-label { font-size: 9px; color: var(--text-dim); }
+.dp-value { font-size: 10px; font-weight: 700; }
+.dp-value.mono { font-family: 'Space Mono', monospace; }
+.dp-value.dim { font-weight: 400; color: var(--text-dim); }
+
+.progress-bar-wrap { grid-column: 1/-1; margin: 4px 0; }
+.progress-bar-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 2px; transition: width 0.5s; }
+.progress-label { display: flex; justify-content: space-between; font-size: 9px; color: var(--text-dim); margin-top: 3px; }
+
+/* Airport map panel */
+#airport-map-panel {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(5,10,20,0.97);
+  z-index: 1000;
+  display: none;
+  flex-direction: column;
+}
+#airport-map-panel.open { display: flex; }
+.amp-header {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--surface);
+}
+.amp-title { font-size: 13px; font-weight: 700; color: var(--accent); flex: 1; }
+.tile-btn {
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); font-family: 'Space Mono', monospace;
+  font-size: 10px; padding: 4px 8px; cursor: pointer;
+}
+.tile-btn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+#leaflet-map { flex: 1; }
+
+.zoom-to-map-btn {
+  width: 100%;
+  background: rgba(0,212,255,0.1);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  padding: 8px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+.zoom-to-map-btn:hover { background: var(--accent); color: var(--bg); }
+
+/* Legend */
+.legend {
+  padding: 6px 12px;
+  border-top: 1px solid var(--border);
+  font-size: 9px;
+  color: var(--text-dim);
+}
+.legend-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* Scrollbar for detail panel */
+.detail-panel::-webkit-scrollbar { width: 4px; }
+.detail-panel::-webkit-scrollbar-track { background: var(--bg); }
+.detail-panel::-webkit-scrollbar-thumb { background: var(--border); }
 </style>
 </head>
 <body>
+
 <header>
   <div class="logo">FLIGHT<span>RADAR</span> // GLOBAL</div>
   <div class="stats-bar">
-    <div class="stat"><div class="stat-val" id="stat-total">–</div><div class="stat-label">Live Flights</div></div>
-    <div class="stat"><div class="stat-val" id="stat-airborne">–</div><div class="stat-label">Airborne</div></div>
-    <div class="stat"><div class="stat-val" id="stat-countries">–</div><div class="stat-label">Countries</div></div>
+    <div class="stat">
+      <div class="stat-val" id="stat-total">–</div>
+      <div class="stat-lbl">FLIGHTS</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-airborne">–</div>
+      <div class="stat-lbl">AIRBORNE</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="stat-countries">–</div>
+      <div class="stat-lbl">COUNTRIES</div>
+    </div>
   </div>
-  <div class="controls">
-    <div id="status"><div class="dot loading" id="status-dot"></div><span id="status-text">Loading...</span></div>
-    <button class="btn refresh" id="refresh-btn">↺ Refresh</button>
-    <button class="btn" id="auto-rotate-btn">Auto-Rotate</button>
-    <button class="theme-toggle" id="theme-btn"><span class="theme-icon" id="theme-icon">🌙</span><span id="theme-label">Night</span></button>
+  <div class="header-controls">
+    <span class="status-text" id="status-text">–</span>
+    <button class="btn" id="refresh-btn">↺ Refresh</button>
+    <button class="btn" id="autorotate-btn">Auto-Rotate</button>
+    <button class="btn" id="theme-btn"><span id="theme-icon">🌙</span> <span id="theme-label">Night</span></button>
   </div>
 </header>
 
 <div class="main">
   <div id="globe-container">
     <svg id="globe-svg"></svg>
-
-    <!-- Layer controls -->
-    <div class="layer-panel">
-      <div class="layer-title">Map Layers</div>
-      <div class="layer-item active" id="layer-borders">
-        <div class="layer-check">✓</div>
-        <div class="layer-swatch" style="background:#3a6090;border:1px solid #5080b0"></div>
-        Country Borders
-      </div>
-      <div class="layer-item active" id="layer-graticule">
-        <div class="layer-check">✓</div>
-        <div class="layer-swatch" style="background:#1a3055;border:1px dashed #2a4a70"></div>
-        Graticule Grid
-      </div>
-      <div class="layer-item" id="layer-airspace">
-        <div class="layer-check"></div>
-        <div class="layer-swatch" style="background:rgba(255,165,0,0.25);border:1px solid rgba(255,165,0,0.7)"></div>
-        Airspace Limits
-      </div>
-      <div class="layer-item active" id="layer-flights">
-        <div class="layer-check">✓</div>
-        <div class="layer-swatch" style="background:#00d4ff;border-radius:50%;width:8px;height:8px"></div>
-        Live Flights
-      </div>
-      <div class="layer-item active" id="layer-airports">
-        <div class="layer-check">✓</div>
-        <div class="layer-swatch" style="background:#ffd700;border-radius:50%;width:8px;height:8px;border:1px solid #ffd700"></div>
-        Airports
-      </div>
-      <div class="layer-item active" id="layer-trails">
-        <div class="layer-check">✓</div>
-        <div class="layer-swatch" style="background:linear-gradient(90deg,transparent,#00d4ff);height:3px;border-radius:2px;margin-top:3px"></div>
-        Flight Trails
-      </div>
-      <div class="layer-item" id="layer-waypoints">
-        <div class="layer-check"></div>
-        <div class="layer-swatch" style="background:none;border:1px solid #7ec8ff;width:6px;height:6px;transform:rotate(45deg);margin:1px"></div>
-        Nav Waypoints
-      </div>
-      <div class="layer-item" id="layer-route">
-        <div class="layer-check"></div>
-        <div class="layer-swatch" style="background:linear-gradient(90deg,#ff6b35,#00d4ff);height:2px;border-radius:1px;margin-top:3px"></div>
-        Route Path
-      </div>
-      <div class="layer-item" id="layer-ils">
-        <div class="layer-check"></div>
-        <div class="layer-swatch" style="background:rgba(0,255,136,0.3);border:1px solid #00ff88;border-radius:2px"></div>
-        ILS Approaches
-      </div>
-    </div>
-
-    <!-- ── Leaflet Airport Map Panel ── -->
-    <div id="airport-map-panel">
-      <div id="airport-map-header">
-        <div>
-          <div id="airport-map-title">Airport View</div>
-          <div id="airport-map-subtitle">Runway layout · OSM Aeronautical</div>
-        </div>
-        <button class="map-tile-btn active" id="tile-osm" onclick="setTileLayer('osm')">Street</button>
-        <button class="map-tile-btn" id="tile-sat" onclick="setTileLayer('sat')">Satellite</button>
-        <button class="map-tile-btn" id="tile-aero" onclick="setTileLayer('aero')">Aeronautical</button>
-        <button id="airport-map-close" onclick="closeAirportMap()">✕</button>
-      </div>
-      <div id="airport-map-body">
-        <div id="leaflet-map"></div>
-        <div id="airport-map-info">
-          <div class="ami-icao" id="ami-icao">–</div>
-          <div id="ami-name" style="color:var(--text);margin-bottom:6px;font-size:9px"></div>
-          <div class="ami-row"><span>Runways</span><b id="ami-runways">–</b></div>
-          <div class="ami-row"><span>Terminals</span><b id="ami-terminals">–</b></div>
-          <div class="ami-row"><span>On Ground</span><b id="ami-traffic" style="color:#ffd700">–</b></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#00d4ff"></div>Narrow-body</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff6b35"></div>Wide-body / High Alt</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#c084fc"></div>Cargo</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff9944"></div>Military</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div>Helicopter</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#00ff88"></div>Climbing/Descending</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div>Emergency Squawk</div>
-    </div>
-    <div class="hint">Drag to rotate · Scroll to zoom<br>Click aircraft for details</div>
-
-    <!-- Flight Detail Panel -->
-    <div id="detail-panel">
-      <div class="dp-header">
-        <div class="dp-header-left">
-          <div class="dp-callsign" id="dp-callsign">–</div>
-          <div class="dp-airline" id="dp-airline"></div>
-        </div>
-        <div class="dp-header-badges" id="dp-badges"></div>
-        <button class="dp-close" id="dp-close-btn">✕</button>
-      </div>
-      <div id="dp-content">
-        <div class="dp-loading"><div class="dp-spinner"></div>Loading flight details...</div>
-      </div>
-    </div>
   </div>
-
   <div class="sidebar">
-    <div class="sidebar-header">Flights // <span id="flight-count">0</span></div>
-    <div class="search-wrap">
-      <input class="search-input" type="text" id="search" placeholder="Search callsign, country...">
+    <div class="layers-panel">
+      <div class="layers-title">Map Layers</div>
+      <div class="layer-row active" data-layer="borders"><div class="layer-dot"></div>Country Borders</div>
+      <div class="layer-row active" data-layer="graticule"><div class="layer-dot"></div>Graticule Grid</div>
+      <div class="layer-row" data-layer="airspace"><div class="layer-dot"></div>Airspace Limits</div>
+      <div class="layer-row active" data-layer="flights"><div class="layer-dot"></div>Live Flights</div>
+      <div class="layer-row active" data-layer="airports"><div class="layer-dot"></div>Airports</div>
+      <div class="layer-row" data-layer="trails"><div class="layer-dot"></div>Flight Trails</div>
+      <div class="layer-row" data-layer="waypoints"><div class="layer-dot"></div>Nav Waypoints</div>
+      <div class="layer-row" data-layer="route"><div class="layer-dot"></div>Route Path</div>
+      <div class="layer-row" data-layer="ils"><div class="layer-dot"></div>ILS Approaches</div>
     </div>
-    <div class="filter-row">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="airborne">Airborne</button>
-      <button class="filter-btn" data-filter="high">High Alt</button>
-      <button class="filter-btn" data-filter="us">US</button>
-      <button class="filter-btn" data-filter="eu">Europe</button>
+    <div class="legend">
+      <div class="legend-row"><div class="legend-dot" style="background:#00d4ff"></div>Narrow-body</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ffffff"></div>Wide-body / High Alt</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#aa44ff"></div>Cargo</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ff9900"></div>Military</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#00ff88"></div>Helicopter</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ffcc00"></div>Climbing/Descending</div>
+      <div class="legend-row"><div class="legend-dot" style="background:#ff4444"></div>Emergency Squawk</div>
+      <div style="padding-top:6px;color:#5a7a9a">Drag to rotate · Scroll to zoom</div>
+      <div style="color:#5a7a9a">Click aircraft for details</div>
     </div>
-    <div class="flight-list" id="flight-list">
-      <div class="empty-state">Loading live flight data...<br>from OpenSky Network</div>
+    <div class="flight-list">
+      <div class="list-header">
+        <span id="list-count">–</span>
+        <input id="flight-search" type="text" placeholder="Search callsign, country...">
+        <div class="filter-tabs">
+          <div class="filter-tab active" data-filter="all">All</div>
+          <div class="filter-tab" data-filter="airborne">Airborne</div>
+          <div class="filter-tab" data-filter="highalt">High Alt</div>
+          <div class="filter-tab" data-filter="us">US</div>
+          <div class="filter-tab" data-filter="europe">Europe</div>
+        </div>
+      </div>
+      <div id="flight-list-items">
+        <div style="padding:20px 12px;color:#5a7a9a;font-size:10px" id="list-loading">Loading flight details...</div>
+      </div>
     </div>
   </div>
 </div>
 
-<div id="tooltip"></div>
+<div class="tooltip" id="tooltip"></div>
+
+<div class="detail-panel" id="detail-panel">
+  <div class="dp-header">
+    <span class="dp-title" id="dp-title">–</span>
+    <button class="dp-close" onclick="document.getElementById('detail-panel').classList.remove('open')">✕</button>
+  </div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
+
+<div id="airport-map-panel">
+  <div class="amp-header">
+    <span class="amp-title" id="amp-title">Airport Map</span>
+    <button class="tile-btn active" onclick="setTileLayer('street')">Street</button>
+    <button class="tile-btn" onclick="setTileLayer('sat')">Satellite</button>
+    <button class="tile-btn" onclick="setTileLayer('aero')">Aeronautical</button>
+    <button class="btn" onclick="closeAirportMap()">✕ Close</button>
+  </div>
+  <div id="leaflet-map"></div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ─── Theme ────────────────────────────────────────────────────
@@ -2563,8 +727,12 @@ const AIRSPACE_REGIONS = [
 
 function initGlobe() {
   svg.selectAll('*').remove();
-  width = container.clientWidth;
+  // Set SVG to fill container before reading dimensions
+  svg.attr('width', '100%').attr('height', '100%')
+     .style('width','100%').style('height','100%').style('display','block');
+  width = container.clientWidth || (window.innerWidth - 340);
   height = container.clientHeight;
+  if (height < 400) height = window.innerHeight - 60;
 
   projection
     .scale(Math.min(width, height) * 0.42)
@@ -2830,27 +998,77 @@ fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
 let isDragging = false;
 let dragStart = null, rotationStart = null;
 
+// ── Smooth drag with inertia ─────────────────────────────────
+let lastDragTime = 0, dragVelX = 0, dragVelY = 0, lastDragX = 0, lastDragY = 0;
+let inertiaFrame = null;
+
+function applyInertia() {
+  dragVelX *= 0.92;
+  dragVelY *= 0.92;
+  if (Math.abs(dragVelX) < 0.01 && Math.abs(dragVelY) < 0.01) return;
+  const r = projection.rotate();
+  projection.rotate([r[0] + dragVelX, r[1] - dragVelY]);
+  renderGlobeOnly();
+  inertiaFrame = requestAnimationFrame(applyInertia);
+}
+
+function renderGlobeOnly() {
+  // Fast path: only redraw land/borders/graticule — skip flights during drag
+  if (!g) return;
+  const t = getTheme();
+  svg.style('background', t.ocean);
+  if (layers.graticule && gratG) {
+    gratG.selectAll('path').attr('d', path);
+  }
+  if (landG) landG.selectAll('path').attr('d', path);
+  if (layers.borders && bordersG) bordersG.selectAll('path').attr('d', path);
+  if (layers.airports) renderAirports();
+  if (layers.waypoints) renderWaypoints();
+  if (layers.route) renderRoutePath();
+}
+
 svg.call(d3.drag()
   .on('start', event => {
     isDragging = true;
     dragStart = [event.x, event.y];
     rotationStart = projection.rotate();
+    lastDragX = event.x;
+    lastDragY = event.y;
+    dragVelX = 0; dragVelY = 0;
+    if (inertiaFrame) { cancelAnimationFrame(inertiaFrame); inertiaFrame = null; }
   })
   .on('drag', event => {
     if (!dragStart) return;
+    const now = performance.now();
+    const dt = Math.max(1, now - lastDragTime);
     const dx = event.x - dragStart[0];
     const dy = event.y - dragStart[1];
+    // Track velocity for inertia
+    dragVelX = (event.x - lastDragX) * 0.3 * (16 / dt);
+    dragVelY = (event.y - lastDragY) * 0.3 * (16 / dt);
+    lastDragX = event.x; lastDragY = event.y; lastDragTime = now;
     projection.rotate([rotationStart[0] + dx * 0.3, rotationStart[1] - dy * 0.3]);
-    updateGlobe();
+    renderGlobeOnly();
   })
-  .on('end', () => { isDragging = false; })
+  .on('end', () => {
+    isDragging = false;
+    // Full redraw after drag ends
+    updateGlobe();
+    // Apply inertia
+    if (Math.abs(dragVelX) > 0.05 || Math.abs(dragVelY) > 0.05) {
+      inertiaFrame = requestAnimationFrame(applyInertia);
+    }
+  })
 );
 
 svg.call(d3.zoom()
   .scaleExtent([0.5, 8])
+  .filter(event => event.type === 'wheel')
   .on('zoom', event => {
     projection.scale(Math.min(width, height) * 0.42 * event.transform.k);
-    updateGlobe();
+    renderGlobeOnly();
+    clearTimeout(window._zoomEnd);
+    window._zoomEnd = setTimeout(() => updateGlobe(), 150);
   })
 );
 
