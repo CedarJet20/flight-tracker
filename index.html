@@ -270,6 +270,33 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 }
 .filter-tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
 
+/* Aircraft type filter chips */
+.type-filter-section {
+  padding: 6px 12px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.type-filter-title {
+  font-size: 9px; letter-spacing: 1.5px; color: var(--text-dim);
+  text-transform: uppercase; margin-bottom: 5px;
+}
+.type-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+.type-chip {
+  font-size: 8px; padding: 2px 7px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text-dim); cursor: pointer; letter-spacing: 0.3px;
+  border-radius: 10px; transition: all 0.15s;
+  display: flex; align-items: center; gap: 3px;
+}
+.type-chip:hover { border-color: currentColor; }
+.type-chip.active { color: var(--bg); font-weight: 700; }
+.type-chip[data-type="all"].active       { background:#00d4ff; border-color:#00d4ff; }
+.type-chip[data-type="commercial"].active{ background:#00d4ff; border-color:#00d4ff; }
+.type-chip[data-type="widebody"].active  { background:#ffffff; border-color:#ffffff; color:#050a14; }
+.type-chip[data-type="military"].active  { background:#5cb85c; border-color:#5cb85c; }
+.type-chip[data-type="cargo"].active     { background:#cc88ff; border-color:#cc88ff; }
+.type-chip[data-type="helicopter"].active{ background:#00ffcc; border-color:#00ffcc; }
+.type-chip[data-type="general"].active   { background:#ffaa00; border-color:#ffaa00; }
+
 .flight-item {
   padding: 6px 12px;
   border-bottom: 1px solid rgba(26,45,74,0.5);
@@ -309,6 +336,11 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
   max-width: 200px;
   backdrop-filter: blur(4px);
 }
+
+/* Route arc colours */
+.route-arc { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 6,4; opacity: 0.7; pointer-events: none; }
+.route-dep-dot { fill: #00ff88; }
+.route-arr-dot { fill: #ff6b35; }
 
 /* Detail panel */
 .detail-panel {
@@ -477,6 +509,18 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
       <div style="padding-top:6px;color:#5a7a9a">Drag to rotate · Scroll to zoom</div>
       <div style="color:#5a7a9a">Click aircraft for details</div>
     </div>
+    <div class="type-filter-section">
+      <div class="type-filter-title">Aircraft Type</div>
+      <div class="type-chips">
+        <div class="type-chip active" data-type="all"><span>✈</span> All</div>
+        <div class="type-chip" data-type="commercial"><span style="color:#00d4ff">▸</span> Commercial</div>
+        <div class="type-chip" data-type="widebody"><span style="color:#fff">▸</span> Widebody</div>
+        <div class="type-chip" data-type="military"><span style="color:#5cb85c">▸</span> Military</div>
+        <div class="type-chip" data-type="cargo"><span style="color:#cc88ff">▸</span> Cargo</div>
+        <div class="type-chip" data-type="helicopter"><span style="color:#00ffcc">▸</span> Helicopter</div>
+        <div class="type-chip" data-type="general"><span style="color:#ffaa00">▸</span> GA</div>
+      </div>
+    </div>
     <div class="flight-list">
       <div class="list-header">
         <span id="list-count">–</span>
@@ -570,7 +614,7 @@ let g, landG, gratG, airspaceG, airportG, routeG, waypointG, ilsG, flightG, bord
 let worldData = null;
 let flights = [], filteredFlights = [];
 let selectedFlight = null;
-let activeFilter = 'all', searchTerm = '';
+let activeFilter = 'all', searchTerm = '', activeTypeFilter = 'all';
 let autoRotate = false, rotateTimer = null;
 let dragStart = null, rotationStart = null, isDragging = false;
 let lastDragX = 0, lastDragY = 0, dragVelX = 0, dragVelY = 0;
@@ -1206,6 +1250,27 @@ function renderGlobeOnly() {
   renderCountryLabels();
   if (layers.airports) renderAirports();
 
+  // Reproject route arc during drag/zoom
+  if (routeG) routeG.selectAll('path').attr('d', path);
+  if (routeG && selectedFlight) {
+    // Reproject route dots
+    const cached = routeCache.get(selectedFlight.icao24);
+    routeG.selectAll('circle').each(function() {
+      const cx = +d3.select(this).attr('data-lon'), cy = +d3.select(this).attr('data-lat');
+      if (!isNaN(cx) && !isNaN(cy)) {
+        const p = projection([cx, cy]);
+        if (p) d3.select(this).attr('cx', p[0]).attr('cy', p[1]);
+      }
+    });
+    routeG.selectAll('text').each(function() {
+      const tx = +d3.select(this).attr('data-lon'), ty = +d3.select(this).attr('data-lat');
+      if (!isNaN(tx) && !isNaN(ty)) {
+        const p = projection([tx, ty]);
+        if (p) d3.select(this).attr('x', p[0]+7).attr('y', p[1]+4);
+      }
+    });
+  }
+
   // Reproject aircraft positions live during drag/zoom
   if (flightG && filteredFlights.length) {
     const r = projection.rotate();
@@ -1237,6 +1302,11 @@ function updateGlobe() {
   if (layers.airports) renderAirports();
   if (layers.waypoints) renderWaypoints();
   renderFlights();
+  // Re-render route if there's an active selection
+  if (selectedFlight) {
+    const cached = routeCache.get(selectedFlight.icao24);
+    if (cached) renderRoutePath(selectedFlight, cached);
+  }
 }
 
 // ─── Drag & Inertia ─────────────────────────────────────────────
@@ -1364,6 +1434,128 @@ if (refreshBtn) refreshBtn.addEventListener('click', () => fetchFlights());
 
 // ─── Window resize ──────────────────────────────────────────────
 let _resizeTimer;
+
+// ── Route data cache ────────────────────────────────────────────
+const routeCache = new Map(); // icao24 → {dep, arr, depName, arrName, depLon, depLat, arrLon, arrLat}
+// Fetch route from OpenSky flights endpoint
+async function fetchRoute(f) {
+  if (!f?.icao24) return null;
+  if (routeCache.has(f.icao24)) return routeCache.get(f.icao24);
+
+  const now   = Math.floor(Date.now() / 1000);
+  const begin = now - 7200; // last 2 hours
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 8000);
+    const r = await fetch(
+      `https://opensky-network.org/api/flights/aircraft?icao24=${f.icao24}&begin=${begin}&end=${now}`,
+      { signal: ctrl.signal }
+    );
+    if (!r.ok) return null;
+    const arr = await r.json();
+    if (!arr?.length) return null;
+    // Most recent flight
+    const latest = arr.sort((a,b) => b.lastSeen - a.lastSeen)[0];
+    const dep = latest.estDepartureAirport;
+    const dst = latest.estArrivalAirport;
+    if (!dep && !dst) return null;
+
+    const route = {
+      dep: dep || null,
+      arr: dst || null,
+      depInfo: dep ? (AIRPORT_DB[dep] || null) : null,
+      arrInfo: dst ? (AIRPORT_DB[dst] || null) : null,
+    };
+    routeCache.set(f.icao24, route);
+    return route;
+  } catch(e) {
+    return null;
+  }
+}
+
+function renderRoutePath(f, route) {
+  if (!routeG) return;
+  routeG.selectAll('*').remove();
+  if (!route) return;
+
+  const depInfo = route.depInfo;
+  const arrInfo = route.arrInfo;
+
+  // Draw great-circle arc
+  if (depInfo && arrInfo) {
+    const line = { type: 'LineString', coordinates: [
+      [depInfo.lon, depInfo.lat],
+      [f.longitude, f.latitude],   // current position
+      [arrInfo.lon, arrInfo.lat]
+    ]};
+    // Full planned route (dep → arr)
+    const fullLine = { type: 'LineString', coordinates: [
+      [depInfo.lon, depInfo.lat],
+      [arrInfo.lon, arrInfo.lat]
+    ]};
+    // Dashed full route
+    routeG.append('path').datum(fullLine).attr('d', path)
+      .attr('fill','none').attr('stroke','#00d4ff').attr('stroke-width','1.2')
+      .attr('stroke-dasharray','6,5').attr('opacity','0.45').attr('pointer-events','none');
+    // Solid flown portion (dep → current)
+    const flownLine = { type: 'LineString', coordinates: [
+      [depInfo.lon, depInfo.lat], [f.longitude, f.latitude]
+    ]};
+    routeG.append('path').datum(flownLine).attr('d', path)
+      .attr('fill','none').attr('stroke','#00ff88').attr('stroke-width','1.8')
+      .attr('opacity','0.7').attr('pointer-events','none');
+
+    // Dep dot
+    const depPt = projection([depInfo.lon, depInfo.lat]);
+    if (depPt) {
+      routeG.append('circle').attr('cx',depPt[0]).attr('cy',depPt[1]).attr('r',5)
+        .attr('fill','#00ff88').attr('stroke','#050a14').attr('stroke-width','1.5')
+        .attr('data-lon', depInfo.lon).attr('data-lat', depInfo.lat);
+      routeG.append('text').attr('x',depPt[0]+7).attr('y',depPt[1]+4)
+        .attr('font-size','10').attr('fill','#00ff88').attr('font-weight','700')
+        .attr('data-lon', depInfo.lon).attr('data-lat', depInfo.lat)
+        .text(route.dep);
+    }
+    // Arr dot
+    const arrPt = projection([arrInfo.lon, arrInfo.lat]);
+    if (arrPt) {
+      routeG.append('circle').attr('cx',arrPt[0]).attr('cy',arrPt[1]).attr('r',5)
+        .attr('fill','#ff6b35').attr('stroke','#050a14').attr('stroke-width','1.5')
+        .attr('data-lon', arrInfo.lon).attr('data-lat', arrInfo.lat);
+      routeG.append('text').attr('x',arrPt[0]+7).attr('y',arrPt[1]+4)
+        .attr('font-size','10').attr('fill','#ff6b35').attr('font-weight','700')
+        .attr('data-lon', arrInfo.lon).attr('data-lat', arrInfo.lat)
+        .text(route.arr);
+    }
+  } else if (depInfo || arrInfo) {
+    // Only one end known — draw line to current position
+    const knownInfo = depInfo || arrInfo;
+    const knownPt = projection([knownInfo.lon, knownInfo.lat]);
+    const currPt  = projection([f.longitude, f.latitude]);
+    if (knownPt && currPt) {
+      const line = { type:'LineString', coordinates:[[knownInfo.lon,knownInfo.lat],[f.longitude,f.latitude]] };
+      routeG.append('path').datum(line).attr('d',path)
+        .attr('fill','none').attr('stroke','#00d4ff').attr('stroke-width','1.5')
+        .attr('stroke-dasharray','5,4').attr('opacity','0.6').attr('pointer-events','none');
+    }
+  }
+}
+
+function calcProgress(f, route) {
+  if (!route?.depInfo || !route?.arrInfo) return null;
+  const d = route.depInfo, a = route.arrInfo;
+  // Great-circle distances
+  function gcd(lat1,lon1,lat2,lon2) {
+    const R = 6371, toRad = x => x*Math.PI/180;
+    const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+    const aa = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1-aa));
+  }
+  const total = gcd(d.lat,d.lon, a.lat,a.lon);
+  const flown = gcd(d.lat,d.lon, f.latitude,f.longitude);
+  if (total < 1) return null;
+  return Math.max(0, Math.min(100, Math.round(flown/total*100)));
+}
 window.addEventListener('resize', () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
@@ -1382,7 +1574,8 @@ document.querySelectorAll('.layer-row').forEach(row => {
     if (!layer) return;
     layers[layer] = !layers[layer];
     row.classList.toggle('active', layers[layer]);
-    if (layer === 'flights') { if (layers.flights) renderFlights(); else if (flightG) flightG.selectAll('*').remove(); }
+    if (layer === 'route') { if (layers.route && selectedFlight) { const c = routeCache.get(selectedFlight.icao24); if(c) renderRoutePath(selectedFlight,c); } else if(routeG) routeG.selectAll('*').remove(); }
+    else if (layer === 'flights') { if (layers.flights) renderFlights(); else if (flightG) flightG.selectAll('*').remove(); }
     else if (layer === 'airports') { if (layers.airports) renderAirports(); else if (airportG) airportG.selectAll('*').remove(); }
     else if (layer === 'airspace') { if (layers.airspace) renderAirspace(); else if (airspaceG) airspaceG.selectAll('*').remove(); }
     else if (layer === 'waypoints') { if (layers.waypoints) renderWaypoints(); else if (waypointG) waypointG.selectAll('*').remove(); }
@@ -1396,6 +1589,15 @@ document.querySelectorAll('.filter-tab').forEach(tab => {
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     activeFilter = tab.dataset.filter || 'all';
+    applyFilters(); renderFlights(); renderList();
+  });
+});
+
+document.querySelectorAll('.type-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeTypeFilter = chip.dataset.type || 'all';
     applyFilters(); renderFlights(); renderList();
   });
 });
@@ -1581,98 +1783,126 @@ function renderFlights() {
 
 // ─── Select Flight (detail panel) ───────────────────────────────
 function selectFlight(f) {
-  // Toggle: double-click same aircraft closes panel
   if (selectedFlight === f) {
-    // Second double-click on same aircraft — close panel
     document.getElementById('detail-panel').classList.remove('open');
     selectedFlight = null;
+    if (routeG) routeG.selectAll('*').remove();
     renderFlights(); renderList();
     return;
   }
   selectedFlight = f;
   renderFlights(); renderList();
 
-  const panel  = document.getElementById('detail-panel');
+  const panel   = document.getElementById('detail-panel');
   const dpTitle = document.getElementById('dp-title');
   const dpBody  = document.getElementById('dp-body');
   if (!panel || !dpBody) return;
 
-  const cat     = getAircraftCategory(f);
-  const color   = flightColor(f);
-  const airline = getAirline(f.callsign) || getAirline(f.flight_number) || f.operator || '–';
+  const cat      = getAircraftCategory(f);
+  const color    = flightColor(f);
+  const airline  = getAirline(f.callsign) || getAirline(f.flight_number) || f.operator || '–';
   const typeDesc = getAircraftType(f.type_code || f.aircraft_type) || f.make_model || f.description || '–';
-  const altFt   = f.alt_baro_ft;
-  const altStr  = altFt != null ? (altFt >= 1000 ? (altFt/1000).toFixed(1)+'k ft' : altFt+' ft') : 'GND';
-  const spdKts  = f.gs_kts || Math.round(f.velocity * 1.944);
-  const vrFpm   = f.vr_fpm || Math.round(f.vertical_rate * 196.85);
-  const vrArrow = vrFpm > 100 ? '▲' : vrFpm < -100 ? '▼' : '►';
-  const vrStr   = vrFpm ? `${vrArrow} ${Math.abs(vrFpm)} fpm` : '–';
-  const catColor= {'military':'#4a9c3f','cargo':'#aa44ff','helicopter':'#00ff88',
-                   'widebody':'#e0e0e0','general':'#fbbf24','glider':'#88ccff','narrowbody':color}[cat]||color;
+  const altFt    = f.alt_baro_ft;
+  const altStr   = altFt != null ? (altFt >= 1000 ? (altFt/1000).toFixed(1)+'k ft' : altFt+' ft') : 'GND';
+  const spdKts   = f.gs_kts || Math.round((f.velocity||0) * 1.944);
+  const vrFpm    = f.vr_fpm || Math.round((f.vertical_rate||0) * 196.85);
+  const vrArrow  = vrFpm > 100 ? '▲' : vrFpm < -100 ? '▼' : '►';
+  const catColorMap = {military:'#5cb85c',cargo:'#cc88ff',helicopter:'#00ffcc',widebody:'#e0e0e0',general:'#ffaa00',glider:'#88ccff',narrowbody:color};
+  const catColor = catColorMap[cat] || color;
 
   if (dpTitle) dpTitle.innerHTML =
-    `<span style="color:${catColor}">${f.callsign || f.icao24}</span>` +
+    `<span style="color:${catColor}">${f.callsign||f.icao24}</span>` +
     (f.registration && f.registration !== f.callsign ? ` <span style="font-size:11px;color:#5a7a9a">· ${f.registration}</span>` : '');
 
-  dpBody.innerHTML = `
-    <div class="dp-section">
-      <div class="dp-section-title">✈ Aircraft</div>
-      <div class="dp-row"><span class="dp-label">Flight</span>
-        <span class="dp-value mono">${f.callsign||'–'}</span></div>
-      <div class="dp-row"><span class="dp-label">Tail No.</span>
-        <span class="dp-value mono" style="color:var(--accent)">${f.registration||'–'}</span></div>
-      <div class="dp-row"><span class="dp-label">Airline</span>
-        <span class="dp-value">${airline}</span></div>
-      <div class="dp-row"><span class="dp-label">Type Code</span>
-        <span class="dp-value mono">${f.type_code||f.aircraft_type||'–'}</span></div>
-      <div class="dp-row"><span class="dp-label">Make / Model</span>
-        <span class="dp-value" style="font-size:9px">${typeDesc}</span></div>
-      <div class="dp-row"><span class="dp-label">Category</span>
-        <span class="dp-value" style="color:${catColor};text-transform:capitalize">${cat}</span></div>
-      <div class="dp-row"><span class="dp-label">ICAO Hex</span>
-        <span class="dp-value mono dim">${f.icao24}</span></div>
-    </div>
+  // Render initial panel immediately (no route yet)
+  function buildPanel(route) {
+    const dep      = route?.dep;
+    const arr      = route?.arr;
+    const depInfo  = route?.depInfo;
+    const arrInfo  = route?.arrInfo;
+    const progress = route ? calcProgress(f, route) : null;
+    const totalKm  = depInfo && arrInfo ? (() => {
+      const toRad = x => x*Math.PI/180;
+      const dLat = toRad(arrInfo.lat-depInfo.lat), dLon = toRad(arrInfo.lon-depInfo.lon);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(depInfo.lat))*Math.cos(toRad(arrInfo.lat))*Math.sin(dLon/2)**2;
+      return Math.round(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
+    })() : null;
 
-    <div class="dp-section" style="margin-top:10px">
-      <div class="dp-section-title">📡 Live Data</div>
-      <div class="dp-row"><span class="dp-label">Status</span>
-        <span class="dp-value">${f.on_ground ? '🟡 On Ground' : '🔵 Airborne'}</span></div>
-      <div class="dp-row"><span class="dp-label">Altitude</span>
-        <span class="dp-value" style="color:var(--accent)">${altStr}</span></div>
-      <div class="dp-row"><span class="dp-label">Speed</span>
-        <span class="dp-value">${spdKts ? spdKts+' kts' : '–'}</span></div>
-      <div class="dp-row"><span class="dp-label">Heading</span>
-        <span class="dp-value">${Math.round(f.true_track||0)}°</span></div>
-      <div class="dp-row"><span class="dp-label">Vert. Rate</span>
-        <span class="dp-value" style="color:${vrFpm>100?'#00ff88':vrFpm<-100?'#ff6b35':'inherit'}">${vrStr}</span></div>
-      <div class="dp-row"><span class="dp-label">Squawk</span>
-        <span class="dp-value mono" style="color:${['7700','7600','7500'].includes(f.squawk)?'#ff4444':'inherit'}">${f.squawk||'–'}</span></div>
-    </div>
-
-    <div class="dp-section" style="margin-top:10px">
-      <div class="dp-section-title">🌍 Position</div>
-      <div class="dp-row"><span class="dp-label">Operator</span>
-        <span class="dp-value" style="font-size:9px">${f.operator||f.origin_country||'–'}</span></div>
-      <div class="dp-row"><span class="dp-label">Latitude</span>
-        <span class="dp-value mono">${f.latitude?.toFixed(4)}°</span></div>
-      <div class="dp-row"><span class="dp-label">Longitude</span>
-        <span class="dp-value mono">${f.longitude?.toFixed(4)}°</span></div>
-    </div>
-
-    <div class="dp-section" style="margin-top:10px">
-      <div class="dp-section-title">🔗 Raw Feed</div>
-      <div style="font-size:8px;color:#3a5a7a;font-family:'Space Mono',monospace;word-break:break-all;padding:4px 0">
-        ${JSON.stringify(f._raw||{}, null, 0).slice(0,300)}...
+    dpBody.innerHTML = `
+      <!-- Route banner -->
+      <div class="dp-section" style="grid-column:1/-1">
+        <div class="dp-section-title">🛫 Route</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11px">
+          <div style="text-align:center;flex:1">
+            <div style="font-size:14px;font-weight:700;color:#00ff88">${dep||'???'}</div>
+            <div style="font-size:8px;color:#5a7a9a;margin-top:2px">${depInfo?.name||'Departing'}</div>
+          </div>
+          <div style="flex:2;position:relative">
+            <div style="height:2px;background:linear-gradient(90deg,#00ff88,#ff6b35);border-radius:1px"></div>
+            ${progress!=null ? `
+              <div style="position:absolute;top:-8px;left:${progress}%;transform:translateX(-50%);font-size:14px;filter:drop-shadow(0 0 4px #00d4ff)">✈</div>
+              <div style="text-align:center;font-size:8px;color:#5a7a9a;margin-top:4px">${progress}%${totalKm?' · '+totalKm+'km':''}</div>
+            ` : `<div style="text-align:center;font-size:8px;color:#3a5a7a;margin-top:4px">${route===null?'Route unknown':'Loading…'}</div>`}
+          </div>
+          <div style="text-align:center;flex:1">
+            <div style="font-size:14px;font-weight:700;color:#ff6b35">${arr||'???'}</div>
+            <div style="font-size:8px;color:#5a7a9a;margin-top:2px">${arrInfo?.name||'Destination'}</div>
+          </div>
+        </div>
+        ${progress!=null ? `
+          <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px">
+            <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#00ff88,#00d4ff);border-radius:2px;transition:width 0.5s"></div>
+          </div>
+        ` : ''}
       </div>
-    </div>
 
-    <div style="margin-top:12px;display:flex;gap:6px">
-      <button class="zoom-to-map-btn" style="flex:1" onclick="panToFlight(selectedFlight)">⌖ Centre</button>
-      <button class="zoom-to-map-btn" style="flex:1;background:rgba(255,107,53,0.1);border-color:#ff6b35;color:#ff6b35"
-        onclick="document.getElementById('detail-panel').classList.remove('open');selectedFlight=null;renderFlights();renderList()">✕ Close</button>
-    </div>
-  `;
+      <!-- Aircraft info -->
+      <div class="dp-section">
+        <div class="dp-section-title">✈ Aircraft</div>
+        <div class="dp-row"><span class="dp-label">Flight</span><span class="dp-value mono">${f.callsign||'–'}</span></div>
+        <div class="dp-row"><span class="dp-label">Tail No.</span><span class="dp-value mono" style="color:var(--accent)">${f.registration||'–'}</span></div>
+        <div class="dp-row"><span class="dp-label">Airline</span><span class="dp-value" style="font-size:9px">${airline}</span></div>
+        <div class="dp-row"><span class="dp-label">Type</span><span class="dp-value mono">${f.type_code||f.aircraft_type||'–'}</span></div>
+        <div class="dp-row"><span class="dp-label">Model</span><span class="dp-value" style="font-size:9px">${typeDesc}</span></div>
+        <div class="dp-row"><span class="dp-label">Category</span><span class="dp-value" style="color:${catColor};text-transform:capitalize">${cat}</span></div>
+        <div class="dp-row"><span class="dp-label">ICAO</span><span class="dp-value mono dim">${f.icao24}</span></div>
+      </div>
+
+      <!-- Live data -->
+      <div class="dp-section">
+        <div class="dp-section-title">📡 Live Data</div>
+        <div class="dp-row"><span class="dp-label">Status</span><span class="dp-value">${f.on_ground ? '🟡 Ground' : '🔵 Airborne'}</span></div>
+        <div class="dp-row"><span class="dp-label">Altitude</span><span class="dp-value" style="color:var(--accent)">${altStr}</span></div>
+        <div class="dp-row"><span class="dp-label">Speed</span><span class="dp-value">${spdKts||0} kts</span></div>
+        <div class="dp-row"><span class="dp-label">Heading</span><span class="dp-value">${Math.round(f.true_track||0)}°</span></div>
+        <div class="dp-row"><span class="dp-label">Vert Rate</span>
+          <span class="dp-value" style="color:${vrFpm>100?'#00ff88':vrFpm<-100?'#ff6b35':'inherit'}">${vrArrow} ${Math.abs(vrFpm)} fpm</span></div>
+        <div class="dp-row"><span class="dp-label">Squawk</span>
+          <span class="dp-value mono" style="color:${['7700','7600','7500'].includes(f.squawk)?'#ff4444':'inherit'}">${f.squawk||'–'}</span></div>
+        <div class="dp-row"><span class="dp-label">Operator</span><span class="dp-value" style="font-size:9px">${f.operator||f.origin_country||'–'}</span></div>
+        <div class="dp-row"><span class="dp-label">Position</span><span class="dp-value mono dim" style="font-size:9px">${f.latitude?.toFixed(3)}° / ${f.longitude?.toFixed(3)}°</span></div>
+      </div>
+
+      <!-- Actions -->
+      <div style="grid-column:1/-1;margin-top:10px;display:flex;gap:6px">
+        <button class="zoom-to-map-btn" style="flex:1" onclick="panToFlight(selectedFlight);renderRoutePath(selectedFlight,routeCache.get(selectedFlight?.icao24)||null)">⌖ Centre</button>
+        <button class="zoom-to-map-btn" style="flex:1;background:rgba(255,107,53,0.1);border-color:#ff6b35;color:#ff6b35"
+          onclick="document.getElementById('detail-panel').classList.remove('open');selectedFlight=null;if(routeG)routeG.selectAll('*').remove();renderFlights();renderList()">✕ Close</button>
+      </div>
+    `;
+  }
+
+  // Show panel immediately with "Loading route..."
+  buildPanel(undefined);
   panel.classList.add('open');
+  panToFlight(f);
+
+  // Fetch route async — update panel when done
+  fetchRoute(f).then(route => {
+    if (selectedFlight !== f) return; // flight deselected while loading
+    buildPanel(route);
+    renderRoutePath(f, route);
+  });
 }
 
 function panToFlight(f) {
@@ -1729,19 +1959,34 @@ function renderList() {
 function applyFilters() {
   const s = searchTerm.toLowerCase();
   filteredFlights = flights.filter(f => {
+    // Text search
     if (s) {
-      const cs = (f.callsign || '').toLowerCase();
-      const co = (f.origin_country || '').toLowerCase();
-      const reg= (f.registration || '').toLowerCase();
-      if (!cs.includes(s) && !co.includes(s) && !reg.includes(s)) return false;
+      const cs  = (f.callsign || '').toLowerCase();
+      const co  = (f.origin_country || '').toLowerCase();
+      const reg = (f.registration || '').toLowerCase();
+      const typ = (f.type_code || '').toLowerCase();
+      const dsc = (f.description || '').toLowerCase();
+      if (!cs.includes(s) && !co.includes(s) && !reg.includes(s) && !typ.includes(s) && !dsc.includes(s)) return false;
     }
-    if (activeFilter === 'airborne') return !f.on_ground;
-    if (activeFilter === 'highalt')  return (f.baro_altitude || 0) > 10000;
-    if (activeFilter === 'us')    return (f.origin_country||'').toLowerCase().includes('united states');
-    if (activeFilter === 'europe') {
+    // Region filter
+    if (activeFilter === 'airborne') { if (f.on_ground) return false; }
+    else if (activeFilter === 'highalt') { if ((f.baro_altitude || 0) <= 10000) return false; }
+    else if (activeFilter === 'us') {
+      if (!(f.origin_country||'').toLowerCase().includes('united states')) return false;
+    }
+    else if (activeFilter === 'europe') {
       const eu = ['united kingdom','france','germany','spain','italy','netherlands',
         'belgium','switzerland','austria','sweden','norway','denmark','finland','portugal','ireland'];
-      return eu.some(c => (f.origin_country||'').toLowerCase().includes(c));
+      if (!eu.some(c => (f.origin_country||'').toLowerCase().includes(c))) return false;
+    }
+    // Aircraft type filter
+    if (activeTypeFilter !== 'all') {
+      const cat = getAircraftCategory(f);
+      if (activeTypeFilter === 'commercial') {
+        if (cat !== 'narrowbody' && cat !== 'widebody') return false;
+      } else if (activeTypeFilter !== cat) {
+        return false;
+      }
     }
     return true;
   });
@@ -1985,14 +2230,36 @@ const API_BASE = 'https://api.adsb.one/v2';
 
 const SAMPLE_POINTS = [];
 (function buildGrid() {
-  // 250nm radius per tile (~463km). Space tiles ~800km for overlap.
-  for (let lat = -76; lat <= 76; lat += 14) {
-    const cosLat = Math.max(0.1, Math.cos(lat * Math.PI / 180));
-    const lonStep = Math.round(14 / cosLat);
-    for (let lon = -180; lon < 180; lon += lonStep) {
-      SAMPLE_POINTS.push([lat, lon]);
-    }
+  const seen = new Set();
+  function add(lat, lon) {
+    lon = ((lon + 180) % 360) - 180; // normalise
+    const k = `${Math.round(lat*10)},${Math.round(lon*10)}`;
+    if (!seen.has(k)) { seen.add(k); SAMPLE_POINTS.push([lat, lon]); }
   }
+
+  // Global grid: 20° lat step, adaptive lon step
+  for (let lat = -80; lat <= 80; lat += 20) {
+    const cosLat = Math.max(0.15, Math.cos(lat * Math.PI / 180));
+    const step = Math.min(40, Math.round(20 / cosLat));
+    for (let lon = -180; lon < 180; lon += step) add(lat, lon);
+  }
+
+  // Middle East dense grid — fill the 18–38N, 28–68E gap
+  const ME = [
+    // Persian Gulf / UAE
+    [24,54],[24,51],[24,57],[26,56],[26,50],
+    // Saudi Arabia
+    [24,44],[24,47],[21,40],[21,43],[18,42],[18,45],
+    // Iran / Iraq
+    [33,51],[33,44],[35,55],[30,57],[27,57],[29,51],
+    // Levant / Egypt / Turkey
+    [31,35],[30,31],[33,36],[37,35],[37,40],[37,29],
+    // Red Sea corridor
+    [19,38],[15,42],[12,44],
+    // Central Asia border
+    [30,63],[27,63],[33,63],
+  ];
+  ME.forEach(([lat,lon]) => add(lat, lon));
 })();
 
 
