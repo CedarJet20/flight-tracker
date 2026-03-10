@@ -756,7 +756,12 @@ function initGlobe() {
 
   // Glow ring
   g.append('path').datum(sphere).attr('class','globe-glow')
-    .attr('d', path).attr('stroke', t.globeGlow);
+    .attr('d', path)
+    .attr('fill', 'none')
+    .attr('stroke', t.globeGlow)
+    .attr('stroke-width', '1.5')
+    .attr('opacity', '0.35')
+    .attr('filter', 'url(#glow)');
 
   // Graticule
   gratG = g.append('g').attr('class','graticules');
@@ -1001,8 +1006,10 @@ function renderAirspace() {
 function updateGlobe() {
   if (!g) return;
   const t = getTheme();
+  // Re-sync translate in case container resized
+  projection.translate([width / 2, height / 2]);
   g.select('.sphere').attr('d', path).attr('fill', t.ocean);
-  g.select('.globe-glow').attr('d', path).attr('stroke', t.globeGlow);
+  g.select('.globe-glow').attr('d', path).attr('stroke', t.globeGlow).attr('opacity','0.35').attr('stroke-width','1.5');
   gratG.selectAll('path').attr('d', path);
   renderWorld();
   if (layers.airspace) renderAirspace(); else airspaceG && airspaceG.selectAll('*').remove();
@@ -1087,11 +1094,16 @@ svg.call(d3.drag()
   })
 );
 
+let currentZoomK = 1;
 svg.call(d3.zoom()
   .scaleExtent([0.5, 8])
   .filter(event => event.type === 'wheel')
   .on('zoom', event => {
-    projection.scale(Math.min(width, height) * 0.42 * event.transform.k);
+    currentZoomK = event.transform.k;
+    // Always update both scale AND translate so globe stays centred
+    projection
+      .scale(Math.min(width, height) * 0.42 * currentZoomK)
+      .translate([width / 2, height / 2]);
     renderGlobeOnly();
     clearTimeout(window._zoomEnd);
     window._zoomEnd = setTimeout(() => updateGlobe(), 150);
@@ -1117,7 +1129,20 @@ document.getElementById('auto-rotate-btn').addEventListener('click', function() 
   this.textContent = autoRotate ? 'Auto-Rotate' : 'Auto-Rotate';
 });
 
-window.addEventListener('resize', () => { initGlobe(); renderFlights(); });
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    // Force layout reflow so clientWidth/Height are accurate
+    width = container.clientWidth || (window.innerWidth - 280);
+    height = container.clientHeight || (window.innerHeight - 48);
+    projection
+      .scale(Math.min(width, height) * 0.42 * currentZoomK)
+      .translate([width / 2, height / 2]);
+    initGlobe();
+    renderFlights();
+  }, 150);
+});
 
 // ─── OpenSky Data Fetch ───────────────────────────────────────
 const OPENSKY = 'https://opensky-network.org/api';
