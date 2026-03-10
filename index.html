@@ -853,7 +853,7 @@ function renderWorld() {
     .attr('stroke-width','0.3')
     .attr('d', path);
 
-  // Country borders (visible, contrasting)
+  // Country borders
   if (layers.borders) {
     landG.append('path')
       .datum(topojson.mesh(worldData, worldData.objects.countries, (a,b) => a !== b))
@@ -874,49 +874,74 @@ function renderWorld() {
       .attr('d', path);
   }
 
-  // Country name labels — font size proportional to actual country area
-  if (layers.borders) {
-    // Precompute area range for log scaling
-    const areaScale = d3.scaleLog()
-      .domain([0.0001, 0.25])   // steradians: tiny (Luxembourg) → huge (Russia)
-      .range([5.5, 20])         // px font size
-      .clamp(true);
-
-    countries.features.forEach(feature => {
-      const info = COUNTRY_LABELS[feature.id];
-      if (!info) return;
-      const [name, lon, lat] = info;
-
-      // Only show if on visible hemisphere
-      const r = projection.rotate();
-      const geoAngle = d3.geoDistance([lon, lat], [-r[0], -r[1]]);
-      if (geoAngle > Math.PI / 2.1) return;
-      const proj = projection([lon, lat]);
-      if (!proj) return;
-
-      // Compute spherical area of this country (steradians)
-      const area = d3.geoArea(feature);
-      const fontSize = areaScale(area);
-
-      // Only show label if country is large enough to hold it at current zoom
-      // Approximate projected area to decide visibility
-      const projectedArea = path.area(feature);
-      if (projectedArea < fontSize * name.length * 0.4) return;
-
-      landG.append('text')
-        .attr('x', proj[0]).attr('y', proj[1])
-        .attr('text-anchor','middle')
-        .attr('dominant-baseline','middle')
-        .attr('fill', isDayMode ? 'rgba(10,40,10,0.88)' : 'rgba(210,230,255,0.82)')
-        .attr('font-family','Syne, sans-serif')
-        .attr('font-size', fontSize)
-        .attr('font-weight','600')
-        .attr('letter-spacing', fontSize > 12 ? '1' : '0.3')
-        .attr('pointer-events','none')
-        .text(name);
-    });
-  }
+  // Render labels separately
+  renderCountryLabels();
 }
+
+// ── Country labels: separate function so drag can update positions cheaply ──
+function renderCountryLabels() {
+  if (!worldData || !layers.borders) {
+    landG.selectAll('text.country-label').remove();
+    return;
+  }
+
+  const countries = topojson.feature(worldData, worldData.objects.countries);
+  const t = getTheme();
+  const r = projection.rotate();
+
+  const areaScale = d3.scaleLog()
+    .domain([0.0001, 0.25])
+    .range([5.5, 20])
+    .clamp(true);
+
+  // Build data for visible labels
+  const labelData = [];
+  countries.features.forEach(feature => {
+    const info = COUNTRY_LABELS[feature.id];
+    if (!info) return;
+    const [name, lon, lat] = info;
+
+    const geoAngle = d3.geoDistance([lon, lat], [-r[0], -r[1]]);
+    if (geoAngle > Math.PI / 2.1) return;
+
+    const proj = projection([lon, lat]);
+    if (!proj) return;
+
+    const area = d3.geoArea(feature);
+    const fontSize = areaScale(area);
+    const projectedArea = path.area(feature);
+    if (projectedArea < fontSize * name.length * 0.4) return;
+
+    labelData.push({ name, x: proj[0], y: proj[1], fontSize });
+  });
+
+  // Data join — update existing, add new, remove gone
+  const texts = landG.selectAll('text.country-label')
+    .data(labelData, d => d.name);
+
+  // Update positions of existing labels
+  texts.attr('x', d => d.x).attr('y', d => d.y)
+       .attr('font-size', d => d.fontSize)
+       .attr('fill', isDayMode ? 'rgba(10,40,10,0.88)' : 'rgba(210,230,255,0.82)');
+
+  // Enter new labels
+  texts.enter().append('text')
+    .attr('class','country-label')
+    .attr('text-anchor','middle')
+    .attr('dominant-baseline','middle')
+    .attr('font-family','Syne, sans-serif')
+    .attr('font-weight','600')
+    .attr('pointer-events','none')
+    .attr('fill', isDayMode ? 'rgba(10,40,10,0.88)' : 'rgba(210,230,255,0.82)')
+    .attr('x', d => d.x).attr('y', d => d.y)
+    .attr('font-size', d => d.fontSize)
+    .attr('letter-spacing', d => d.fontSize > 12 ? '1' : '0.3')
+    .text(d => d.name);
+
+  // Remove labels that rotated off-screen
+  texts.exit().remove();
+}
+
 
 function renderAirspace() {
   airspaceG.selectAll('*').remove();
@@ -1022,6 +1047,7 @@ function renderGlobeOnly() {
   }
   if (landG) landG.selectAll('path').attr('d', path);
   if (layers.borders && bordersG) bordersG.selectAll('path').attr('d', path);
+  renderCountryLabels();
   if (layers.airports) renderAirports();
   if (layers.waypoints) renderWaypoints();
   if (layers.route) renderRoutePath();
