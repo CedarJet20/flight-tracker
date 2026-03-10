@@ -1981,7 +1981,7 @@ function getAircraftType(code) {
 }
 
 // ─── API / Fetch ─────────────────────────────────────────────────
-const API_BASE = 'https://api.airplanes.live/v2';
+const API_BASE = 'https://api.adsb.one/v2';
 
 const SAMPLE_POINTS = [];
 (function buildGrid() {
@@ -2037,59 +2037,74 @@ function mapAircraft(ac, isMil) {
 }
 
 async function fetchFlights() {
-  setStatus('loading', 'Connecting to ADS-B...');
-
-  // Universal timeout helper — AbortSignal.timeout not available in all browsers
-  function fetchWithTimeout(url, ms) {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), ms);
-    return fetch(url, { signal: ctrl.signal })
-      .then(r => { clearTimeout(timer); return r; })
-      .catch(e => { clearTimeout(timer); throw e; });
-  }
-
+  setStatus('loading', 'Connecting…');
   const seen = new Map();
-  let milCount = 0, tileOk = 0, tileFail = 0;
 
-  // ── 1. Military endpoint ──────────────────────────────────────
-  try {
-    const r = await fetchWithTimeout(`${API_BASE}/mil`, 15000);
-    if (r.ok) {
-      const d = await r.json();
-      (d.ac || []).forEach(ac => {
-        const f = mapAircraft(ac, true);
-        if (f) { seen.set(f.icao24, f); milCount++; }
-      });
-    }
-  } catch(e) {
-    console.warn('Mil endpoint failed:', e.message);
+  function fetchTimeout(url, ms) {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), ms);
+    return fetch(url, { signal: ctrl.signal })
+      .finally(() => clearTimeout(t));
   }
 
-  setStatus('loading', `Mil: ${milCount} · loading tiles…`);
-  dbg(`mil endpoint: ${milCount} aircraft`);
+  const BASE = API_BASE;
 
-  // ── 2. Civilian tiles — sequential batches of 5 ──────────────
-  // Build grid: 500 nm radius tiles, overlapping (~926 km)
-  const pts = [];
-  for (let lat = -80; lat <= 80; lat += 20) {
-    const cosLat = Math.max(0.15, Math.cos(lat * Math.PI / 180));
-    const step   = Math.min(40, Math.round(20 / cosLat));
-    for (let lon = -180; lon < 180; lon += step) pts.push([lat, lon]);
+  // ── Phase 1: Special category endpoints (always fast) ──────────
+  const phase1 = [
+    `${BASE}/mil`,   // military worldwide
+    `${BASE}/ladd`,  // private / exec jets
+  ];
+  for (const url of phase1) {
+    try {
+      const r = await fetchTimeout(url, 12000);
+      if (r.ok) {
+        const d = await r.json();
+        (d.ac || []).forEach(ac => {
+          if (!ac.lat || !ac.lon) return;
+          const f = mapAircraft(ac, url.includes('/mil'));
+          if (f) seen.set(f.icao24, f);
+        });
+      }
+    } catch(e) {}
   }
+  setStatus('loading', `${seen.size} aircraft… loading regions`);
 
-  // Shuffle so failures aren't all in one region
-  for (let i = pts.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pts[i], pts[j]] = [pts[j], pts[i]];
-  }
+  // ── Phase 2: 20 strategic tiles covering global air corridors ───
+  // Radius 500nm = covers ~925km. Each tile is spaced to overlap.
+  const TILES = [
+    // North America
+    [40, -75],   // US East (NYC/BOS/PHL)
+    [34, -118],  // US West (LAX/LAS/SAN)
+    [42, -88],   // US Midwest (ORD/DTW)
+    [30, -95],   // US South (DFW/IAH/MSY)
+    [49, -123],  // Canada West (YVR)
+    [45, -73],   // Canada East (YUL/YYZ)
+    // Europe
+    [51, 0],     // UK / NW Europe
+    [49, 8],     // Germany / France / CH
+    [41, 13],    // Italy / Balkans
+    [40, 28],    // Turkey / Aegean
+    // Middle East / Asia
+    [25, 55],    // UAE / Gulf
+    [26, 80],    // India central
+    [35, 105],   // China
+    [35, 128],   // Korea / Japan
+    [1,  104],   // Singapore / SE Asia
+    // Rest of world
+    [55, 37],    // Moscow / Russia west
+    [-34, 151],  // Sydney / Australia east
+    [-23, -46],  // São Paulo / Brazil
+    [19, -99],   // Mexico City
+    [55, 25],    // Baltic / Poland
+  ];
 
-  const BATCH = 4;
-  for (let i = 0; i < pts.length; i += BATCH) {
-    const batch = pts.slice(i, i + BATCH);
+  // Fetch 2 tiles at a time, 400ms apart — avoids rate limiting
+  for (let i = 0; i < TILES.length; i += 2) {
+    const batch = TILES.slice(i, i + 2);
     await Promise.allSettled(batch.map(async ([lat, lon]) => {
       try {
-        const r = await fetchWithTimeout(`${API_BASE}/point/${lat}/${lon}/500`, 12000);
-        if (!r.ok) { tileFail++; return; }
+        const r = await fetchTimeout(`${BASE}/point/${lat}/${lon}/500`, 12000);
+        if (!r.ok) return;
         const d = await r.json();
         (d.ac || []).forEach(ac => {
           if (!ac.lat || !ac.lon) return;
@@ -2098,22 +2113,19 @@ async function fetchFlights() {
             if (f) seen.set(f.icao24, f);
           }
         });
-        tileOk++;
-      } catch(e) {
-        tileFail++;
-      }
+      } catch(e) {}
     }));
-    // Update status mid-fetch every few batches
-    if (i % (BATCH * 3) === 0) {
-      setStatus('loading', `${seen.size} aircraft · tiles ${tileOk}/${pts.length} · ${tileFail} failed`);
-    }
+    // Throttle: wait 400ms between batches to avoid 503
+    if (i + 2 < TILES.length) await new Promise(r => setTimeout(r, 400));
+    setStatus('loading', `${seen.size} aircraft… tile ${Math.min(i+2,TILES.length)}/${TILES.length}`);
   }
 
-  // ── 3. Assign results ─────────────────────────────────────────
+  // ── Finalize ──────────────────────────────────────────────────
   flights = Array.from(seen.values());
+  dbg(`API done: ${flights.length} total (${TILES.length} tiles)`);
 
-  if (flights.length === 0) {
-    setStatus('error', `No data (mil:${milCount} tiles:${tileOk}/${pts.length} fail:${tileFail}) — demo`);
+  if (flights.length < 10) {
+    setStatus('error', `Only ${flights.length} aircraft — using demo data`);
     loadMockData();
     return;
   }
@@ -2121,14 +2133,11 @@ async function fetchFlights() {
   const airborne  = flights.filter(f => !f.on_ground).length;
   const countries = new Set(flights.map(f => f.origin_country).filter(Boolean)).size;
 
-  const el = document.getElementById('stat-total');     if (el) el.textContent = flights.length.toLocaleString();
-  const ea = document.getElementById('stat-airborne');  if (ea) ea.textContent = airborne.toLocaleString();
-  const ec = document.getElementById('stat-countries'); if (ec) ec.textContent = countries || '–';
+  const stEl = document.getElementById('stat-total');     if (stEl) stEl.textContent = flights.length.toLocaleString();
+  const saEl = document.getElementById('stat-airborne');  if (saEl) saEl.textContent = airborne.toLocaleString();
+  const scEl = document.getElementById('stat-countries'); if (scEl) scEl.textContent = countries || '–';
 
-  const milLabel = milCount > 0 ? ` (${milCount} mil)` : '';
-  setStatus('ok', `${flights.length.toLocaleString()} live${milLabel} · ${tileOk} tiles`);
-  dbg(`Total: ${flights.length} | mil:${milCount} | tiles ok:${tileOk} fail:${tileFail}`);
-
+  setStatus('ok', `${flights.length.toLocaleString()} live aircraft ✓`);
   applyFilters();
   renderFlights();
   renderList();
