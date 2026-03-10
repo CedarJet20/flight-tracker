@@ -139,6 +139,45 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
+  min-width: 180px;
+  max-width: 520px;
+}
+.sidebar-resize-handle {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  background: transparent;
+  z-index: 10;
+  transition: background 0.2s;
+}
+.sidebar-resize-handle:hover, .sidebar-resize-handle.dragging {
+  background: var(--accent);
+  opacity: 0.5;
+}
+.font-size-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+.font-size-control label { flex-shrink: 0; }
+.font-size-control input[type=range] {
+  flex: 1;
+  height: 3px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.font-size-val {
+  min-width: 22px;
+  text-align: right;
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .layers-panel {
@@ -406,7 +445,13 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
   <div id="globe-container">
     <svg id="globe-svg"></svg>
   </div>
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-resize-handle" id="sidebar-resize"></div>
+    <div class="font-size-control">
+      <label>TEXT</label>
+      <input type="range" id="font-size-slider" min="7" max="16" value="10" step="0.5">
+      <span class="font-size-val" id="font-size-val">10px</span>
+    </div>
     <div class="layers-panel">
       <div class="layers-title">Map Layers</div>
       <div class="layer-row active" data-layer="borders"><div class="layer-dot"></div>Country Borders</div>
@@ -1109,6 +1154,60 @@ svg.call(d3.zoom()
     window._zoomEnd = setTimeout(() => updateGlobe(), 150);
   })
 );
+
+// ─── Sidebar Resize (drag handle) ────────────────────────────
+(function() {
+  const sidebar = document.getElementById('sidebar');
+  const handle = document.getElementById('sidebar-resize');
+  if (!sidebar || !handle) return;
+  let isResizing = false, startX = 0, startW = 0;
+  handle.addEventListener('mousedown', e => {
+    isResizing = true;
+    startX = e.clientX;
+    startW = sidebar.offsetWidth;
+    handle.classList.add('dragging');
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!isResizing) return;
+    const dx = startX - e.clientX; // dragging left = wider
+    const newW = Math.min(520, Math.max(180, startW + dx));
+    sidebar.style.width = newW + 'px';
+    document.documentElement.style.setProperty('--sidebar-w', newW + 'px');
+    // Reflow globe
+    width = container.clientWidth;
+    projection.scale(Math.min(width, height) * 0.42 * currentZoomK).translate([width/2, height/2]);
+    if (g) { g.select('.sphere').attr('d', path); if (landG) landG.selectAll('path').attr('d', path); gratG && gratG.selectAll('path').attr('d', path); }
+  });
+  document.addEventListener('mouseup', () => {
+    if (!isResizing) return;
+    isResizing = false;
+    handle.classList.remove('dragging');
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    updateGlobe();
+    renderFlights();
+  });
+})();
+
+// ─── Font Size Control ────────────────────────────────────────
+(function() {
+  const slider = document.getElementById('font-size-slider');
+  const valEl = document.getElementById('font-size-val');
+  if (!slider) return;
+  function applyFontSize(px) {
+    document.getElementById('sidebar').style.fontSize = px + 'px';
+    valEl.textContent = px + 'px';
+    // Scale flight list items
+    document.querySelectorAll('.flight-item, .flight-cs, .flight-airline, .flight-meta, .layer-row, .stat-lbl, .filter-tab').forEach(el => {
+      el.style.fontSize = '';
+    });
+    document.getElementById('sidebar').style.setProperty('--sidebar-font', px + 'px');
+  }
+  slider.addEventListener('input', () => applyFontSize(parseFloat(slider.value)));
+})();
 
 // ─── Auto Rotate ─────────────────────────────────────────────
 function startAutoRotate() {
