@@ -771,6 +771,245 @@ const AIRSPACE_REGIONS = [
 ];
 
 
+const AIRPORT_DB = {
+  // ── North America ─────────────────────────────────────────────
+  'KJFK':{name:'John F. Kennedy',city:'New York',country:'United States',lat:40.6413,lon:-73.7781,iata:'JFK',runways:4,terminals:6,size:'mega'},
+  'KLAX':{name:'Los Angeles Intl',city:'Los Angeles',country:'United States',lat:33.9425,lon:-118.4081,iata:'LAX',runways:4,terminals:9,size:'mega'},
+  'KORD':{name:"O'Hare Intl",city:'Chicago',country:'United States',lat:41.9742,lon:-87.9073,iata:'ORD',runways:8,terminals:5,size:'mega'},
+  'KATL':{name:'Hartsfield-Jackson',city:'Atlanta',country:'United States',lat:33.6367,lon:-84.4281,iata:'ATL',runways:5,terminals:7,size:'mega'},
+  'KDFW':{name:'Dallas/Fort Worth',city:'Dallas',country:'United States',lat:32.8998,lon:-97.0403,iata:'DFW',runways:7,terminals:5,size:'mega'},
+  'KSFO':{name:'San Francisco Intl',city:'San Francisco',country:'United States',lat:37.6213,lon:-122.379,iata:'SFO',runways:4,terminals:4,size:'large'},
+  'KDEN':{name:'Denver Intl',city:'Denver',country:'United States',lat:39.8561,lon:-104.6737,iata:'DEN',runways:6,terminals:3,size:'mega'},
+  'KMIA':{name:'Miami Intl',city:'Miami',country:'United States',lat:25.7959,lon:-80.287,iata:'MIA',runways:4,terminals:3,size:'large'},
+  'KJFK':{name:'John F. Kennedy',city:'New York',country:'United States',lat:40.6413,lon:-73.7781,iata:'JFK',runways:4,terminals:6,size:'mega'},
+  'KEWR':{name:'Newark Liberty',city:'Newark',country:'United States',lat:40.6925,lon:-74.1687,iata:'EWR',runways:3,terminals:3,size:'large'},
+  'KBOS':{name:'Logan Intl',city:'Boston',country:'United States',lat:42.3656,lon:-71.0096,iata:'BOS',runways:6,terminals:4,size:'large'},
+  'KSEA':{name:'Seattle-Tacoma',city:'Seattle',country:'United States',lat:47.4502,lon:-122.3088,iata:'SEA',runways:3,terminals:2,size:'large'},
+  'KLAS':{name:'Harry Reid Intl',city:'Las Vegas',country:'United States',lat:36.0840,lon:-115.1537,iata:'LAS',runways:4,terminals:3,size:'large'},
+  'KPHX':{name:'Phoenix Sky Harbor',city:'Phoenix',country:'United States',lat:33.4373,lon:-112.0078,iata:'PHX',runways:3,terminals:3,size:'large'},
+  'KIAH':{name:'George Bush Intercontinental',city:'Houston',country:'United States',lat:29.9902,lon:-95.3368,iata:'IAH',runways:5,terminals:5,size:'large'},
+  'KMSP':{name:'Minneapolis-St. Paul',city:'Minneapolis',country:'United States',lat:44.8848,lon:-93.2223,iata:'MSP',runways:4,terminals:2,size:'large'},
+  'KDTW':{name:'Detroit Metro Wayne',city:'Detroit',country:'United States',lat:42.2124,lon:-83.3534,iata:'DTW',runways:6,terminals:2,size:'large'},
+  'KPHL':{name:'Philadelphia Intl',city:'Philadelphia',country:'United States',lat:39.8719,lon:-75.2411,iata:'PHL',runways:4,terminals:4,size:'large'},
+  'PHNL':{name:'Honolulu Intl',city:'Honolulu',country:'United States',lat:21.3245,lon:-157.9251,iata:'HNL',runways:4,terminals:3,size:'medium'},
+  'PANC':{name:'Ted Stevens Anchorage',city:'Anchorage',country:'United States',lat:61.1744,lon:-149.9964,iata:'ANC',runways:3,terminals:2,size:'medium'},
+  'CYYZ':{name:'Toronto Pearson',city:'Toronto',country:'Canada',lat:43.6777,lon:-79.6248,iata:'YYZ',runways:5,terminals:2,size:'mega'},
+  'CYVR':{name:'Vancouver Intl',city:'Vancouver',country:'Canada',lat:49.1939,lon:-123.1844,iata:'YVR',runways:3,terminals:3,size:'large'},
+  'CYUL':{name:'Montréal-Trudeau',city:'Montreal',country:'Canada',lat:45.4706,lon:-73.7408,iata:'YUL',runways:3,terminals:2,size:'large'},
+  'MMEX':{name:'Mexico City Intl',city:'Mexico City',country:'Mexico',lat:19.4363,lon:-99.0721,iata:'MEX',runways:2,terminals:2,size:'large'},
+  'MMUN':{name:'Cancún Intl',city:'Cancún',country:'Mexico',lat:21.0365,lon:-86.8771,iata:'CUN',runways:3,terminals:4,size:'large'},
+  // ── Europe ────────────────────────────────────────────────────
+  'EGLL':{name:'Heathrow',city:'London',country:'United Kingdom',lat:51.4775,lon:-0.4614,iata:'LHR',runways:2,terminals:5,size:'mega'},
+  'EGKK':{name:'Gatwick',city:'London',country:'United Kingdom',lat:51.1481,lon:-0.1903,iata:'LGW',runways:1,terminals:2,size:'large'},
+  'EGSS':{name:'Stansted',city:'London',country:'United Kingdom',lat:51.885,lon:0.235,iata:'STN',runways:1,terminals:1,size:'medium'},
+  'LFPG':{name:'Charles de Gaulle',city:'Paris',country:'France',lat:49.0097,lon:2.5479,iata:'CDG',runways:4,terminals:3,size:'mega'},
+  'LFPO':{name:'Paris Orly',city:'Paris',country:'France',lat:48.7262,lon:2.3652,iata:'ORY',runways:3,terminals:4,size:'large'},
+  'EDDF':{name:'Frankfurt Airport',city:'Frankfurt',country:'Germany',lat:50.0379,lon:8.5622,iata:'FRA',runways:4,terminals:2,size:'mega'},
+  'EDDM':{name:'Munich Airport',city:'Munich',country:'Germany',lat:48.3537,lon:11.7861,iata:'MUC',runways:2,terminals:2,size:'large'},
+  'EDDB':{name:'Berlin Brandenburg',city:'Berlin',country:'Germany',lat:52.3667,lon:13.5033,iata:'BER',runways:2,terminals:2,size:'large'},
+  'EHAM':{name:'Amsterdam Schiphol',city:'Amsterdam',country:'Netherlands',lat:52.3105,lon:4.7683,iata:'AMS',runways:6,terminals:1,size:'mega'},
+  'LEMD':{name:'Adolfo Suárez Barajas',city:'Madrid',country:'Spain',lat:40.4719,lon:-3.5626,iata:'MAD',runways:4,terminals:4,size:'mega'},
+  'LEBL':{name:'Barcelona El Prat',city:'Barcelona',country:'Spain',lat:41.2971,lon:2.0785,iata:'BCN',runways:3,terminals:3,size:'large'},
+  'LIRF':{name:'Leonardo da Vinci',city:'Rome',country:'Italy',lat:41.8003,lon:12.2389,iata:'FCO',runways:3,terminals:4,size:'large'},
+  'LIMC':{name:'Milan Malpensa',city:'Milan',country:'Italy',lat:45.63,lon:8.7281,iata:'MXP',runways:2,terminals:2,size:'large'},
+  'LSZH':{name:'Zürich Airport',city:'Zurich',country:'Switzerland',lat:47.4647,lon:8.5492,iata:'ZRH',runways:3,terminals:3,size:'large'},
+  'LFMN':{name:"Nice Côte d'Azur",city:'Nice',country:'France',lat:43.6584,lon:7.2159,iata:'NCE',runways:2,terminals:2,size:'medium'},
+  'EKCH':{name:'Copenhagen Airport',city:'Copenhagen',country:'Denmark',lat:55.6181,lon:12.6561,iata:'CPH',runways:3,terminals:3,size:'large'},
+  'ESSA':{name:'Stockholm Arlanda',city:'Stockholm',country:'Sweden',lat:59.6519,lon:17.9186,iata:'ARN',runways:3,terminals:5,size:'large'},
+  'EFHK':{name:'Helsinki-Vantaa',city:'Helsinki',country:'Finland',lat:60.3183,lon:24.9630,iata:'HEL',runways:3,terminals:2,size:'large'},
+  'ENGM':{name:'Oslo Gardermoen',city:'Oslo',country:'Norway',lat:60.1939,lon:11.1004,iata:'OSL',runways:2,terminals:2,size:'large'},
+  'LOWW':{name:'Vienna Intl',city:'Vienna',country:'Austria',lat:48.1103,lon:16.5697,iata:'VIE',runways:2,terminals:3,size:'large'},
+  'EPWA':{name:'Warsaw Chopin',city:'Warsaw',country:'Poland',lat:52.1657,lon:20.9671,iata:'WAW',runways:2,terminals:2,size:'large'},
+  'LKPR':{name:'Václav Havel Prague',city:'Prague',country:'Czech Republic',lat:50.1008,lon:14.26,iata:'PRG',runways:3,terminals:2,size:'large'},
+  'LHBP':{name:'Budapest Liszt Ferenc',city:'Budapest',country:'Hungary',lat:47.4298,lon:19.2611,iata:'BUD',runways:2,terminals:2,size:'medium'},
+  'LTFM':{name:'Istanbul Airport',city:'Istanbul',country:'Turkey',lat:41.2753,lon:28.7519,iata:'IST',runways:3,terminals:1,size:'mega'},
+  'LTAC':{name:'Esenboğa Intl',city:'Ankara',country:'Turkey',lat:40.1281,lon:32.9951,iata:'ESB',runways:2,terminals:2,size:'medium'},
+  'LGAV':{name:'Athens Eleftherios Venizelos',city:'Athens',country:'Greece',lat:37.9364,lon:23.9445,iata:'ATH',runways:2,terminals:2,size:'large'},
+  'LROP':{name:'Bucharest Henri Coandă',city:'Bucharest',country:'Romania',lat:44.5711,lon:26.085,iata:'OTP',runways:2,terminals:2,size:'medium'},
+  'UUEE':{name:'Sheremetyevo Intl',city:'Moscow',country:'Russia',lat:55.9726,lon:37.4146,iata:'SVO',runways:3,terminals:4,size:'mega'},
+  'UUDD':{name:'Domodedovo Intl',city:'Moscow',country:'Russia',lat:55.4088,lon:37.9063,iata:'DME',runways:2,terminals:2,size:'large'},
+  'ULLI':{name:'Pulkovo Intl',city:'St. Petersburg',country:'Russia',lat:59.8003,lon:30.2625,iata:'LED',runways:2,terminals:2,size:'large'},
+  'UKBB':{name:'Boryspil Intl',city:'Kyiv',country:'Ukraine',lat:50.3450,lon:30.8947,iata:'KBP',runways:2,terminals:2,size:'medium'},
+  'LPPT':{name:'Humberto Delgado',city:'Lisbon',country:'Portugal',lat:38.7813,lon:-9.1359,iata:'LIS',runways:2,terminals:2,size:'large'},
+  'LRBS':{name:'Băneasa',city:'Bucharest',country:'Romania',lat:44.5032,lon:26.1021,iata:'BBU',runways:1,terminals:1,size:'small'},
+  // ── Middle East ───────────────────────────────────────────────
+  'OMDB':{name:'Dubai International',city:'Dubai',country:'United Arab Emirates',lat:25.2532,lon:55.3657,iata:'DXB',runways:2,terminals:3,size:'mega'},
+  'OMDW':{name:'Al Maktoum Intl (DWC)',city:'Dubai',country:'United Arab Emirates',lat:24.8963,lon:55.1614,iata:'DWC',runways:2,terminals:1,size:'large'},
+  'OMAA':{name:'Abu Dhabi Zayed Intl',city:'Abu Dhabi',country:'United Arab Emirates',lat:24.4330,lon:54.6511,iata:'AUH',runways:2,terminals:2,size:'large'},
+  'OTHH':{name:'Hamad International',city:'Doha',country:'Qatar',lat:25.2731,lon:51.6081,iata:'DOH',runways:2,terminals:1,size:'mega'},
+  'OBBI':{name:'Bahrain Intl',city:'Manama',country:'Bahrain',lat:26.2708,lon:50.6336,iata:'BAH',runways:2,terminals:2,size:'medium'},
+  'OEJN':{name:'King Abdulaziz Intl',city:'Jeddah',country:'Saudi Arabia',lat:21.6796,lon:39.1565,iata:'JED',runways:4,terminals:2,size:'large'},
+  'OERK':{name:'King Khalid Intl',city:'Riyadh',country:'Saudi Arabia',lat:24.9576,lon:46.6988,iata:'RUH',runways:4,terminals:5,size:'large'},
+  'OKBK':{name:'Kuwait Intl',city:'Kuwait City',country:'Kuwait',lat:29.2269,lon:47.9689,iata:'KWI',runways:2,terminals:2,size:'medium'},
+  'OOMS':{name:'Muscat Intl',city:'Muscat',country:'Oman',lat:23.5933,lon:58.2844,iata:'MCT',runways:2,terminals:3,size:'large'},
+  'OIFM':{name:'Isfahan Intl',city:'Isfahan',country:'Iran',lat:32.7508,lon:51.8613,iata:'IFN',runways:2,terminals:2,size:'medium'},
+  'OIII':{name:'Mehrabad Intl',city:'Tehran',country:'Iran',lat:35.6892,lon:51.3134,iata:'THR',runways:4,terminals:2,size:'large'},
+  'ORBI':{name:'Baghdad Intl',city:'Baghdad',country:'Iraq',lat:33.2626,lon:44.2346,iata:'BGW',runways:2,terminals:3,size:'large'},
+  'OLBA':{name:'Rafic Hariri Intl',city:'Beirut',country:'Lebanon',lat:33.8209,lon:35.4884,iata:'BEY',runways:2,terminals:1,size:'medium'},
+  'LLBG':{name:'Ben Gurion Intl',city:'Tel Aviv',country:'Israel',lat:32.0055,lon:34.8854,iata:'TLV',runways:3,terminals:3,size:'large'},
+  'HECA':{name:'Cairo Intl',city:'Cairo',country:'Egypt',lat:30.1219,lon:31.4056,iata:'CAI',runways:3,terminals:3,size:'large'},
+  // ── Asia ──────────────────────────────────────────────────────
+  'VHHH':{name:'Hong Kong Intl',city:'Hong Kong',country:'China',lat:22.3089,lon:113.9144,iata:'HKG',runways:2,terminals:2,size:'mega'},
+  'ZBAA':{name:'Beijing Capital Intl',city:'Beijing',country:'China',lat:40.0799,lon:116.6031,iata:'PEK',runways:3,terminals:3,size:'mega'},
+  'ZBAD':{name:'Beijing Daxing Intl',city:'Beijing',country:'China',lat:39.5098,lon:116.4105,iata:'PKX',runways:4,terminals:1,size:'mega'},
+  'ZSPD':{name:'Shanghai Pudong Intl',city:'Shanghai',country:'China',lat:31.1434,lon:121.8052,iata:'PVG',runways:4,terminals:2,size:'mega'},
+  'ZSSS':{name:'Shanghai Hongqiao',city:'Shanghai',country:'China',lat:31.1979,lon:121.3362,iata:'SHA',runways:2,terminals:2,size:'large'},
+  'ZGGG':{name:'Guangzhou Baiyun Intl',city:'Guangzhou',country:'China',lat:23.3924,lon:113.2988,iata:'CAN',runways:3,terminals:2,size:'mega'},
+  'ZGSZ':{name:'Shenzhen Bao\'an Intl',city:'Shenzhen',country:'China',lat:22.6393,lon:113.8108,iata:'SZX',runways:2,terminals:3,size:'large'},
+  'ZUUU':{name:'Chengdu Shuangliu',city:'Chengdu',country:'China',lat:30.5785,lon:103.9469,iata:'CTU',runways:3,terminals:2,size:'large'},
+  'RJTT':{name:'Tokyo Haneda',city:'Tokyo',country:'Japan',lat:35.5494,lon:139.7798,iata:'HND',runways:4,terminals:3,size:'mega'},
+  'RJAA':{name:'Tokyo Narita',city:'Tokyo',country:'Japan',lat:35.7719,lon:140.3929,iata:'NRT',runways:2,terminals:3,size:'large'},
+  'RJOO':{name:'Osaka Itami',city:'Osaka',country:'Japan',lat:34.7855,lon:135.4386,iata:'ITM',runways:2,terminals:2,size:'large'},
+  'RJBB':{name:'Osaka Kansai',city:'Osaka',country:'Japan',lat:34.4347,lon:135.2440,iata:'KIX',runways:2,terminals:2,size:'large'},
+  'RKSI':{name:'Incheon Intl',city:'Seoul',country:'South Korea',lat:37.4691,lon:126.4505,iata:'ICN',runways:4,terminals:2,size:'mega'},
+  'RKSS':{name:'Gimpo Intl',city:'Seoul',country:'South Korea',lat:37.5583,lon:126.7906,iata:'GMP',runways:2,terminals:2,size:'large'},
+  'RCTP':{name:'Taiwan Taoyuan Intl',city:'Taipei',country:'Taiwan',lat:25.0777,lon:121.2328,iata:'TPE',runways:2,terminals:2,size:'large'},
+  'WSSS':{name:'Singapore Changi',city:'Singapore',country:'Singapore',lat:1.3644,lon:103.9915,iata:'SIN',runways:2,terminals:4,size:'mega'},
+  'WMKK':{name:'Kuala Lumpur Intl',city:'Kuala Lumpur',country:'Malaysia',lat:2.7456,lon:101.7099,iata:'KUL',runways:2,terminals:2,size:'mega'},
+  'VTBS':{name:'Suvarnabhumi',city:'Bangkok',country:'Thailand',lat:13.6900,lon:100.7501,iata:'BKK',runways:2,terminals:1,size:'mega'},
+  'VTBD':{name:'Don Mueang Intl',city:'Bangkok',country:'Thailand',lat:13.9126,lon:100.6067,iata:'DMK',runways:2,terminals:2,size:'large'},
+  'WIII':{name:'Soekarno-Hatta Intl',city:'Jakarta',country:'Indonesia',lat:-6.1256,lon:106.6559,iata:'CGK',runways:3,terminals:3,size:'mega'},
+  'RPLL':{name:'Ninoy Aquino Intl',city:'Manila',country:'Philippines',lat:14.5086,lon:121.0194,iata:'MNL',runways:2,terminals:4,size:'large'},
+  'VIDP':{name:'Indira Gandhi Intl',city:'New Delhi',country:'India',lat:28.5665,lon:77.1031,iata:'DEL',runways:3,terminals:3,size:'mega'},
+  'VABB':{name:'Chhatrapati Shivaji Intl',city:'Mumbai',country:'India',lat:19.0896,lon:72.8656,iata:'BOM',runways:2,terminals:2,size:'large'},
+  'VOBL':{name:'Bengaluru Kempegowda',city:'Bangalore',country:'India',lat:13.1986,lon:77.7066,iata:'BLR',runways:2,terminals:2,size:'large'},
+  'VOMM':{name:'Chennai Intl',city:'Chennai',country:'India',lat:12.9900,lon:80.1693,iata:'MAA',runways:2,terminals:2,size:'large'},
+  'VGZR':{name:'Hazrat Shahjalal Intl',city:'Dhaka',country:'Bangladesh',lat:23.8433,lon:90.3978,iata:'DAC',runways:2,terminals:2,size:'large'},
+  'OPKC':{name:'Jinnah Intl',city:'Karachi',country:'Pakistan',lat:24.9065,lon:67.1608,iata:'KHI',runways:3,terminals:2,size:'large'},
+  'OPLR':{name:'Allama Iqbal Intl',city:'Lahore',country:'Pakistan',lat:31.5216,lon:74.4036,iata:'LHE',runways:2,terminals:2,size:'medium'},
+  'VNKT':{name:'Tribhuvan Intl',city:'Kathmandu',country:'Nepal',lat:27.6966,lon:85.3591,iata:'KTM',runways:1,terminals:1,size:'medium'},
+  'VYYY':{name:'Yangon Intl',city:'Yangon',country:'Myanmar',lat:16.9073,lon:96.1332,iata:'RGN',runways:2,terminals:2,size:'medium'},
+  'VVTS':{name:'Tan Son Nhat Intl',city:'Ho Chi Minh City',country:'Vietnam',lat:10.8188,lon:106.6519,iata:'SGN',runways:2,terminals:2,size:'large'},
+  'VVNB':{name:'Noi Bai Intl',city:'Hanoi',country:'Vietnam',lat:21.2212,lon:105.8072,iata:'HAN',runways:2,terminals:2,size:'large'},
+  'VDPP':{name:'Phnom Penh Intl',city:'Phnom Penh',country:'Cambodia',lat:11.5466,lon:104.8441,iata:'PNH',runways:1,terminals:1,size:'medium'},
+  'UAAA':{name:'Almaty Intl',city:'Almaty',country:'Kazakhstan',lat:43.3521,lon:77.0405,iata:'ALA',runways:2,terminals:2,size:'large'},
+  // ── Africa ────────────────────────────────────────────────────
+  'FAOR':{name:'O.R. Tambo Intl',city:'Johannesburg',country:'South Africa',lat:-26.1392,lon:28.2460,iata:'JNB',runways:2,terminals:2,size:'large'},
+  'FACT':{name:'Cape Town Intl',city:'Cape Town',country:'South Africa',lat:-33.9649,lon:18.6017,iata:'CPT',runways:2,terminals:2,size:'large'},
+  'DNMM':{name:'Murtala Muhammed Intl',city:'Lagos',country:'Nigeria',lat:6.5774,lon:3.3211,iata:'LOS',runways:2,terminals:2,size:'large'},
+  'HAAB':{name:'Bole Intl',city:'Addis Ababa',country:'Ethiopia',lat:8.9779,lon:38.7993,iata:'ADD',runways:2,terminals:3,size:'large'},
+  'HKJK':{name:'Jomo Kenyatta Intl',city:'Nairobi',country:'Kenya',lat:-1.3192,lon:36.9275,iata:'NBO',runways:2,terminals:2,size:'large'},
+  'GMMN':{name:'Mohammed V Intl',city:'Casablanca',country:'Morocco',lat:33.3675,lon:-7.5898,iata:'CMN',runways:3,terminals:2,size:'large'},
+  'DTTA':{name:'Tunis-Carthage Intl',city:'Tunis',country:'Tunisia',lat:36.8510,lon:10.2272,iata:'TUN',runways:2,terminals:2,size:'medium'},
+  'DAAG':{name:'Houari Boumediene',city:'Algiers',country:'Algeria',lat:36.6910,lon:3.2154,iata:'ALG',runways:2,terminals:2,size:'large'},
+  'HSSS':{name:'Khartoum Intl',city:'Khartoum',country:'Sudan',lat:15.5895,lon:32.5532,iata:'KRT',runways:2,terminals:2,size:'medium'},
+  'FMMI':{name:'Ivato Intl',city:'Antananarivo',country:'Madagascar',lat:-18.7969,lon:47.4788,iata:'TNR',runways:1,terminals:1,size:'medium'},
+  'GOOY':{name:'Léopold Sédar Senghor',city:'Dakar',country:'Senegal',lat:14.7397,lon:-17.4902,iata:'DKR',runways:2,terminals:1,size:'medium'},
+  'FTTA':{name:'N\'Djamena Intl',city:'N\'Djamena',country:'Chad',lat:12.1337,lon:15.0340,iata:'NDJ',runways:1,terminals:1,size:'small'},
+  // ── Australasia ───────────────────────────────────────────────
+  'YSSY':{name:'Sydney Kingsford Smith',city:'Sydney',country:'Australia',lat:-33.9399,lon:151.1753,iata:'SYD',runways:3,terminals:3,size:'mega'},
+  'YMML':{name:'Melbourne Airport',city:'Melbourne',country:'Australia',lat:-37.6690,lon:144.8410,iata:'MEL',runways:2,terminals:4,size:'large'},
+  'YBBN':{name:'Brisbane Airport',city:'Brisbane',country:'Australia',lat:-27.3842,lon:153.1175,iata:'BNE',runways:2,terminals:2,size:'large'},
+  'YPPH':{name:'Perth Airport',city:'Perth',country:'Australia',lat:-31.9403,lon:115.9674,iata:'PER',runways:2,terminals:4,size:'large'},
+  'NZAA':{name:'Auckland Airport',city:'Auckland',country:'New Zealand',lat:-37.0082,lon:174.7917,iata:'AKL',runways:2,terminals:2,size:'large'},
+  'NZWN':{name:'Wellington Airport',city:'Wellington',country:'New Zealand',lat:-41.3272,lon:174.8050,iata:'WLG',runways:1,terminals:1,size:'medium'},
+  // ── South America ─────────────────────────────────────────────
+  'SBGR':{name:'São Paulo Guarulhos',city:'São Paulo',country:'Brazil',lat:-23.4356,lon:-46.4731,iata:'GRU',runways:2,terminals:3,size:'mega'},
+  'SBGL':{name:'Rio de Janeiro Galeão',city:'Rio de Janeiro',country:'Brazil',lat:-22.8099,lon:-43.2506,iata:'GIG',runways:2,terminals:2,size:'large'},
+  'SAEZ':{name:'Buenos Aires Ezeiza',city:'Buenos Aires',country:'Argentina',lat:-34.8222,lon:-58.5358,iata:'EZE',runways:3,terminals:2,size:'large'},
+  'SCEL':{name:'Santiago Arturo Merino',city:'Santiago',country:'Chile',lat:-33.3930,lon:-70.7858,iata:'SCL',runways:3,terminals:2,size:'large'},
+  'SKBO':{name:'El Dorado Intl',city:'Bogotá',country:'Colombia',lat:4.7016,lon:-74.1469,iata:'BOG',runways:2,terminals:2,size:'large'},
+  'SPJC':{name:'Jorge Chávez Intl',city:'Lima',country:'Peru',lat:-12.0219,lon:-77.1143,iata:'LIM',runways:2,terminals:2,size:'large'},
+  'SVMI':{name:'Simón Bolívar Intl',city:'Caracas',country:'Venezuela',lat:10.6012,lon:-66.9913,iata:'CCS',runways:2,terminals:2,size:'medium'},
+  'MMMX':{name:'Mexico City NAICM',city:'Mexico City',country:'Mexico',lat:19.4363,lon:-99.0721,iata:'MEX',runways:2,terminals:2,size:'large'},
+  'MPTO':{name:'Tocumen Intl',city:'Panama City',country:'Panama',lat:9.0714,lon:-79.3835,iata:'PTY',runways:2,terminals:2,size:'large'},
+};
+
+const ILS_DATA = [
+  // London Heathrow
+  {ap:'EGLL',rwy:'27L',lat:51.477,lon:-0.461,hdg:270,gs_lat:51.477,gs_lon:-0.11,freq:'109.5',dme:'ILLS',range:12},
+  {ap:'EGLL',rwy:'09R',lat:51.477,lon:-0.077,hdg:90,gs_lat:51.477,gs_lon:-0.43,freq:'110.3',dme:'ILSR',range:12},
+  // Paris CDG
+  {ap:'LFPG',rwy:'27L',lat:49.017,lon:2.548,hdg:270,gs_lat:49.017,gs_lon:2.85,freq:'109.75',dme:'CGN',range:12},
+  {ap:'LFPG',rwy:'09R',lat:49.017,lon:2.85,hdg:90,gs_lat:49.017,gs_lon:2.55,freq:'110.55',dme:'CGS',range:12},
+  // Frankfurt
+  {ap:'EDDF',rwy:'25C',lat:50.027,lon:8.562,hdg:250,gs_lat:50.041,gs_lon:8.85,freq:'111.15',dme:'FFM',range:15},
+  // Dubai
+  {ap:'OMDB',rwy:'30L',lat:25.252,lon:55.366,hdg:300,gs_lat:25.23,gs_lon:55.58,freq:'110.9',dme:'IDB',range:12},
+  {ap:'OMDB',rwy:'12R',lat:25.252,lon:55.366,hdg:120,gs_lat:25.27,gs_lon:55.18,freq:'109.5',dme:'IDR',range:12},
+  // JFK
+  {ap:'KJFK',rwy:'31L',lat:40.628,lon:-73.769,hdg:310,gs_lat:40.66,gs_lon:-73.88,freq:'110.9',dme:'IJFK',range:12},
+  {ap:'KJFK',rwy:'22R',lat:40.63,lon:-73.77,hdg:220,gs_lat:40.65,gs_lon:-73.68,freq:'111.9',dme:'IRJ',range:12},
+  // Singapore
+  {ap:'WSSS',rwy:'02C',lat:1.354,lon:103.988,hdg:20,gs_lat:1.32,gs_lon:103.99,freq:'110.3',dme:'ISI',range:12},
+  // Tokyo Haneda
+  {ap:'RJTT',rwy:'34R',lat:35.553,lon:139.778,hdg:340,gs_lat:35.52,gs_lon:139.78,freq:'110.7',dme:'IHD',range:12},
+  // Abu Dhabi
+  {ap:'OMAA',rwy:'31L',lat:24.433,lon:54.651,hdg:310,gs_lat:24.41,gs_lon:54.82,freq:'110.1',dme:'IAU',range:12},
+  // Doha
+  {ap:'OTHH',rwy:'34L',lat:25.273,lon:51.608,hdg:340,gs_lat:25.25,gs_lon:51.61,freq:'111.3',dme:'IHD',range:12},
+];
+
+const FIXES = {
+  // ── North Atlantic ──
+  SOMAX:[51.0,-15.0], MIMKU:[52.0,-20.0], DOLIR:[53.0,-30.0], BEDRA:[54.0,-40.0],
+  RAFOX:[55.0,-50.0], DOGAL:[51.5,-15.0], BEXET:[51.0,-10.0], LIMRI:[56.0,-20.0],
+  MALOT:[58.0,-30.0], MIMLO:[57.0,-20.0], RESNO:[57.0,-30.0], GISTI:[56.5,-40.0],
+  DINIM:[55.0,-45.0], LOMSI:[53.0,-55.0], BOBTU:[50.0,-50.0], JANJO:[49.0,-45.0],
+  // ── North Pacific ──
+  NORDO:[48.0,-150.0], TALON:[47.0,-160.0], NIPPI:[45.0,-170.0], EMRON:[43.0,180.0],
+  ADNAP:[42.0,170.0], LEKOS:[44.0,155.0], POXUT:[46.0,145.0], ENKAS:[49.0,135.0],
+  // ── Europe major fixes ──
+  LAM:[51.64,-0.15], DET:[51.28,0.61], CLN:[51.84,0.89], TNT:[51.47,0.45],
+  DVR:[51.16,1.35], KONAN:[51.08,2.61], POL:[55.68,-4.68], TLA:[48.77,2.20],
+  BIG:[51.33,0.03], MAY:[50.86,-0.12], SFD:[50.99,-0.11], BNN:[51.64,-0.55],
+  HON:[51.01,-1.35], SAM:[50.95,-1.34], BCN:[41.29,2.10], LFPG:[49.01,2.55],
+  ORTAC:[49.93,-2.00], SIVIR:[50.73,-1.60], LIZAD:[49.50,-2.00], BARTN:[53.00,-4.00],
+  NELBO:[55.00,-5.00], BEMSI:[56.00,-6.00], ERAKA:[57.00,-7.00], OMOKO:[58.00,-8.00],
+  STAFA:[46.50,7.00],  MASEK:[48.00,8.00],  OBELU:[47.00,9.00],  DITON:[48.50,10.0],
+  RUDKA:[50.00,12.0],  ROKIL:[51.00,13.0],  GORKU:[52.00,14.0],  ABKUR:[53.00,15.0],
+  XIMBO:[45.00,6.00],  PITAX:[46.00,4.00],  VESAN:[47.00,3.00],  GIGOR:[48.50,2.50],
+  MOKDI:[44.00,2.00],  NARAK:[44.50,1.50],  LERGA:[43.80,1.00],  REPSI:[43.20,0.50],
+  TOLVU:[51.00,0.50],  KELLY:[50.50,1.00],  CALDA:[50.00,1.50],  AMGEM:[49.50,2.00],
+  KOTUN:[48.00,4.50],  OKABE:[47.50,5.50],  SOVAT:[47.00,6.00],  DENUT:[46.50,6.50],
+  // ── Middle East ──
+  OLMUD:[25.00,55.00], IMDAD:[24.50,54.00], GOVLA:[24.00,53.00], TUMAK:[23.50,52.00],
+  KATIT:[26.00,56.00], LALDO:[27.00,57.00], GOBNA:[28.00,58.00], NABIX:[29.00,59.00],
+  RIDAP:[25.50,50.50], OSVOD:[26.00,49.00], LOTAM:[26.50,47.50], GAMED:[27.00,46.00],
+  OSDED:[23.00,45.00], EGPOX:[22.00,44.00], ITBUD:[21.00,43.00], ASMEK:[20.00,42.00],
+  BETOX:[32.00,35.00], LATAX:[31.50,35.50], TONRA:[31.00,36.00], OMDAN:[30.50,36.50],
+  // ── Asia ──
+  AKMET:[28.00,77.00], DOLNI:[27.00,78.00], ANPAX:[26.00,79.00], BIDAR:[25.00,80.00],
+  LAGAM:[22.00,113.0], MUVNO:[22.50,114.0], SIERA:[23.00,115.0], IDUMA:[23.50,116.0],
+  ENVAR:[1.50,104.0],  OXARI:[2.00,104.5], SALOT:[2.50,105.0],  BOSNU:[3.00,105.5],
+  RAXTO:[35.00,140.0], DOLBA:[35.50,141.0], LIBRA:[36.00,142.0], SAPAN:[36.50,143.0],
+  ADGUL:[37.50,126.0], BOTLA:[38.00,127.0], SUNIN:[38.50,128.0], KALOX:[39.00,129.0],
+  // ── Americas ──
+  SEPPO:[41.00,-73.0], JUDDS:[40.50,-74.0], MERIT:[40.00,-75.0], SAAME:[39.50,-76.0],
+  MUSAK:[43.00,-80.0], LINND:[43.50,-79.0], MIILS:[44.00,-78.0],
+  CAMRN:[33.00,-84.0], SLENK:[32.50,-83.0], WIMAN:[32.00,-82.0], HAARP:[31.50,-81.0],
+  HERBY:[25.50,-80.0], WINCO:[25.00,-80.5], KAMIE:[24.50,-81.0], SUGEE:[24.00,-81.5],
+  JANDR:[26.00,-97.0], PRAVE:[27.00,-96.0], GRNPA:[28.00,-95.0], KORRY:[29.00,-94.0],
+  BUCKS:[33.00,-97.0], RNGER:[32.50,-98.0], MERTT:[32.00,-99.0], HOBBS:[31.50,-100.],
+  BOILE:[37.00,-104.], DENVR:[39.86,-104.], PIKER:[40.50,-105.], TOKON:[41.00,-106.],
+  SHIPP:[33.50,-118.], LOSAX:[34.00,-118.], BURBA:[34.50,-118.], VENTU:[34.30,-119.],
+  SAYRC:[37.50,-122.], OAAKA:[38.00,-122.], SCAGG:[38.50,-122.], MENLO:[37.30,-122.],
+};
+
+// VOR database for lookups
+const VORS = {
+  LAM:{lat:51.64,lon:-0.15}, DET:{lat:51.28,lon:0.61}, DVR:{lat:51.16,lon:1.35},
+  BCN:{lat:41.29,lon:2.10}, TLA:{lat:48.77,lon:2.20}, POL:{lat:55.68,lon:-4.68},
+  DXB:{lat:25.25,lon:55.36}, AUH:{lat:24.43,lon:54.65}, DOH:{lat:25.27,lon:51.61},
+  CAI:{lat:30.12,lon:31.41}, SIN:{lat:1.36,lon:103.99}, NRT:{lat:35.77,lon:140.39},
+  ICN:{lat:37.47,lon:126.45}, HKG:{lat:22.31,lon:113.91}, DEL:{lat:28.57,lon:77.1},
+  JFK:{lat:40.64,lon:-73.78}, LAX:{lat:33.94,lon:-118.41}, ORD:{lat:41.97,lon:-87.91},
+  ATL:{lat:33.64,lon:-84.43}, DFW:{lat:32.90,lon:-97.04}, MIA:{lat:25.80,lon:-80.29},
+  SFO:{lat:37.62,lon:-122.38}, LHR:{lat:51.47,lon:-0.46}, CDG:{lat:49.01,lon:2.55},
+  FRA:{lat:50.02,lon:8.56}, AMS:{lat:52.31,lon:4.76}, MAD:{lat:40.47,lon:-3.56},
+  FCO:{lat:41.79,lon:12.25}, ZRH:{lat:47.46,lon:8.55}, VIE:{lat:48.11,lon:16.57},
+  IST:{lat:41.27,lon:28.74}, DUB:{lat:53.42,lon:-6.27}, BRU:{lat:50.90,lon:4.48},
+  MUC:{lat:48.35,lon:11.78}, CPH:{lat:55.62,lon:12.65}, ARN:{lat:59.65,lon:17.92},
+  HEL:{lat:60.32,lon:24.96}, OSL:{lat:60.20,lon:11.08}, GVA:{lat:46.24,lon:6.11},
+  BOM:{lat:19.09,lon:72.87}, KUL:{lat:2.75,lon:101.71}, BKK:{lat:13.69,lon:100.75},
+  PEK:{lat:40.08,lon:116.60}, PVG:{lat:31.14,lon:121.81}, SYD:{lat:-33.94,lon:151.17},
+  GRU:{lat:-23.44,lon:-46.47}, EZE:{lat:-34.81,lon:-58.54}, LIM:{lat:-12.02,lon:-77.10},
+  JNB:{lat:-26.14,lon:28.25}, NBO:{lat:-1.32,lon:36.93}, ADD:{lat:8.98,lon:38.80},
+  LOS:{lat:6.58,lon:3.32}, CMN:{lat:33.36,lon:-7.59},
+};
+
+// Resolve a waypoint name to {lat, lon} or null
+
 function initGlobe() {
   svg.selectAll('*').remove();
   // Set SVG to fill container before reading dimensions
@@ -827,7 +1066,7 @@ function initGlobe() {
 
   // Airports layer (above airspace, below flights)
   airportG = g.append('g').attr('class','airport-layer');
-  renderAirports();
+  if (typeof AIRPORT_DB !== 'undefined') renderAirports();
 
   // Route path layer (selected flight waypoints)
   routeG = g.append('g').attr('class','route-layer');
@@ -1254,6 +1493,28 @@ function recordTrail(f) {
   flightTrails.set(f.icao24, trail);
 }
 
+
+// ─── Aircraft Icons (SVG paths, centred at 0,0) ──────────────
+const AIRCRAFT_ICONS = {
+  narrowbody: 'M0,-8 L2,-2 L8,0 L2,1 L1,6 L3,7 L3,8 L0,7 L-3,8 L-3,7 L-1,6 L-2,1 L-8,0 L-2,-2 Z',
+  widebody:   'M0,-10 L3,-3 L10,0 L3,1.5 L1.5,7 L4,8 L4,9.5 L0,8.5 L-4,9.5 L-4,8 L-1.5,7 L-3,1.5 L-10,0 L-3,-3 Z',
+  cargo:      'M0,-9 L2.5,-2 L9,0 L2.5,1.5 L1,6 L3,7 L3,8.5 L0,7.5 L-3,8.5 L-3,7 L-1,6 L-2.5,1.5 L-9,0 L-2.5,-2 Z',
+  military:   'M0,-9 L1.5,-4 L6,-5 L4,-1 L8,1 L4,1.5 L2,6 L0,5 L-2,6 L-4,1.5 L-8,1 L-4,-1 L-6,-5 L-1.5,-4 Z',
+  helicopter: 'M-8,0 L8,0 M0,-6 L0,6 M-6,-4 L6,4 M6,-4 L-6,4 M0,0 m-2,-2 L2,-2 L2,3 L0,5 L-2,3 Z',
+  general:    'M0,-6 L1.5,-1 L6,0 L1.5,1 L0.5,4 L2,5 L2,6 L0,5.5 L-2,6 L-2,5 L-0.5,4 L-1.5,1 L-6,0 L-1.5,-1 Z',
+  glider:     'M0,-5 L1,-1 L12,1 L1,1.5 L0.5,4 L0,5 L-0.5,4 L-1,1.5 L-12,1 L-1,-1 Z',
+};
+
+function getIconScale(cat, isSelected, onGround) {
+  const base = {
+    widebody: 1.8, narrowbody: 1.4, cargo: 1.5,
+    military: 1.4, helicopter: 1.2, general: 1.0, glider: 1.3
+  }[cat] || 1.4;
+  if (onGround) return base * 0.75;
+  if (isSelected) return base * 1.4;
+  return base;
+}
+
 function renderFlights() {
   if (!flightG) return;
   flightG.selectAll('*').remove();
@@ -1453,149 +1714,6 @@ const AIRCRAFT_DB = {
   'CRJ9':{full:'Bombardier CRJ-900'},'AT76':{full:'ATR 72-600'}
 };
 
-const AIRPORT_DB = {
-  // ── North America ─────────────────────────────────────────────
-  'KJFK':{name:'John F. Kennedy',city:'New York',country:'United States',lat:40.6413,lon:-73.7781,iata:'JFK',runways:4,terminals:6,size:'mega'},
-  'KLAX':{name:'Los Angeles Intl',city:'Los Angeles',country:'United States',lat:33.9425,lon:-118.4081,iata:'LAX',runways:4,terminals:9,size:'mega'},
-  'KORD':{name:"O'Hare Intl",city:'Chicago',country:'United States',lat:41.9742,lon:-87.9073,iata:'ORD',runways:8,terminals:5,size:'mega'},
-  'KATL':{name:'Hartsfield-Jackson',city:'Atlanta',country:'United States',lat:33.6367,lon:-84.4281,iata:'ATL',runways:5,terminals:7,size:'mega'},
-  'KDFW':{name:'Dallas/Fort Worth',city:'Dallas',country:'United States',lat:32.8998,lon:-97.0403,iata:'DFW',runways:7,terminals:5,size:'mega'},
-  'KSFO':{name:'San Francisco Intl',city:'San Francisco',country:'United States',lat:37.6213,lon:-122.379,iata:'SFO',runways:4,terminals:4,size:'large'},
-  'KDEN':{name:'Denver Intl',city:'Denver',country:'United States',lat:39.8561,lon:-104.6737,iata:'DEN',runways:6,terminals:3,size:'mega'},
-  'KMIA':{name:'Miami Intl',city:'Miami',country:'United States',lat:25.7959,lon:-80.287,iata:'MIA',runways:4,terminals:3,size:'large'},
-  'KJFK':{name:'John F. Kennedy',city:'New York',country:'United States',lat:40.6413,lon:-73.7781,iata:'JFK',runways:4,terminals:6,size:'mega'},
-  'KEWR':{name:'Newark Liberty',city:'Newark',country:'United States',lat:40.6925,lon:-74.1687,iata:'EWR',runways:3,terminals:3,size:'large'},
-  'KBOS':{name:'Logan Intl',city:'Boston',country:'United States',lat:42.3656,lon:-71.0096,iata:'BOS',runways:6,terminals:4,size:'large'},
-  'KSEA':{name:'Seattle-Tacoma',city:'Seattle',country:'United States',lat:47.4502,lon:-122.3088,iata:'SEA',runways:3,terminals:2,size:'large'},
-  'KLAS':{name:'Harry Reid Intl',city:'Las Vegas',country:'United States',lat:36.0840,lon:-115.1537,iata:'LAS',runways:4,terminals:3,size:'large'},
-  'KPHX':{name:'Phoenix Sky Harbor',city:'Phoenix',country:'United States',lat:33.4373,lon:-112.0078,iata:'PHX',runways:3,terminals:3,size:'large'},
-  'KIAH':{name:'George Bush Intercontinental',city:'Houston',country:'United States',lat:29.9902,lon:-95.3368,iata:'IAH',runways:5,terminals:5,size:'large'},
-  'KMSP':{name:'Minneapolis-St. Paul',city:'Minneapolis',country:'United States',lat:44.8848,lon:-93.2223,iata:'MSP',runways:4,terminals:2,size:'large'},
-  'KDTW':{name:'Detroit Metro Wayne',city:'Detroit',country:'United States',lat:42.2124,lon:-83.3534,iata:'DTW',runways:6,terminals:2,size:'large'},
-  'KPHL':{name:'Philadelphia Intl',city:'Philadelphia',country:'United States',lat:39.8719,lon:-75.2411,iata:'PHL',runways:4,terminals:4,size:'large'},
-  'PHNL':{name:'Honolulu Intl',city:'Honolulu',country:'United States',lat:21.3245,lon:-157.9251,iata:'HNL',runways:4,terminals:3,size:'medium'},
-  'PANC':{name:'Ted Stevens Anchorage',city:'Anchorage',country:'United States',lat:61.1744,lon:-149.9964,iata:'ANC',runways:3,terminals:2,size:'medium'},
-  'CYYZ':{name:'Toronto Pearson',city:'Toronto',country:'Canada',lat:43.6777,lon:-79.6248,iata:'YYZ',runways:5,terminals:2,size:'mega'},
-  'CYVR':{name:'Vancouver Intl',city:'Vancouver',country:'Canada',lat:49.1939,lon:-123.1844,iata:'YVR',runways:3,terminals:3,size:'large'},
-  'CYUL':{name:'Montréal-Trudeau',city:'Montreal',country:'Canada',lat:45.4706,lon:-73.7408,iata:'YUL',runways:3,terminals:2,size:'large'},
-  'MMEX':{name:'Mexico City Intl',city:'Mexico City',country:'Mexico',lat:19.4363,lon:-99.0721,iata:'MEX',runways:2,terminals:2,size:'large'},
-  'MMUN':{name:'Cancún Intl',city:'Cancún',country:'Mexico',lat:21.0365,lon:-86.8771,iata:'CUN',runways:3,terminals:4,size:'large'},
-  // ── Europe ────────────────────────────────────────────────────
-  'EGLL':{name:'Heathrow',city:'London',country:'United Kingdom',lat:51.4775,lon:-0.4614,iata:'LHR',runways:2,terminals:5,size:'mega'},
-  'EGKK':{name:'Gatwick',city:'London',country:'United Kingdom',lat:51.1481,lon:-0.1903,iata:'LGW',runways:1,terminals:2,size:'large'},
-  'EGSS':{name:'Stansted',city:'London',country:'United Kingdom',lat:51.885,lon:0.235,iata:'STN',runways:1,terminals:1,size:'medium'},
-  'LFPG':{name:'Charles de Gaulle',city:'Paris',country:'France',lat:49.0097,lon:2.5479,iata:'CDG',runways:4,terminals:3,size:'mega'},
-  'LFPO':{name:'Paris Orly',city:'Paris',country:'France',lat:48.7262,lon:2.3652,iata:'ORY',runways:3,terminals:4,size:'large'},
-  'EDDF':{name:'Frankfurt Airport',city:'Frankfurt',country:'Germany',lat:50.0379,lon:8.5622,iata:'FRA',runways:4,terminals:2,size:'mega'},
-  'EDDM':{name:'Munich Airport',city:'Munich',country:'Germany',lat:48.3537,lon:11.7861,iata:'MUC',runways:2,terminals:2,size:'large'},
-  'EDDB':{name:'Berlin Brandenburg',city:'Berlin',country:'Germany',lat:52.3667,lon:13.5033,iata:'BER',runways:2,terminals:2,size:'large'},
-  'EHAM':{name:'Amsterdam Schiphol',city:'Amsterdam',country:'Netherlands',lat:52.3105,lon:4.7683,iata:'AMS',runways:6,terminals:1,size:'mega'},
-  'LEMD':{name:'Adolfo Suárez Barajas',city:'Madrid',country:'Spain',lat:40.4719,lon:-3.5626,iata:'MAD',runways:4,terminals:4,size:'mega'},
-  'LEBL':{name:'Barcelona El Prat',city:'Barcelona',country:'Spain',lat:41.2971,lon:2.0785,iata:'BCN',runways:3,terminals:3,size:'large'},
-  'LIRF':{name:'Leonardo da Vinci',city:'Rome',country:'Italy',lat:41.8003,lon:12.2389,iata:'FCO',runways:3,terminals:4,size:'large'},
-  'LIMC':{name:'Milan Malpensa',city:'Milan',country:'Italy',lat:45.63,lon:8.7281,iata:'MXP',runways:2,terminals:2,size:'large'},
-  'LSZH':{name:'Zürich Airport',city:'Zurich',country:'Switzerland',lat:47.4647,lon:8.5492,iata:'ZRH',runways:3,terminals:3,size:'large'},
-  'LFMN':{name:"Nice Côte d'Azur",city:'Nice',country:'France',lat:43.6584,lon:7.2159,iata:'NCE',runways:2,terminals:2,size:'medium'},
-  'EKCH':{name:'Copenhagen Airport',city:'Copenhagen',country:'Denmark',lat:55.6181,lon:12.6561,iata:'CPH',runways:3,terminals:3,size:'large'},
-  'ESSA':{name:'Stockholm Arlanda',city:'Stockholm',country:'Sweden',lat:59.6519,lon:17.9186,iata:'ARN',runways:3,terminals:5,size:'large'},
-  'EFHK':{name:'Helsinki-Vantaa',city:'Helsinki',country:'Finland',lat:60.3183,lon:24.9630,iata:'HEL',runways:3,terminals:2,size:'large'},
-  'ENGM':{name:'Oslo Gardermoen',city:'Oslo',country:'Norway',lat:60.1939,lon:11.1004,iata:'OSL',runways:2,terminals:2,size:'large'},
-  'LOWW':{name:'Vienna Intl',city:'Vienna',country:'Austria',lat:48.1103,lon:16.5697,iata:'VIE',runways:2,terminals:3,size:'large'},
-  'EPWA':{name:'Warsaw Chopin',city:'Warsaw',country:'Poland',lat:52.1657,lon:20.9671,iata:'WAW',runways:2,terminals:2,size:'large'},
-  'LKPR':{name:'Václav Havel Prague',city:'Prague',country:'Czech Republic',lat:50.1008,lon:14.26,iata:'PRG',runways:3,terminals:2,size:'large'},
-  'LHBP':{name:'Budapest Liszt Ferenc',city:'Budapest',country:'Hungary',lat:47.4298,lon:19.2611,iata:'BUD',runways:2,terminals:2,size:'medium'},
-  'LTFM':{name:'Istanbul Airport',city:'Istanbul',country:'Turkey',lat:41.2753,lon:28.7519,iata:'IST',runways:3,terminals:1,size:'mega'},
-  'LTAC':{name:'Esenboğa Intl',city:'Ankara',country:'Turkey',lat:40.1281,lon:32.9951,iata:'ESB',runways:2,terminals:2,size:'medium'},
-  'LGAV':{name:'Athens Eleftherios Venizelos',city:'Athens',country:'Greece',lat:37.9364,lon:23.9445,iata:'ATH',runways:2,terminals:2,size:'large'},
-  'LROP':{name:'Bucharest Henri Coandă',city:'Bucharest',country:'Romania',lat:44.5711,lon:26.085,iata:'OTP',runways:2,terminals:2,size:'medium'},
-  'UUEE':{name:'Sheremetyevo Intl',city:'Moscow',country:'Russia',lat:55.9726,lon:37.4146,iata:'SVO',runways:3,terminals:4,size:'mega'},
-  'UUDD':{name:'Domodedovo Intl',city:'Moscow',country:'Russia',lat:55.4088,lon:37.9063,iata:'DME',runways:2,terminals:2,size:'large'},
-  'ULLI':{name:'Pulkovo Intl',city:'St. Petersburg',country:'Russia',lat:59.8003,lon:30.2625,iata:'LED',runways:2,terminals:2,size:'large'},
-  'UKBB':{name:'Boryspil Intl',city:'Kyiv',country:'Ukraine',lat:50.3450,lon:30.8947,iata:'KBP',runways:2,terminals:2,size:'medium'},
-  'LPPT':{name:'Humberto Delgado',city:'Lisbon',country:'Portugal',lat:38.7813,lon:-9.1359,iata:'LIS',runways:2,terminals:2,size:'large'},
-  'LRBS':{name:'Băneasa',city:'Bucharest',country:'Romania',lat:44.5032,lon:26.1021,iata:'BBU',runways:1,terminals:1,size:'small'},
-  // ── Middle East ───────────────────────────────────────────────
-  'OMDB':{name:'Dubai International',city:'Dubai',country:'United Arab Emirates',lat:25.2532,lon:55.3657,iata:'DXB',runways:2,terminals:3,size:'mega'},
-  'OMDW':{name:'Al Maktoum Intl (DWC)',city:'Dubai',country:'United Arab Emirates',lat:24.8963,lon:55.1614,iata:'DWC',runways:2,terminals:1,size:'large'},
-  'OMAA':{name:'Abu Dhabi Zayed Intl',city:'Abu Dhabi',country:'United Arab Emirates',lat:24.4330,lon:54.6511,iata:'AUH',runways:2,terminals:2,size:'large'},
-  'OTHH':{name:'Hamad International',city:'Doha',country:'Qatar',lat:25.2731,lon:51.6081,iata:'DOH',runways:2,terminals:1,size:'mega'},
-  'OBBI':{name:'Bahrain Intl',city:'Manama',country:'Bahrain',lat:26.2708,lon:50.6336,iata:'BAH',runways:2,terminals:2,size:'medium'},
-  'OEJN':{name:'King Abdulaziz Intl',city:'Jeddah',country:'Saudi Arabia',lat:21.6796,lon:39.1565,iata:'JED',runways:4,terminals:2,size:'large'},
-  'OERK':{name:'King Khalid Intl',city:'Riyadh',country:'Saudi Arabia',lat:24.9576,lon:46.6988,iata:'RUH',runways:4,terminals:5,size:'large'},
-  'OKBK':{name:'Kuwait Intl',city:'Kuwait City',country:'Kuwait',lat:29.2269,lon:47.9689,iata:'KWI',runways:2,terminals:2,size:'medium'},
-  'OOMS':{name:'Muscat Intl',city:'Muscat',country:'Oman',lat:23.5933,lon:58.2844,iata:'MCT',runways:2,terminals:3,size:'large'},
-  'OIFM':{name:'Isfahan Intl',city:'Isfahan',country:'Iran',lat:32.7508,lon:51.8613,iata:'IFN',runways:2,terminals:2,size:'medium'},
-  'OIII':{name:'Mehrabad Intl',city:'Tehran',country:'Iran',lat:35.6892,lon:51.3134,iata:'THR',runways:4,terminals:2,size:'large'},
-  'ORBI':{name:'Baghdad Intl',city:'Baghdad',country:'Iraq',lat:33.2626,lon:44.2346,iata:'BGW',runways:2,terminals:3,size:'large'},
-  'OLBA':{name:'Rafic Hariri Intl',city:'Beirut',country:'Lebanon',lat:33.8209,lon:35.4884,iata:'BEY',runways:2,terminals:1,size:'medium'},
-  'LLBG':{name:'Ben Gurion Intl',city:'Tel Aviv',country:'Israel',lat:32.0055,lon:34.8854,iata:'TLV',runways:3,terminals:3,size:'large'},
-  'HECA':{name:'Cairo Intl',city:'Cairo',country:'Egypt',lat:30.1219,lon:31.4056,iata:'CAI',runways:3,terminals:3,size:'large'},
-  // ── Asia ──────────────────────────────────────────────────────
-  'VHHH':{name:'Hong Kong Intl',city:'Hong Kong',country:'China',lat:22.3089,lon:113.9144,iata:'HKG',runways:2,terminals:2,size:'mega'},
-  'ZBAA':{name:'Beijing Capital Intl',city:'Beijing',country:'China',lat:40.0799,lon:116.6031,iata:'PEK',runways:3,terminals:3,size:'mega'},
-  'ZBAD':{name:'Beijing Daxing Intl',city:'Beijing',country:'China',lat:39.5098,lon:116.4105,iata:'PKX',runways:4,terminals:1,size:'mega'},
-  'ZSPD':{name:'Shanghai Pudong Intl',city:'Shanghai',country:'China',lat:31.1434,lon:121.8052,iata:'PVG',runways:4,terminals:2,size:'mega'},
-  'ZSSS':{name:'Shanghai Hongqiao',city:'Shanghai',country:'China',lat:31.1979,lon:121.3362,iata:'SHA',runways:2,terminals:2,size:'large'},
-  'ZGGG':{name:'Guangzhou Baiyun Intl',city:'Guangzhou',country:'China',lat:23.3924,lon:113.2988,iata:'CAN',runways:3,terminals:2,size:'mega'},
-  'ZGSZ':{name:'Shenzhen Bao\'an Intl',city:'Shenzhen',country:'China',lat:22.6393,lon:113.8108,iata:'SZX',runways:2,terminals:3,size:'large'},
-  'ZUUU':{name:'Chengdu Shuangliu',city:'Chengdu',country:'China',lat:30.5785,lon:103.9469,iata:'CTU',runways:3,terminals:2,size:'large'},
-  'RJTT':{name:'Tokyo Haneda',city:'Tokyo',country:'Japan',lat:35.5494,lon:139.7798,iata:'HND',runways:4,terminals:3,size:'mega'},
-  'RJAA':{name:'Tokyo Narita',city:'Tokyo',country:'Japan',lat:35.7719,lon:140.3929,iata:'NRT',runways:2,terminals:3,size:'large'},
-  'RJOO':{name:'Osaka Itami',city:'Osaka',country:'Japan',lat:34.7855,lon:135.4386,iata:'ITM',runways:2,terminals:2,size:'large'},
-  'RJBB':{name:'Osaka Kansai',city:'Osaka',country:'Japan',lat:34.4347,lon:135.2440,iata:'KIX',runways:2,terminals:2,size:'large'},
-  'RKSI':{name:'Incheon Intl',city:'Seoul',country:'South Korea',lat:37.4691,lon:126.4505,iata:'ICN',runways:4,terminals:2,size:'mega'},
-  'RKSS':{name:'Gimpo Intl',city:'Seoul',country:'South Korea',lat:37.5583,lon:126.7906,iata:'GMP',runways:2,terminals:2,size:'large'},
-  'RCTP':{name:'Taiwan Taoyuan Intl',city:'Taipei',country:'Taiwan',lat:25.0777,lon:121.2328,iata:'TPE',runways:2,terminals:2,size:'large'},
-  'WSSS':{name:'Singapore Changi',city:'Singapore',country:'Singapore',lat:1.3644,lon:103.9915,iata:'SIN',runways:2,terminals:4,size:'mega'},
-  'WMKK':{name:'Kuala Lumpur Intl',city:'Kuala Lumpur',country:'Malaysia',lat:2.7456,lon:101.7099,iata:'KUL',runways:2,terminals:2,size:'mega'},
-  'VTBS':{name:'Suvarnabhumi',city:'Bangkok',country:'Thailand',lat:13.6900,lon:100.7501,iata:'BKK',runways:2,terminals:1,size:'mega'},
-  'VTBD':{name:'Don Mueang Intl',city:'Bangkok',country:'Thailand',lat:13.9126,lon:100.6067,iata:'DMK',runways:2,terminals:2,size:'large'},
-  'WIII':{name:'Soekarno-Hatta Intl',city:'Jakarta',country:'Indonesia',lat:-6.1256,lon:106.6559,iata:'CGK',runways:3,terminals:3,size:'mega'},
-  'RPLL':{name:'Ninoy Aquino Intl',city:'Manila',country:'Philippines',lat:14.5086,lon:121.0194,iata:'MNL',runways:2,terminals:4,size:'large'},
-  'VIDP':{name:'Indira Gandhi Intl',city:'New Delhi',country:'India',lat:28.5665,lon:77.1031,iata:'DEL',runways:3,terminals:3,size:'mega'},
-  'VABB':{name:'Chhatrapati Shivaji Intl',city:'Mumbai',country:'India',lat:19.0896,lon:72.8656,iata:'BOM',runways:2,terminals:2,size:'large'},
-  'VOBL':{name:'Bengaluru Kempegowda',city:'Bangalore',country:'India',lat:13.1986,lon:77.7066,iata:'BLR',runways:2,terminals:2,size:'large'},
-  'VOMM':{name:'Chennai Intl',city:'Chennai',country:'India',lat:12.9900,lon:80.1693,iata:'MAA',runways:2,terminals:2,size:'large'},
-  'VGZR':{name:'Hazrat Shahjalal Intl',city:'Dhaka',country:'Bangladesh',lat:23.8433,lon:90.3978,iata:'DAC',runways:2,terminals:2,size:'large'},
-  'OPKC':{name:'Jinnah Intl',city:'Karachi',country:'Pakistan',lat:24.9065,lon:67.1608,iata:'KHI',runways:3,terminals:2,size:'large'},
-  'OPLR':{name:'Allama Iqbal Intl',city:'Lahore',country:'Pakistan',lat:31.5216,lon:74.4036,iata:'LHE',runways:2,terminals:2,size:'medium'},
-  'VNKT':{name:'Tribhuvan Intl',city:'Kathmandu',country:'Nepal',lat:27.6966,lon:85.3591,iata:'KTM',runways:1,terminals:1,size:'medium'},
-  'VYYY':{name:'Yangon Intl',city:'Yangon',country:'Myanmar',lat:16.9073,lon:96.1332,iata:'RGN',runways:2,terminals:2,size:'medium'},
-  'VVTS':{name:'Tan Son Nhat Intl',city:'Ho Chi Minh City',country:'Vietnam',lat:10.8188,lon:106.6519,iata:'SGN',runways:2,terminals:2,size:'large'},
-  'VVNB':{name:'Noi Bai Intl',city:'Hanoi',country:'Vietnam',lat:21.2212,lon:105.8072,iata:'HAN',runways:2,terminals:2,size:'large'},
-  'VDPP':{name:'Phnom Penh Intl',city:'Phnom Penh',country:'Cambodia',lat:11.5466,lon:104.8441,iata:'PNH',runways:1,terminals:1,size:'medium'},
-  'UAAA':{name:'Almaty Intl',city:'Almaty',country:'Kazakhstan',lat:43.3521,lon:77.0405,iata:'ALA',runways:2,terminals:2,size:'large'},
-  // ── Africa ────────────────────────────────────────────────────
-  'FAOR':{name:'O.R. Tambo Intl',city:'Johannesburg',country:'South Africa',lat:-26.1392,lon:28.2460,iata:'JNB',runways:2,terminals:2,size:'large'},
-  'FACT':{name:'Cape Town Intl',city:'Cape Town',country:'South Africa',lat:-33.9649,lon:18.6017,iata:'CPT',runways:2,terminals:2,size:'large'},
-  'DNMM':{name:'Murtala Muhammed Intl',city:'Lagos',country:'Nigeria',lat:6.5774,lon:3.3211,iata:'LOS',runways:2,terminals:2,size:'large'},
-  'HAAB':{name:'Bole Intl',city:'Addis Ababa',country:'Ethiopia',lat:8.9779,lon:38.7993,iata:'ADD',runways:2,terminals:3,size:'large'},
-  'HKJK':{name:'Jomo Kenyatta Intl',city:'Nairobi',country:'Kenya',lat:-1.3192,lon:36.9275,iata:'NBO',runways:2,terminals:2,size:'large'},
-  'GMMN':{name:'Mohammed V Intl',city:'Casablanca',country:'Morocco',lat:33.3675,lon:-7.5898,iata:'CMN',runways:3,terminals:2,size:'large'},
-  'DTTA':{name:'Tunis-Carthage Intl',city:'Tunis',country:'Tunisia',lat:36.8510,lon:10.2272,iata:'TUN',runways:2,terminals:2,size:'medium'},
-  'DAAG':{name:'Houari Boumediene',city:'Algiers',country:'Algeria',lat:36.6910,lon:3.2154,iata:'ALG',runways:2,terminals:2,size:'large'},
-  'HSSS':{name:'Khartoum Intl',city:'Khartoum',country:'Sudan',lat:15.5895,lon:32.5532,iata:'KRT',runways:2,terminals:2,size:'medium'},
-  'FMMI':{name:'Ivato Intl',city:'Antananarivo',country:'Madagascar',lat:-18.7969,lon:47.4788,iata:'TNR',runways:1,terminals:1,size:'medium'},
-  'GOOY':{name:'Léopold Sédar Senghor',city:'Dakar',country:'Senegal',lat:14.7397,lon:-17.4902,iata:'DKR',runways:2,terminals:1,size:'medium'},
-  'FTTA':{name:'N\'Djamena Intl',city:'N\'Djamena',country:'Chad',lat:12.1337,lon:15.0340,iata:'NDJ',runways:1,terminals:1,size:'small'},
-  // ── Australasia ───────────────────────────────────────────────
-  'YSSY':{name:'Sydney Kingsford Smith',city:'Sydney',country:'Australia',lat:-33.9399,lon:151.1753,iata:'SYD',runways:3,terminals:3,size:'mega'},
-  'YMML':{name:'Melbourne Airport',city:'Melbourne',country:'Australia',lat:-37.6690,lon:144.8410,iata:'MEL',runways:2,terminals:4,size:'large'},
-  'YBBN':{name:'Brisbane Airport',city:'Brisbane',country:'Australia',lat:-27.3842,lon:153.1175,iata:'BNE',runways:2,terminals:2,size:'large'},
-  'YPPH':{name:'Perth Airport',city:'Perth',country:'Australia',lat:-31.9403,lon:115.9674,iata:'PER',runways:2,terminals:4,size:'large'},
-  'NZAA':{name:'Auckland Airport',city:'Auckland',country:'New Zealand',lat:-37.0082,lon:174.7917,iata:'AKL',runways:2,terminals:2,size:'large'},
-  'NZWN':{name:'Wellington Airport',city:'Wellington',country:'New Zealand',lat:-41.3272,lon:174.8050,iata:'WLG',runways:1,terminals:1,size:'medium'},
-  // ── South America ─────────────────────────────────────────────
-  'SBGR':{name:'São Paulo Guarulhos',city:'São Paulo',country:'Brazil',lat:-23.4356,lon:-46.4731,iata:'GRU',runways:2,terminals:3,size:'mega'},
-  'SBGL':{name:'Rio de Janeiro Galeão',city:'Rio de Janeiro',country:'Brazil',lat:-22.8099,lon:-43.2506,iata:'GIG',runways:2,terminals:2,size:'large'},
-  'SAEZ':{name:'Buenos Aires Ezeiza',city:'Buenos Aires',country:'Argentina',lat:-34.8222,lon:-58.5358,iata:'EZE',runways:3,terminals:2,size:'large'},
-  'SCEL':{name:'Santiago Arturo Merino',city:'Santiago',country:'Chile',lat:-33.3930,lon:-70.7858,iata:'SCL',runways:3,terminals:2,size:'large'},
-  'SKBO':{name:'El Dorado Intl',city:'Bogotá',country:'Colombia',lat:4.7016,lon:-74.1469,iata:'BOG',runways:2,terminals:2,size:'large'},
-  'SPJC':{name:'Jorge Chávez Intl',city:'Lima',country:'Peru',lat:-12.0219,lon:-77.1143,iata:'LIM',runways:2,terminals:2,size:'large'},
-  'SVMI':{name:'Simón Bolívar Intl',city:'Caracas',country:'Venezuela',lat:10.6012,lon:-66.9913,iata:'CCS',runways:2,terminals:2,size:'medium'},
-  'MMMX':{name:'Mexico City NAICM',city:'Mexico City',country:'Mexico',lat:19.4363,lon:-99.0721,iata:'MEX',runways:2,terminals:2,size:'large'},
-  'MPTO':{name:'Tocumen Intl',city:'Panama City',country:'Panama',lat:9.0714,lon:-79.3835,iata:'PTY',runways:2,terminals:2,size:'large'},
-};
 
 // ── Airport rendering ─────────────────────────────────────────
 function renderAirports() {
@@ -1769,6 +1887,27 @@ function mapAircraft(ac, isMil) {
   };
 }
 
+
+function applyFilters() {
+  const s = searchTerm.toLowerCase();
+  filteredFlights = flights.filter(f => {
+    if (s && !f.callsign.toLowerCase().includes(s) &&
+        !(f.origin_country||'').toLowerCase().includes(s) &&
+        !(f.registration||'').toLowerCase().includes(s)) return false;
+    if (activeFilter === 'airborne') return !f.on_ground;
+    if (activeFilter === 'highalt') return f.baro_altitude > 10000;
+    if (activeFilter === 'us') return (f.origin_country||'').toLowerCase().includes('united states');
+    if (activeFilter === 'europe') {
+      const eu = ['united kingdom','france','germany','spain','italy','netherlands',
+        'belgium','switzerland','austria','sweden','norway','denmark','finland',
+        'portugal','ireland','poland','czech','hungary','romania','ukraine'];
+      return eu.some(c => (f.origin_country||'').toLowerCase().includes(c));
+    }
+    return true;
+  });
+  const lc = document.getElementById('list-count');
+  if (lc) lc.textContent = filteredFlights.length.toLocaleString() + ' flights';
+}
 
 function loadMockData() {
   const airlines = ['BAW','UAL','DAL','AAL','SWA','AFR','DLH','IBE','KLM','EZY','RYR','EK','QTR','SIA','JAL','ANA','THY'];
@@ -2198,30 +2337,6 @@ const WAYPOINTS = [
 ];
 
 // ILS approaches for major airports (runway heading, glideslope lat/lon, name)
-const ILS_DATA = [
-  // London Heathrow
-  {ap:'EGLL',rwy:'27L',lat:51.477,lon:-0.461,hdg:270,gs_lat:51.477,gs_lon:-0.11,freq:'109.5',dme:'ILLS',range:12},
-  {ap:'EGLL',rwy:'09R',lat:51.477,lon:-0.077,hdg:90,gs_lat:51.477,gs_lon:-0.43,freq:'110.3',dme:'ILSR',range:12},
-  // Paris CDG
-  {ap:'LFPG',rwy:'27L',lat:49.017,lon:2.548,hdg:270,gs_lat:49.017,gs_lon:2.85,freq:'109.75',dme:'CGN',range:12},
-  {ap:'LFPG',rwy:'09R',lat:49.017,lon:2.85,hdg:90,gs_lat:49.017,gs_lon:2.55,freq:'110.55',dme:'CGS',range:12},
-  // Frankfurt
-  {ap:'EDDF',rwy:'25C',lat:50.027,lon:8.562,hdg:250,gs_lat:50.041,gs_lon:8.85,freq:'111.15',dme:'FFM',range:15},
-  // Dubai
-  {ap:'OMDB',rwy:'30L',lat:25.252,lon:55.366,hdg:300,gs_lat:25.23,gs_lon:55.58,freq:'110.9',dme:'IDB',range:12},
-  {ap:'OMDB',rwy:'12R',lat:25.252,lon:55.366,hdg:120,gs_lat:25.27,gs_lon:55.18,freq:'109.5',dme:'IDR',range:12},
-  // JFK
-  {ap:'KJFK',rwy:'31L',lat:40.628,lon:-73.769,hdg:310,gs_lat:40.66,gs_lon:-73.88,freq:'110.9',dme:'IJFK',range:12},
-  {ap:'KJFK',rwy:'22R',lat:40.63,lon:-73.77,hdg:220,gs_lat:40.65,gs_lon:-73.68,freq:'111.9',dme:'IRJ',range:12},
-  // Singapore
-  {ap:'WSSS',rwy:'02C',lat:1.354,lon:103.988,hdg:20,gs_lat:1.32,gs_lon:103.99,freq:'110.3',dme:'ISI',range:12},
-  // Tokyo Haneda
-  {ap:'RJTT',rwy:'34R',lat:35.553,lon:139.778,hdg:340,gs_lat:35.52,gs_lon:139.78,freq:'110.7',dme:'IHD',range:12},
-  // Abu Dhabi
-  {ap:'OMAA',rwy:'31L',lat:24.433,lon:54.651,hdg:310,gs_lat:24.41,gs_lon:54.82,freq:'110.1',dme:'IAU',range:12},
-  // Doha
-  {ap:'OTHH',rwy:'34L',lat:25.273,lon:51.608,hdg:340,gs_lat:25.25,gs_lon:51.61,freq:'111.3',dme:'IHD',range:12},
-];
 
 function renderWaypoints() {
   if (!waypointG) waypointG = g.append('g').attr('class','waypoint-layer');
@@ -2315,75 +2430,8 @@ let currentRoutePath = [];
 
 // Major en-route waypoints/fixes database (ICAO 5-letter identifiers → lat/lon)
 // Covering primary airways in Europe, North Atlantic, Middle East, Asia, Americas
-const FIXES = {
-  // ── North Atlantic ──
-  SOMAX:[51.0,-15.0], MIMKU:[52.0,-20.0], DOLIR:[53.0,-30.0], BEDRA:[54.0,-40.0],
-  RAFOX:[55.0,-50.0], DOGAL:[51.5,-15.0], BEXET:[51.0,-10.0], LIMRI:[56.0,-20.0],
-  MALOT:[58.0,-30.0], MIMLO:[57.0,-20.0], RESNO:[57.0,-30.0], GISTI:[56.5,-40.0],
-  DINIM:[55.0,-45.0], LOMSI:[53.0,-55.0], BOBTU:[50.0,-50.0], JANJO:[49.0,-45.0],
-  // ── North Pacific ──
-  NORDO:[48.0,-150.0], TALON:[47.0,-160.0], NIPPI:[45.0,-170.0], EMRON:[43.0,180.0],
-  ADNAP:[42.0,170.0], LEKOS:[44.0,155.0], POXUT:[46.0,145.0], ENKAS:[49.0,135.0],
-  // ── Europe major fixes ──
-  LAM:[51.64,-0.15], DET:[51.28,0.61], CLN:[51.84,0.89], TNT:[51.47,0.45],
-  DVR:[51.16,1.35], KONAN:[51.08,2.61], POL:[55.68,-4.68], TLA:[48.77,2.20],
-  BIG:[51.33,0.03], MAY:[50.86,-0.12], SFD:[50.99,-0.11], BNN:[51.64,-0.55],
-  HON:[51.01,-1.35], SAM:[50.95,-1.34], BCN:[41.29,2.10], LFPG:[49.01,2.55],
-  ORTAC:[49.93,-2.00], SIVIR:[50.73,-1.60], LIZAD:[49.50,-2.00], BARTN:[53.00,-4.00],
-  NELBO:[55.00,-5.00], BEMSI:[56.00,-6.00], ERAKA:[57.00,-7.00], OMOKO:[58.00,-8.00],
-  STAFA:[46.50,7.00],  MASEK:[48.00,8.00],  OBELU:[47.00,9.00],  DITON:[48.50,10.0],
-  RUDKA:[50.00,12.0],  ROKIL:[51.00,13.0],  GORKU:[52.00,14.0],  ABKUR:[53.00,15.0],
-  XIMBO:[45.00,6.00],  PITAX:[46.00,4.00],  VESAN:[47.00,3.00],  GIGOR:[48.50,2.50],
-  MOKDI:[44.00,2.00],  NARAK:[44.50,1.50],  LERGA:[43.80,1.00],  REPSI:[43.20,0.50],
-  TOLVU:[51.00,0.50],  KELLY:[50.50,1.00],  CALDA:[50.00,1.50],  AMGEM:[49.50,2.00],
-  KOTUN:[48.00,4.50],  OKABE:[47.50,5.50],  SOVAT:[47.00,6.00],  DENUT:[46.50,6.50],
-  // ── Middle East ──
-  OLMUD:[25.00,55.00], IMDAD:[24.50,54.00], GOVLA:[24.00,53.00], TUMAK:[23.50,52.00],
-  KATIT:[26.00,56.00], LALDO:[27.00,57.00], GOBNA:[28.00,58.00], NABIX:[29.00,59.00],
-  RIDAP:[25.50,50.50], OSVOD:[26.00,49.00], LOTAM:[26.50,47.50], GAMED:[27.00,46.00],
-  OSDED:[23.00,45.00], EGPOX:[22.00,44.00], ITBUD:[21.00,43.00], ASMEK:[20.00,42.00],
-  BETOX:[32.00,35.00], LATAX:[31.50,35.50], TONRA:[31.00,36.00], OMDAN:[30.50,36.50],
-  // ── Asia ──
-  AKMET:[28.00,77.00], DOLNI:[27.00,78.00], ANPAX:[26.00,79.00], BIDAR:[25.00,80.00],
-  LAGAM:[22.00,113.0], MUVNO:[22.50,114.0], SIERA:[23.00,115.0], IDUMA:[23.50,116.0],
-  ENVAR:[1.50,104.0],  OXARI:[2.00,104.5], SALOT:[2.50,105.0],  BOSNU:[3.00,105.5],
-  RAXTO:[35.00,140.0], DOLBA:[35.50,141.0], LIBRA:[36.00,142.0], SAPAN:[36.50,143.0],
-  ADGUL:[37.50,126.0], BOTLA:[38.00,127.0], SUNIN:[38.50,128.0], KALOX:[39.00,129.0],
-  // ── Americas ──
-  SEPPO:[41.00,-73.0], JUDDS:[40.50,-74.0], MERIT:[40.00,-75.0], SAAME:[39.50,-76.0],
-  MUSAK:[43.00,-80.0], LINND:[43.50,-79.0], MIILS:[44.00,-78.0],
-  CAMRN:[33.00,-84.0], SLENK:[32.50,-83.0], WIMAN:[32.00,-82.0], HAARP:[31.50,-81.0],
-  HERBY:[25.50,-80.0], WINCO:[25.00,-80.5], KAMIE:[24.50,-81.0], SUGEE:[24.00,-81.5],
-  JANDR:[26.00,-97.0], PRAVE:[27.00,-96.0], GRNPA:[28.00,-95.0], KORRY:[29.00,-94.0],
-  BUCKS:[33.00,-97.0], RNGER:[32.50,-98.0], MERTT:[32.00,-99.0], HOBBS:[31.50,-100.],
-  BOILE:[37.00,-104.], DENVR:[39.86,-104.], PIKER:[40.50,-105.], TOKON:[41.00,-106.],
-  SHIPP:[33.50,-118.], LOSAX:[34.00,-118.], BURBA:[34.50,-118.], VENTU:[34.30,-119.],
-  SAYRC:[37.50,-122.], OAAKA:[38.00,-122.], SCAGG:[38.50,-122.], MENLO:[37.30,-122.],
-};
 
-// VOR database for lookups
-const VORS = {
-  LAM:{lat:51.64,lon:-0.15}, DET:{lat:51.28,lon:0.61}, DVR:{lat:51.16,lon:1.35},
-  BCN:{lat:41.29,lon:2.10}, TLA:{lat:48.77,lon:2.20}, POL:{lat:55.68,lon:-4.68},
-  DXB:{lat:25.25,lon:55.36}, AUH:{lat:24.43,lon:54.65}, DOH:{lat:25.27,lon:51.61},
-  CAI:{lat:30.12,lon:31.41}, SIN:{lat:1.36,lon:103.99}, NRT:{lat:35.77,lon:140.39},
-  ICN:{lat:37.47,lon:126.45}, HKG:{lat:22.31,lon:113.91}, DEL:{lat:28.57,lon:77.1},
-  JFK:{lat:40.64,lon:-73.78}, LAX:{lat:33.94,lon:-118.41}, ORD:{lat:41.97,lon:-87.91},
-  ATL:{lat:33.64,lon:-84.43}, DFW:{lat:32.90,lon:-97.04}, MIA:{lat:25.80,lon:-80.29},
-  SFO:{lat:37.62,lon:-122.38}, LHR:{lat:51.47,lon:-0.46}, CDG:{lat:49.01,lon:2.55},
-  FRA:{lat:50.02,lon:8.56}, AMS:{lat:52.31,lon:4.76}, MAD:{lat:40.47,lon:-3.56},
-  FCO:{lat:41.79,lon:12.25}, ZRH:{lat:47.46,lon:8.55}, VIE:{lat:48.11,lon:16.57},
-  IST:{lat:41.27,lon:28.74}, DUB:{lat:53.42,lon:-6.27}, BRU:{lat:50.90,lon:4.48},
-  MUC:{lat:48.35,lon:11.78}, CPH:{lat:55.62,lon:12.65}, ARN:{lat:59.65,lon:17.92},
-  HEL:{lat:60.32,lon:24.96}, OSL:{lat:60.20,lon:11.08}, GVA:{lat:46.24,lon:6.11},
-  BOM:{lat:19.09,lon:72.87}, KUL:{lat:2.75,lon:101.71}, BKK:{lat:13.69,lon:100.75},
-  PEK:{lat:40.08,lon:116.60}, PVG:{lat:31.14,lon:121.81}, SYD:{lat:-33.94,lon:151.17},
-  GRU:{lat:-23.44,lon:-46.47}, EZE:{lat:-34.81,lon:-58.54}, LIM:{lat:-12.02,lon:-77.10},
-  JNB:{lat:-26.14,lon:28.25}, NBO:{lat:-1.32,lon:36.93}, ADD:{lat:8.98,lon:38.80},
-  LOS:{lat:6.58,lon:3.32}, CMN:{lat:33.36,lon:-7.59},
-};
 
-// Resolve a waypoint name to {lat, lon} or null
 function resolveWaypoint(name) {
   const n = name.trim().toUpperCase();
   // Check airport DB first
@@ -2667,6 +2715,26 @@ function closeAirportMap() {
   document.getElementById('airport-map-panel').classList.remove('open');
   activeAirportIcao = null;
 }
+
+
+// ─── Filter tabs + search wiring ─────────────────────────────
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeFilter = tab.dataset.filter || 'all';
+    applyFilters(); renderFlights(); renderList();
+  });
+});
+(function() {
+  const searchEl = document.getElementById('flight-search');
+  if (searchEl) {
+    searchEl.addEventListener('input', e => {
+      searchTerm = e.target.value;
+      applyFilters(); renderFlights(); renderList();
+    });
+  }
+})();
 
 setInterval(fetchFlights, 30000); // airplanes.live allows more frequent polling
 fetchFlights();
