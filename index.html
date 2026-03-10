@@ -1101,7 +1101,7 @@ function renderGlobeOnly() {
   if (landG) landG.selectAll('path').attr('d', path);
   if (layers.borders && bordersG) bordersG.selectAll('path').attr('d', path);
   renderCountryLabels();
-  if (layers.airports) renderAirports();
+  if (layers.airports && typeof AIRPORT_DB !== 'undefined') renderAirports();
   if (layers.waypoints) renderWaypoints();
   if (layers.route) renderRoutePath();
 }
@@ -1599,6 +1599,7 @@ const AIRPORT_DB = {
 
 // ── Airport rendering ─────────────────────────────────────────
 function renderAirports() {
+  if (typeof AIRPORT_DB === "undefined") return;
   airportG.selectAll('*').remove();
   if (!showAirports) return;
 
@@ -1766,6 +1767,33 @@ function mapAircraft(ac, isMil) {
     _isMil: isMil || !!(ac.dbFlags & 1),
     _raw: ac
   };
+}
+
+
+function loadMockData() {
+  const airlines = ['BAW','UAL','DAL','AAL','SWA','AFR','DLH','IBE','KLM','EZY','RYR','EK','QTR','SIA','JAL','ANA','THY'];
+  const countries = ['United States','United Kingdom','France','Germany','Spain','UAE','Singapore','Japan','China','Australia','Canada','Turkey'];
+  flights = [];
+  for (let i = 0; i < 800; i++) {
+    const al = airlines[Math.floor(Math.random()*airlines.length)];
+    flights.push({
+      icao24: Math.random().toString(16).substr(2,6),
+      callsign: al + Math.floor(Math.random()*9000+1000),
+      origin_country: countries[Math.floor(Math.random()*countries.length)],
+      registration: '', aircraft_type: 'B738', description: 'Boeing 737-800',
+      operator: al, longitude: Math.random()*360-180, latitude: Math.random()*140-70,
+      baro_altitude: Math.random()*12000+1000, on_ground: Math.random()<0.05,
+      velocity: Math.random()*250+150, true_track: Math.random()*360,
+      vertical_rate: (Math.random()-0.5)*15, squawk: null,
+      category: 'A3', emergency: 'none', _isMil: false
+    });
+  }
+  const airborne = flights.filter(f=>!f.on_ground).length;
+  document.getElementById('stat-total').textContent = flights.length.toLocaleString()+'*';
+  document.getElementById('stat-airborne').textContent = airborne.toLocaleString()+'*';
+  document.getElementById('stat-countries').textContent = '–';
+  setStatus('error', 'Demo mode — API unavailable');
+  applyFilters(); renderFlights(); renderList();
 }
 
 async function fetchFlights() {
