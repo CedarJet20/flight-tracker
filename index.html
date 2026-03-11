@@ -1279,7 +1279,7 @@ function renderGlobeOnly() {
       const f = d3.select(this).datum();
       if (!f) return;
       const geoAngle = d3.geoDistance([f.longitude, f.latitude], center);
-      if (geoAngle > Math.PI / 2) { d3.select(this).attr('visibility','hidden'); return; }
+      if (geoAngle > Math.PI * 0.52) { d3.select(this).attr('visibility','hidden'); return; } // slight overdraw
       const proj = projection([f.longitude, f.latitude]);
       if (!proj) { d3.select(this).attr('visibility','hidden'); return; }
       const sc = getIconScale(getAircraftCategory(f), f === selectedFlight, f.on_ground);
@@ -1420,6 +1420,57 @@ function startAutoRotate() {
   });
 }
 startAutoRotate();
+
+// ── Dead Reckoning ─────────────────────────────────────────────
+// Smoothly extrapolates aircraft positions between API refreshes
+// based on ground speed (gs_kts) and heading (true_track).
+let _drFrame = null;
+
+function deadReckon() {
+  if (flights.length && !isDragging) {
+    const now = Date.now();
+
+    filteredFlights.forEach(f => {
+      if (f.on_ground || !f.gs_kts || !f._fetchedAt || !f._lat0 || !f._lon0) return;
+
+      const dt = (now - f._fetchedAt) / 1000; // seconds since last real fix
+      if (dt <= 0 || dt > 180) return;         // ignore stale (>3min) or brand new
+
+      const R          = 6371000;
+      const headRad    = ((f.true_track || 0)) * Math.PI / 180;
+      const speedMs    = (f.gs_kts || 0) * 0.514444;
+      const distM      = speedMs * dt;
+      const lat0Rad    = f._lat0 * Math.PI / 180;
+      const lon0Rad    = f._lon0 * Math.PI / 180;
+
+      // Forward haversine from the fixed base position
+      const newLatRad = Math.asin(
+        Math.sin(lat0Rad) * Math.cos(distM / R) +
+        Math.cos(lat0Rad) * Math.sin(distM / R) * Math.cos(headRad)
+      );
+      const newLonRad = lon0Rad + Math.atan2(
+        Math.sin(headRad) * Math.sin(distM / R) * Math.cos(lat0Rad),
+        Math.cos(distM / R) - Math.sin(lat0Rad) * Math.sin(newLatRad)
+      );
+
+      f.latitude  = newLatRad * 180 / Math.PI;
+      f.longitude = ((newLonRad * 180 / Math.PI) + 540) % 360 - 180;
+
+      // Smooth altitude change
+      if (f.vr_fpm && f._alt0 != null) {
+        f.alt_baro_ft   = f._alt0 + (f.vr_fpm / 60) * dt;
+        f.baro_altitude = f.alt_baro_ft * 0.3048;
+      }
+    });
+
+    renderGlobeOnly();
+  }
+
+  _drFrame = requestAnimationFrame(deadReckon);
+}
+
+deadReckon(); // start loop
+
 
 const autorotateBtn = document.getElementById('autorotate-btn');
 if (autorotateBtn) {
@@ -1756,8 +1807,19 @@ function renderFlights() {
       .attr('transform', `translate(${proj[0]},${proj[1]}) rotate(${f.true_track||0}) scale(${sc})`)
       .attr('opacity', f.on_ground ? 0.5 : 0.92)
       .style('cursor','pointer')
-      .on('click',   () => { selectedFlight = f; renderFlights(); renderList(); panToFlight(f); })
-      .on('dblclick', () => selectFlight(f));
+      .on('click', function(ev) {
+        clearTimeout(window._singleClickTimer);
+        window._singleClickTimer = setTimeout(() => {
+          // Single-click: highlight + pan, don't open panel
+          selectedFlight = f;
+          renderFlights(); renderList(); panToFlight(f);
+        }, 200);
+      })
+      .on('dblclick', function() {
+        clearTimeout(window._singleClickTimer);
+        // Double-click: always open/refresh the detail panel
+        selectFlight(f);
+      });
 
     if (f === selectedFlight) {
       gp.append('path').attr('d', icon).attr('fill', color)
@@ -1776,20 +1838,24 @@ function renderFlights() {
       .on('mouseover',  (ev) => showTooltip(ev, f))
       .on('mousemove',  (ev) => moveTooltip(ev))
       .on('mouseout',   () => hideTooltip())
-      .on('click',      () => { selectedFlight = f; renderFlights(); renderList(); panToFlight(f); })
-      .on('dblclick',   () => selectFlight(f));
+      .on('click', function() {
+        clearTimeout(window._singleClickTimer);
+        window._singleClickTimer = setTimeout(() => {
+          selectedFlight = f;
+          renderFlights(); renderList(); panToFlight(f);
+        }, 200);
+      })
+      .on('dblclick', function() {
+        clearTimeout(window._singleClickTimer);
+        selectFlight(f);
+      });
   });
 }
 
 // ─── Select Flight (detail panel) ───────────────────────────────
 function selectFlight(f) {
-  if (selectedFlight === f) {
-    document.getElementById('detail-panel').classList.remove('open');
-    selectedFlight = null;
-    if (routeG) routeG.selectAll('*').remove();
-    renderFlights(); renderList();
-    return;
-  }
+  // Always open/update on dblclick — never toggle-close from here
+  // (use the ✕ button inside the panel to close)
   selectedFlight = f;
   renderFlights(); renderList();
 
@@ -2228,40 +2294,75 @@ function getAircraftType(code) {
 // ─── API / Fetch ─────────────────────────────────────────────────
 const API_BASE = 'https://api.adsb.one/v2';
 
-const SAMPLE_POINTS = [];
-(function buildGrid() {
-  const seen = new Set();
-  function add(lat, lon) {
-    lon = ((lon + 180) % 360) - 180; // normalise
-    const k = `${Math.round(lat*10)},${Math.round(lon*10)}`;
-    if (!seen.has(k)) { seen.add(k); SAMPLE_POINTS.push([lat, lon]); }
-  }
-
-  // Global grid: 20° lat step, adaptive lon step
-  for (let lat = -80; lat <= 80; lat += 20) {
-    const cosLat = Math.max(0.15, Math.cos(lat * Math.PI / 180));
-    const step = Math.min(40, Math.round(20 / cosLat));
-    for (let lon = -180; lon < 180; lon += step) add(lat, lon);
-  }
-
-  // Middle East dense grid — fill the 18–38N, 28–68E gap
-  const ME = [
-    // Persian Gulf / UAE
-    [24,54],[24,51],[24,57],[26,56],[26,50],
-    // Saudi Arabia
-    [24,44],[24,47],[21,40],[21,43],[18,42],[18,45],
-    // Iran / Iraq
-    [33,51],[33,44],[35,55],[30,57],[27,57],[29,51],
-    // Levant / Egypt / Turkey
-    [31,35],[30,31],[33,36],[37,35],[37,40],[37,29],
-    // Red Sea corridor
-    [19,38],[15,42],[12,44],
-    // Central Asia border
-    [30,63],[27,63],[33,63],
-  ];
-  ME.forEach(([lat,lon]) => add(lat, lon));
-})();
-
+const SAMPLE_POINTS = [
+  [0,-180],
+  [0,-135],
+  [0,-90],
+  [0,-45],
+  [0,0],
+  [0,45],
+  [0,90],
+  [0,135],
+  [32,-180],
+  [-32,-180],
+  [32,-120],
+  [-32,-120],
+  [32,-60],
+  [-32,-60],
+  [32,0],
+  [-32,0],
+  [32,60],
+  [-32,60],
+  [32,120],
+  [-32,120],
+  [60,-180],
+  [-60,-180],
+  [60,-90],
+  [-60,-90],
+  [60,0],
+  [-60,0],
+  [60,90],
+  [-60,90],
+  [35,-90],
+  [45,-75],
+  [40,-115],
+  [50,-100],
+  [52,10],
+  [48,2],
+  [55,25],
+  [40,20],
+  [35,120],
+  [35,140],
+  [25,121],
+  [50,120],
+  [28,108],
+  [22,114],
+  [25,50],
+  [32,44],
+  [24,38],
+  [30,65],
+  [20,80],
+  [12,80],
+  [13,100],
+  [20,105],
+  [5,103],
+  [5,20],
+  [20,10],
+  [-10,25],
+  [0,-5],
+  [-10,-55],
+  [-5,-75],
+  [5,-70],
+  [-30,-55],
+  [-25,135],
+  [-35,150],
+  [-10,142],
+  [-25,115],
+  [55,-30],
+  [55,-140],
+  [35,-165],
+  [25,-150]
+];
 
 function setStatus(state, text) {
   const el = document.getElementById('status-text');
@@ -2299,112 +2400,98 @@ function mapAircraft(ac, isMil) {
     emergency:     ac.emergency || 'none',
     dbFlags:       ac.dbFlags || 0,
     _isMil:        isMil || !!(ac.dbFlags & 1),
-    _raw:          ac
+    _raw:          ac,
+    _fetchedAt:    Date.now(),
+    _lat0:         ac.lat,
+    _lon0:         ac.lon,
+    _alt0:         typeof ac.alt_baro === 'number' ? ac.alt_baro : null,
   };
 }
 
 async function fetchFlights() {
-  setStatus('loading', 'Connecting…');
-  const seen = new Map();
+  setStatus('loading', 'Updating…');
 
-  function fetchTimeout(url, ms) {
+  function fetchWithTimeout(url, ms) {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), ms);
-    return fetch(url, { signal: ctrl.signal })
-      .finally(() => clearTimeout(t));
+    return fetch(url, {signal: ctrl.signal})
+      .then(r => { clearTimeout(t); return r; })
+      .catch(e => { clearTimeout(t); throw e; });
   }
 
-  const BASE = API_BASE;
+  // Build index of existing flights so we can UPDATE in-place, not replace
+  const existing = new Map(flights.map(f => [f.icao24, f]));
+  const fresh    = new Map();   // icao24 → raw ac object from API
+  let tileOk = 0, tileFail = 0, milCount = 0;
 
-  // ── Phase 1: Special category endpoints (always fast) ──────────
-  const phase1 = [
-    `${BASE}/mil`,   // military worldwide
-    `${BASE}/ladd`,  // private / exec jets
-  ];
-  for (const url of phase1) {
+  // Military endpoint
+  try {
+    const r = await fetchWithTimeout(`${API_BASE}/mil`, 12000);
+    if (r.ok) {
+      const d = await r.json();
+      (d.ac||[]).forEach(ac => { if (ac.lat && ac.lon) { fresh.set(ac.hex, {ac, isMil:true}); milCount++; } });
+    }
+  } catch(e) {}
+
+  // All tiles fully parallel — 2000nm radius for global coverage
+  const RADIUS = 2000;
+  await Promise.allSettled(SAMPLE_POINTS.map(async ([lat, lon]) => {
     try {
-      const r = await fetchTimeout(url, 12000);
-      if (r.ok) {
-        const d = await r.json();
-        (d.ac || []).forEach(ac => {
-          if (!ac.lat || !ac.lon) return;
-          const f = mapAircraft(ac, url.includes('/mil'));
-          if (f) seen.set(f.icao24, f);
-        });
-      }
-    } catch(e) {}
-  }
-  setStatus('loading', `${seen.size} aircraft… loading regions`);
+      const r = await fetchWithTimeout(`${API_BASE}/point/${lat}/${lon}/${RADIUS}`, 14000);
+      if (!r.ok) { tileFail++; return; }
+      const d = await r.json();
+      (d.ac||[]).forEach(ac => {
+        if (!ac.lat || !ac.lon) return;
+        if (!fresh.has(ac.hex)) fresh.set(ac.hex, {ac, isMil:false});
+      });
+      tileOk++;
+    } catch(e) { tileFail++; }
+  }));
 
-  // ── Phase 2: 20 strategic tiles covering global air corridors ───
-  // Radius 500nm = covers ~925km. Each tile is spaced to overlap.
-  const TILES = [
-    // North America
-    [40, -75],   // US East (NYC/BOS/PHL)
-    [34, -118],  // US West (LAX/LAS/SAN)
-    [42, -88],   // US Midwest (ORD/DTW)
-    [30, -95],   // US South (DFW/IAH/MSY)
-    [49, -123],  // Canada West (YVR)
-    [45, -73],   // Canada East (YUL/YYZ)
-    // Europe
-    [51, 0],     // UK / NW Europe
-    [49, 8],     // Germany / France / CH
-    [41, 13],    // Italy / Balkans
-    [40, 28],    // Turkey / Aegean
-    // Middle East / Asia
-    [25, 55],    // UAE / Gulf
-    [26, 80],    // India central
-    [35, 105],   // China
-    [35, 128],   // Korea / Japan
-    [1,  104],   // Singapore / SE Asia
-    // Rest of world
-    [55, 37],    // Moscow / Russia west
-    [-34, 151],  // Sydney / Australia east
-    [-23, -46],  // São Paulo / Brazil
-    [19, -99],   // Mexico City
-    [55, 25],    // Baltic / Poland
-  ];
+  const now = Date.now();
 
-  // Fetch 2 tiles at a time, 400ms apart — avoids rate limiting
-  for (let i = 0; i < TILES.length; i += 2) {
-    const batch = TILES.slice(i, i + 2);
-    await Promise.allSettled(batch.map(async ([lat, lon]) => {
-      try {
-        const r = await fetchTimeout(`${BASE}/point/${lat}/${lon}/500`, 12000);
-        if (!r.ok) return;
-        const d = await r.json();
-        (d.ac || []).forEach(ac => {
-          if (!ac.lat || !ac.lon) return;
-          if (!seen.has(ac.hex)) {
-            const f = mapAircraft(ac, false);
-            if (f) seen.set(f.icao24, f);
-          }
-        });
-      } catch(e) {}
-    }));
-    // Throttle: wait 400ms between batches to avoid 503
-    if (i + 2 < TILES.length) await new Promise(r => setTimeout(r, 400));
-    setStatus('loading', `${seen.size} aircraft… tile ${Math.min(i+2,TILES.length)}/${TILES.length}`);
-  }
+  // MERGE: update existing aircraft in-place, add new ones, keep recent ones
+  fresh.forEach(({ac, isMil}, hex) => {
+    const mapped = mapAircraft(ac, isMil);
+    if (!mapped) return;
+    if (existing.has(hex)) {
+      // Update in-place — preserve object reference so DR still works
+      const ex = existing.get(hex);
+      // Snap base position for fresh DR
+      ex._lat0      = ac.lat;
+      ex._lon0      = ac.lon;
+      ex._fetchedAt = now;
+      // Update all live fields
+      Object.assign(ex, mapped, { _lat0: ac.lat, _lon0: ac.lon, _fetchedAt: now });
+    } else {
+      mapped._fetchedAt = now;
+      mapped._lat0      = ac.lat;
+      mapped._lon0      = ac.lon;
+      existing.set(hex, mapped);
+    }
+  });
 
-  // ── Finalize ──────────────────────────────────────────────────
-  flights = Array.from(seen.values());
-  dbg(`API done: ${flights.length} total (${TILES.length} tiles)`);
+  // Drop aircraft not seen for more than 90 seconds
+  const STALE_MS = 90000;
+  existing.forEach((f, hex) => {
+    if (now - (f._fetchedAt || 0) > STALE_MS) existing.delete(hex);
+  });
 
-  if (flights.length < 10) {
-    setStatus('error', `Only ${flights.length} aircraft — using demo data`);
-    loadMockData();
-    return;
+  flights = Array.from(existing.values());
+
+  if (flights.length === 0) {
+    setStatus('error', `No data (ok:${tileOk} fail:${tileFail}) — demo`);
+    loadMockData(); return;
   }
 
   const airborne  = flights.filter(f => !f.on_ground).length;
   const countries = new Set(flights.map(f => f.origin_country).filter(Boolean)).size;
+  const el = id => document.getElementById(id);
+  if (el('stat-total'))     el('stat-total').textContent     = flights.length.toLocaleString();
+  if (el('stat-airborne'))  el('stat-airborne').textContent  = airborne.toLocaleString();
+  if (el('stat-countries')) el('stat-countries').textContent = countries || '–';
+  setStatus('ok', `${flights.length.toLocaleString()} live · ${tileOk}/${SAMPLE_POINTS.length} tiles`);
 
-  const stEl = document.getElementById('stat-total');     if (stEl) stEl.textContent = flights.length.toLocaleString();
-  const saEl = document.getElementById('stat-airborne');  if (saEl) saEl.textContent = airborne.toLocaleString();
-  const scEl = document.getElementById('stat-countries'); if (scEl) scEl.textContent = countries || '–';
-
-  setStatus('ok', `${flights.length.toLocaleString()} live aircraft ✓`);
   applyFilters();
   renderFlights();
   renderList();
@@ -2449,7 +2536,7 @@ fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
     fetchFlights();
   });
 
-setInterval(fetchFlights, 30000);
+setInterval(fetchFlights, 60000); // 60s refresh — dead reckoning handles smooth movement
 
 </script>
 </body>
