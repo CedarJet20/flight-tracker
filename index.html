@@ -455,23 +455,23 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
   <div class="logo">YARZE<span>RADAR</span> // 365</div>
   <div class="stats-bar">
     <div class="stat">
-      <div class="stat-val" id="stat-total">Ã¢ÂÂ</div>
+      <div class="stat-val" id="stat-total">–</div>
       <div class="stat-lbl">FLIGHTS</div>
     </div>
     <div class="stat">
-      <div class="stat-val" id="stat-airborne">Ã¢ÂÂ</div>
+      <div class="stat-val" id="stat-airborne">–</div>
       <div class="stat-lbl">AIRBORNE</div>
     </div>
     <div class="stat">
-      <div class="stat-val" id="stat-countries">Ã¢ÂÂ</div>
+      <div class="stat-val" id="stat-countries">–</div>
       <div class="stat-lbl">COUNTRIES</div>
     </div>
   </div>
   <div class="header-controls">
-    <span class="status-text" id="status-text">Ã¢ÂÂ</span>
-    <button class="btn" id="refresh-btn">Ã¢ÂÂº Refresh</button>
+    <span class="status-text" id="status-text">–</span>
+    <button class="btn" id="refresh-btn">↺ Refresh</button>
     <button class="btn" id="autorotate-btn">Auto-Rotate</button>
-    <button class="btn" id="theme-btn"><span id="theme-icon">Ã°ÂÂÂ</span> <span id="theme-label">Night</span></button>
+    <button class="btn" id="theme-btn"><span id="theme-icon">🌙</span> <span id="theme-label">Night</span></button>
   </div>
 </header>
 
@@ -506,24 +506,25 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
       <div class="legend-row"><div class="legend-dot" style="background:#00ff88"></div>Helicopter</div>
       <div class="legend-row"><div class="legend-dot" style="background:#ffcc00"></div>Climbing/Descending</div>
       <div class="legend-row"><div class="legend-dot" style="background:#ff4444"></div>Emergency Squawk</div>
-      <div style="padding-top:6px;color:#5a7a9a">Drag to rotate ÃÂ· Scroll to zoom</div>
+      <div style="padding-top:6px;color:#5a7a9a">Drag to rotate · Scroll to zoom</div>
       <div style="color:#5a7a9a">Click aircraft for details</div>
     </div>
     <div class="type-filter-section">
       <div class="type-filter-title">Aircraft Type</div>
       <div class="type-chips">
-        <div class="type-chip active" data-type="all"><span>Ã¢ÂÂ</span> All</div>
-        <div class="type-chip" data-type="commercial"><span style="color:#00d4ff">Ã¢ÂÂ¸</span> Commercial</div>
-        <div class="type-chip" data-type="widebody"><span style="color:#fff">Ã¢ÂÂ¸</span> Widebody</div>
-        <div class="type-chip" data-type="military"><span style="color:#5cb85c">Ã¢ÂÂ¸</span> Military</div>
-        <div class="type-chip" data-type="cargo"><span style="color:#cc88ff">Ã¢ÂÂ¸</span> Cargo</div>
-        <div class="type-chip" data-type="helicopter"><span style="color:#00ffcc">Ã¢ÂÂ¸</span> Helicopter</div>
-        <div class="type-chip" data-type="general"><span style="color:#ffaa00">Ã¢ÂÂ¸</span> GA</div>
+        <div class="type-chip active" data-type="all"><span>✈</span> All</div>
+        <div class="type-chip" data-type="commercial"><span style="color:#00d4ff">&#9658;</span> Commercial</div>
+        <div class="type-chip" data-type="widebody"><span style="color:#fff">&#9658;</span> Widebody</div>
+        <div class="type-chip" data-type="military"><span style="color:#5cb85c">&#9658;</span> Military</div>
+        <div class="type-chip" data-type="cargo"><span style="color:#cc88ff">&#9658;</span> Cargo</div>
+        <div class="type-chip" data-type="helicopter"><span style="color:#00ffcc">&#9658;</span> Helicopter</div>
+        <div class="type-chip" data-type="general"><span style="color:#ffaa00">&#9658;</span> GA</div>
+        <div class="type-chip" data-type="drone"><span style="color:#ff9966">&#9658;</span> Drone</div>
       </div>
     </div>
     <div class="flight-list">
       <div class="list-header">
-        <span id="list-count">Ã¢ÂÂ</span>
+        <span id="list-count">–</span>
         <input id="flight-search" type="text" placeholder="Search callsign, country...">
         <div class="filter-tabs">
           <div class="filter-tab active" data-filter="all">All</div>
@@ -544,8 +545,8 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 
 <div class="detail-panel" id="detail-panel">
   <div class="dp-header">
-    <span class="dp-title" id="dp-title">Ã¢ÂÂ</span>
-    <button class="dp-close" onclick="document.getElementById('detail-panel').classList.remove('open')">Ã¢ÂÂ</button>
+    <span class="dp-title" id="dp-title">–</span>
+    <button class="dp-close" onclick="document.getElementById('detail-panel').classList.remove('open')">✕</button>
   </div>
   <div class="dp-body" id="dp-body"></div>
 </div>
@@ -553,11 +554,11 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 <div id="airport-map-panel">
   <div class="amp-header">
     <span class="amp-title" id="amp-title">Airport Map</span>
-    <span style="font-size:10px;color:#5a7a9a">Arr: <b id="ap-arr-count">Ã¢ÂÂ</b> &nbsp; Dep: <b id="ap-dep-count">Ã¢ÂÂ</b> &nbsp; Ground: <b id="ap-ground-count">Ã¢ÂÂ</b></span>
+    <span style="font-size:10px;color:#5a7a9a">Arr: <b id="ap-arr-count">–</b> &nbsp; Dep: <b id="ap-dep-count">–</b> &nbsp; Ground: <b id="ap-ground-count">–</b></span>
     <button class="tile-btn active" data-tile="street">Street</button>
     <button class="tile-btn" data-tile="sat">Satellite</button>
     <button class="tile-btn" data-tile="aero">Aeronautical</button>
-    <button class="btn" onclick="closeAirportMap()">Ã¢ÂÂ Close</button>
+    <button class="btn" onclick="closeAirportMap()">✕ Close</button>
   </div>
   <div id="leaflet-map"></div>
 </div>
@@ -565,19 +566,19 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 <div id="debug-panel" style="position:fixed;bottom:8px;left:8px;z-index:999;
   background:rgba(5,10,20,0.92);border:1px solid #1a3050;padding:6px 10px;font-size:9px;
   font-family:'Space Mono',monospace;color:#5a7a9a;max-width:320px;display:none">
-  <span id="debug-text">Ã¢ÂÂ</span>
+  <span id="debug-text">–</span>
   <button onclick="document.getElementById('debug-panel').style.display='none'"
-    style="margin-left:8px;background:none;border:none;color:#ff6b35;cursor:pointer;font-size:10px">Ã¢ÂÂ</button>
+    style="margin-left:8px;background:none;border:none;color:#ff6b35;cursor:pointer;font-size:10px">✕</button>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Theme Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Theme ─────────────────────────────────────────────────────
 let isDayMode = false;
 document.getElementById('theme-btn').addEventListener('click', () => {
   isDayMode = !isDayMode;
   document.body.classList.toggle('day-mode', isDayMode);
-  document.getElementById('theme-icon').textContent = isDayMode ? 'Ã¢ÂÂÃ¯Â¸Â' : 'Ã°ÂÂÂ';
+  document.getElementById('theme-icon').textContent = isDayMode ? '☀️' : '🌙';
   document.getElementById('theme-label').textContent = isDayMode ? 'Day' : 'Night';
   if (typeof initGlobe === 'function') initGlobe();
 });
@@ -594,7 +595,7 @@ function getTheme() {
   };
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ D3 Setup Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── D3 Setup ───────────────────────────────────────────────────
 const layers = {
   borders: true, graticule: true, airspace: false, flights: true,
   airports: true, trails: false, waypoints: false, route: false, ils: false
@@ -621,9 +622,9 @@ let lastDragX = 0, lastDragY = 0, dragVelX = 0, dragVelY = 0;
 let lastDragTime = 0, inertiaFrame = null;
 let currentZoomK = 1;
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Data blocks (must be before initGlobe) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Data blocks (must be before initGlobe) ─────────────────────
 const AIRSPACE_REGIONS = [
-  // Ã¢ÂÂÃ¢ÂÂ NORTH AMERICA Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── NORTH AMERICA ──────────────────────────────────────────────
   { name:'New York ARTCC',    id:'ZNY',  coords:[[-79,39],[-66,39],[-66,47],[-79,47],[-79,39]] },
   { name:'Boston ARTCC',      id:'ZBW',  coords:[[-73,40],[-66,40],[-66,47],[-73,47],[-73,40]] },
   { name:'Washington ARTCC',  id:'ZDC',  coords:[[-82,36],[-73,36],[-73,41],[-82,41],[-82,36]] },
@@ -648,7 +649,7 @@ const AIRSPACE_REGIONS = [
   { name:'Shanwick Oceanic',  id:'EGGX', coords:[[-30,45],[-8,45],[-8,61],[-30,61],[-30,45]] },
   { name:'Santa Maria Oceanic',id:'LPPO',coords:[[-40,25],[-15,25],[-15,42],[-40,42],[-40,25]] },
   { name:'New York Oceanic',  id:'KZWY', coords:[[-55,27],[-30,27],[-30,45],[-55,45],[-55,27]] },
-  // Ã¢ÂÂÃ¢ÂÂ EUROPE Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── EUROPE ─────────────────────────────────────────────────────
   { name:'London FIR',        id:'EGTT', coords:[[-6,49],[2,49],[2,57],[-6,57],[-6,49]] },
   { name:'London UIR',        id:'EGPX', coords:[[-6,55],[0,55],[0,61],[-6,61],[-6,55]] },
   { name:'Scottish FIR',      id:'EGPX', coords:[[-8,54],[-1,54],[-1,61],[-8,61],[-8,54]] },
@@ -683,7 +684,7 @@ const AIRSPACE_REGIONS = [
   { name:'Stockholm FIR',     id:'ESOS', coords:[[11,55],[25,55],[25,65],[11,65],[11,55]] },
   { name:'Oslo FIR',          id:'ENOR', coords:[[4,57],[20,57],[20,65],[4,65],[4,57]] },
   { name:'Copenhagen FIR',    id:'EKDK', coords:[[7,53],[16,53],[16,58],[7,58],[7,53]] },
-  // Ã¢ÂÂÃ¢ÂÂ MIDDLE EAST Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── MIDDLE EAST ────────────────────────────────────────────────
   { name:'Dubai FIR',         id:'OMAE', coords:[[51,22],[60,22],[60,27],[51,27],[51,22]] },
   { name:'Abu Dhabi FIR',     id:'OMAE', coords:[[50,22],[58,22],[58,26],[50,26],[50,22]] },
   { name:'Bahrain FIR',       id:'OBBB', coords:[[46,22],[57,22],[57,30],[46,30],[46,22]] },
@@ -697,7 +698,7 @@ const AIRSPACE_REGIONS = [
   { name:'Beirut FIR',        id:'OLBB', coords:[[34,31],[40,31],[40,37],[34,37],[34,31]] },
   { name:'Cairo FIR',         id:'HECC', coords:[[24,18],[38,18],[38,32],[24,32],[24,18]] },
   { name:'Tripoli FIR',       id:'HLLL', coords:[[9,20],[25,20],[25,35],[9,35],[9,20]] },
-  // Ã¢ÂÂÃ¢ÂÂ ASIA Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── ASIA ───────────────────────────────────────────────────────
   { name:'Delhi FIR',         id:'VIDF', coords:[[63,20],[80,20],[80,32],[63,32],[63,20]] },
   { name:'Mumbai FIR',        id:'VABB', coords:[[62,8],[80,8],[80,26],[62,26],[62,8]] },
   { name:'Chennai FIR',       id:'VOMF', coords:[[74,6],[88,6],[88,22],[74,22],[74,6]] },
@@ -735,7 +736,7 @@ const AIRSPACE_REGIONS = [
   { name:'Seoul FIR',         id:'RKRR', coords:[[122,32],[134,32],[134,40],[122,40],[122,32]] },
   { name:'Ulaanbaatar FIR',   id:'ZMUB', coords:[[87,41],[120,41],[120,52],[87,52],[87,41]] },
   { name:'Pyongyang FIR',     id:'ZKPY', coords:[[122,36],[132,36],[132,44],[122,44],[122,36]] },
-  // Ã¢ÂÂÃ¢ÂÂ RUSSIA / CIS Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── RUSSIA / CIS ───────────────────────────────────────────────
   { name:'Moscow FIR',        id:'UURR', coords:[[28,52],[50,52],[50,62],[28,62],[28,52]] },
   { name:'St Petersburg FIR', id:'ULLL', coords:[[25,58],[38,58],[38,65],[25,65],[25,58]] },
   { name:'Yekaterinburg FIR', id:'USSS', coords:[[54,52],[72,52],[72,62],[54,62],[54,52]] },
@@ -745,7 +746,7 @@ const AIRSPACE_REGIONS = [
   { name:'Vladivostok FIR',   id:'UHPP', coords:[[125,40],[145,40],[145,52],[125,52],[125,40]] },
   { name:'Almaty FIR',        id:'UAAA', coords:[[50,38],[82,38],[82,52],[50,52],[50,38]] },
   { name:'Tashkent FIR',      id:'UTTT', coords:[[55,36],[72,36],[72,46],[55,46],[55,36]] },
-  // Ã¢ÂÂÃ¢ÂÂ AFRICA Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── AFRICA ─────────────────────────────────────────────────────
   { name:'Casablanca FIR',    id:'GMMM', coords:[[-18,20],[-2,20],[-2,36],[-18,36],[-18,20]] },
   { name:'Algiers FIR',       id:'DAAA', coords:[[-3,18],[10,18],[10,38],[-3,38],[-3,18]] },
   { name:'Tunis FIR',         id:'DTTA', coords:[[7,28],[16,28],[16,38],[7,38],[7,28]] },
@@ -765,7 +766,7 @@ const AIRSPACE_REGIONS = [
   { name:'Lagos FIR',         id:'DNKK', coords:[[2,3],[16,3],[16,14],[2,14],[2,3]] },
   { name:'Kinshasa FIR',      id:'FZZA', coords:[[16,-6],[32,-6],[32,6],[16,6],[16,-6]] },
   { name:'Antananarivo FIR',  id:'FMMC', coords:[[40,-30],[52,-30],[52,-10],[40,-10],[40,-30]] },
-  // Ã¢ÂÂÃ¢ÂÂ AUSTRALASIA / PACIFIC Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── AUSTRALASIA / PACIFIC ──────────────────────────────────────
   { name:'Melbourne FIR',     id:'YMMM', coords:[[108,-46],[158,-46],[158,-26],[108,-26],[108,-46]] },
   { name:'Brisbane FIR',      id:'YBBB', coords:[[140,-32],[155,-32],[155,-22],[140,-22],[140,-32]] },
   { name:'Perth FIR',         id:'YPPH', coords:[[108,-36],[123,-36],[123,-20],[108,-20],[108,-36]] },
@@ -773,7 +774,7 @@ const AIRSPACE_REGIONS = [
   { name:'Brisbane Oceanic',  id:'KZAK', coords:[[155,-35],[175,-35],[175,-10],[155,-10],[155,-35]] },
   { name:'Nadi FIR',          id:'NFFF', coords:[[170,-26],[188,-26],[188,-6],[170,-6],[170,-26]] },
   { name:'Tahiti FIR',        id:'NTTT', coords:[[-160,-30],[-130,-30],[-130,-5],[-160,-5],[-160,-30]] },
-  // Ã¢ÂÂÃ¢ÂÂ SOUTH AMERICA Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── SOUTH AMERICA ──────────────────────────────────────────────
   { name:'Bogota FIR',        id:'SKEC', coords:[[-82,-2],[-66,-2],[-66,14],[-82,14],[-82,-2]] },
   { name:'Lima FIR',          id:'SPIM', coords:[[-82,-22],[-66,-22],[-66,-2],[-82,-2],[-82,-22]] },
   { name:'Brasilia FIR',      id:'SBBS', coords:[[-60,-25],[-40,-25],[-40,-5],[-60,-5],[-60,-25]] },
@@ -792,7 +793,7 @@ const AIRSPACE_REGIONS = [
 
 
 const AIRPORT_DB = {
-  // Ã¢ÂÂÃ¢ÂÂ North America Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── North America ─────────────────────────────────────────────
   'KJFK':{name:'John F. Kennedy',city:'New York',country:'United States',lat:40.6413,lon:-73.7781,iata:'JFK',runways:4,terminals:6,size:'mega'},
   'KLAX':{name:'Los Angeles Intl',city:'Los Angeles',country:'United States',lat:33.9425,lon:-118.4081,iata:'LAX',runways:4,terminals:9,size:'mega'},
   'KORD':{name:"O'Hare Intl",city:'Chicago',country:'United States',lat:41.9742,lon:-87.9073,iata:'ORD',runways:8,terminals:5,size:'mega'},
@@ -815,10 +816,10 @@ const AIRPORT_DB = {
   'PANC':{name:'Ted Stevens Anchorage',city:'Anchorage',country:'United States',lat:61.1744,lon:-149.9964,iata:'ANC',runways:3,terminals:2,size:'medium'},
   'CYYZ':{name:'Toronto Pearson',city:'Toronto',country:'Canada',lat:43.6777,lon:-79.6248,iata:'YYZ',runways:5,terminals:2,size:'mega'},
   'CYVR':{name:'Vancouver Intl',city:'Vancouver',country:'Canada',lat:49.1939,lon:-123.1844,iata:'YVR',runways:3,terminals:3,size:'large'},
-  'CYUL':{name:'MontrÃÂ©al-Trudeau',city:'Montreal',country:'Canada',lat:45.4706,lon:-73.7408,iata:'YUL',runways:3,terminals:2,size:'large'},
+  'CYUL':{name:'Montréal-Trudeau',city:'Montreal',country:'Canada',lat:45.4706,lon:-73.7408,iata:'YUL',runways:3,terminals:2,size:'large'},
   'MMEX':{name:'Mexico City Intl',city:'Mexico City',country:'Mexico',lat:19.4363,lon:-99.0721,iata:'MEX',runways:2,terminals:2,size:'large'},
-  'MMUN':{name:'CancÃÂºn Intl',city:'CancÃÂºn',country:'Mexico',lat:21.0365,lon:-86.8771,iata:'CUN',runways:3,terminals:4,size:'large'},
-  // Ã¢ÂÂÃ¢ÂÂ Europe Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  'MMUN':{name:'Cancún Intl',city:'Cancún',country:'Mexico',lat:21.0365,lon:-86.8771,iata:'CUN',runways:3,terminals:4,size:'large'},
+  // ── Europe ────────────────────────────────────────────────────
   'EGLL':{name:'Heathrow',city:'London',country:'United Kingdom',lat:51.4775,lon:-0.4614,iata:'LHR',runways:2,terminals:5,size:'mega'},
   'EGKK':{name:'Gatwick',city:'London',country:'United Kingdom',lat:51.1481,lon:-0.1903,iata:'LGW',runways:1,terminals:2,size:'large'},
   'EGSS':{name:'Stansted',city:'London',country:'United Kingdom',lat:51.885,lon:0.235,iata:'STN',runways:1,terminals:1,size:'medium'},
@@ -828,31 +829,31 @@ const AIRPORT_DB = {
   'EDDM':{name:'Munich Airport',city:'Munich',country:'Germany',lat:48.3537,lon:11.7861,iata:'MUC',runways:2,terminals:2,size:'large'},
   'EDDB':{name:'Berlin Brandenburg',city:'Berlin',country:'Germany',lat:52.3667,lon:13.5033,iata:'BER',runways:2,terminals:2,size:'large'},
   'EHAM':{name:'Amsterdam Schiphol',city:'Amsterdam',country:'Netherlands',lat:52.3105,lon:4.7683,iata:'AMS',runways:6,terminals:1,size:'mega'},
-  'LEMD':{name:'Adolfo SuÃÂ¡rez Barajas',city:'Madrid',country:'Spain',lat:40.4719,lon:-3.5626,iata:'MAD',runways:4,terminals:4,size:'mega'},
+  'LEMD':{name:'Adolfo Suárez Barajas',city:'Madrid',country:'Spain',lat:40.4719,lon:-3.5626,iata:'MAD',runways:4,terminals:4,size:'mega'},
   'LEBL':{name:'Barcelona El Prat',city:'Barcelona',country:'Spain',lat:41.2971,lon:2.0785,iata:'BCN',runways:3,terminals:3,size:'large'},
   'LIRF':{name:'Leonardo da Vinci',city:'Rome',country:'Italy',lat:41.8003,lon:12.2389,iata:'FCO',runways:3,terminals:4,size:'large'},
   'LIMC':{name:'Milan Malpensa',city:'Milan',country:'Italy',lat:45.63,lon:8.7281,iata:'MXP',runways:2,terminals:2,size:'large'},
-  'LSZH':{name:'ZÃÂ¼rich Airport',city:'Zurich',country:'Switzerland',lat:47.4647,lon:8.5492,iata:'ZRH',runways:3,terminals:3,size:'large'},
-  'LFMN':{name:"Nice CÃÂ´te d'Azur",city:'Nice',country:'France',lat:43.6584,lon:7.2159,iata:'NCE',runways:2,terminals:2,size:'medium'},
+  'LSZH':{name:'Zürich Airport',city:'Zurich',country:'Switzerland',lat:47.4647,lon:8.5492,iata:'ZRH',runways:3,terminals:3,size:'large'},
+  'LFMN':{name:"Nice Côte d'Azur",city:'Nice',country:'France',lat:43.6584,lon:7.2159,iata:'NCE',runways:2,terminals:2,size:'medium'},
   'EKCH':{name:'Copenhagen Airport',city:'Copenhagen',country:'Denmark',lat:55.6181,lon:12.6561,iata:'CPH',runways:3,terminals:3,size:'large'},
   'ESSA':{name:'Stockholm Arlanda',city:'Stockholm',country:'Sweden',lat:59.6519,lon:17.9186,iata:'ARN',runways:3,terminals:5,size:'large'},
   'EFHK':{name:'Helsinki-Vantaa',city:'Helsinki',country:'Finland',lat:60.3183,lon:24.9630,iata:'HEL',runways:3,terminals:2,size:'large'},
   'ENGM':{name:'Oslo Gardermoen',city:'Oslo',country:'Norway',lat:60.1939,lon:11.1004,iata:'OSL',runways:2,terminals:2,size:'large'},
   'LOWW':{name:'Vienna Intl',city:'Vienna',country:'Austria',lat:48.1103,lon:16.5697,iata:'VIE',runways:2,terminals:3,size:'large'},
   'EPWA':{name:'Warsaw Chopin',city:'Warsaw',country:'Poland',lat:52.1657,lon:20.9671,iata:'WAW',runways:2,terminals:2,size:'large'},
-  'LKPR':{name:'VÃÂ¡clav Havel Prague',city:'Prague',country:'Czech Republic',lat:50.1008,lon:14.26,iata:'PRG',runways:3,terminals:2,size:'large'},
+  'LKPR':{name:'Václav Havel Prague',city:'Prague',country:'Czech Republic',lat:50.1008,lon:14.26,iata:'PRG',runways:3,terminals:2,size:'large'},
   'LHBP':{name:'Budapest Liszt Ferenc',city:'Budapest',country:'Hungary',lat:47.4298,lon:19.2611,iata:'BUD',runways:2,terminals:2,size:'medium'},
   'LTFM':{name:'Istanbul Airport',city:'Istanbul',country:'Turkey',lat:41.2753,lon:28.7519,iata:'IST',runways:3,terminals:1,size:'mega'},
-  'LTAC':{name:'EsenboÃÂa Intl',city:'Ankara',country:'Turkey',lat:40.1281,lon:32.9951,iata:'ESB',runways:2,terminals:2,size:'medium'},
+  'LTAC':{name:'Esenboğa Intl',city:'Ankara',country:'Turkey',lat:40.1281,lon:32.9951,iata:'ESB',runways:2,terminals:2,size:'medium'},
   'LGAV':{name:'Athens Eleftherios Venizelos',city:'Athens',country:'Greece',lat:37.9364,lon:23.9445,iata:'ATH',runways:2,terminals:2,size:'large'},
-  'LROP':{name:'Bucharest Henri CoandÃÂ',city:'Bucharest',country:'Romania',lat:44.5711,lon:26.085,iata:'OTP',runways:2,terminals:2,size:'medium'},
+  'LROP':{name:'Bucharest Henri Coandă',city:'Bucharest',country:'Romania',lat:44.5711,lon:26.085,iata:'OTP',runways:2,terminals:2,size:'medium'},
   'UUEE':{name:'Sheremetyevo Intl',city:'Moscow',country:'Russia',lat:55.9726,lon:37.4146,iata:'SVO',runways:3,terminals:4,size:'mega'},
   'UUDD':{name:'Domodedovo Intl',city:'Moscow',country:'Russia',lat:55.4088,lon:37.9063,iata:'DME',runways:2,terminals:2,size:'large'},
   'ULLI':{name:'Pulkovo Intl',city:'St. Petersburg',country:'Russia',lat:59.8003,lon:30.2625,iata:'LED',runways:2,terminals:2,size:'large'},
   'UKBB':{name:'Boryspil Intl',city:'Kyiv',country:'Ukraine',lat:50.3450,lon:30.8947,iata:'KBP',runways:2,terminals:2,size:'medium'},
   'LPPT':{name:'Humberto Delgado',city:'Lisbon',country:'Portugal',lat:38.7813,lon:-9.1359,iata:'LIS',runways:2,terminals:2,size:'large'},
-  'LRBS':{name:'BÃÂneasa',city:'Bucharest',country:'Romania',lat:44.5032,lon:26.1021,iata:'BBU',runways:1,terminals:1,size:'small'},
-  // Ã¢ÂÂÃ¢ÂÂ Middle East Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  'LRBS':{name:'Băneasa',city:'Bucharest',country:'Romania',lat:44.5032,lon:26.1021,iata:'BBU',runways:1,terminals:1,size:'small'},
+  // ── Middle East ───────────────────────────────────────────────
   'OMDB':{name:'Dubai International',city:'Dubai',country:'United Arab Emirates',lat:25.2532,lon:55.3657,iata:'DXB',runways:2,terminals:3,size:'mega'},
   'OMDW':{name:'Al Maktoum Intl (DWC)',city:'Dubai',country:'United Arab Emirates',lat:24.8963,lon:55.1614,iata:'DWC',runways:2,terminals:1,size:'large'},
   'OMAA':{name:'Abu Dhabi Zayed Intl',city:'Abu Dhabi',country:'United Arab Emirates',lat:24.4330,lon:54.6511,iata:'AUH',runways:2,terminals:2,size:'large'},
@@ -868,7 +869,7 @@ const AIRPORT_DB = {
   'OLBA':{name:'Rafic Hariri Intl',city:'Beirut',country:'Lebanon',lat:33.8209,lon:35.4884,iata:'BEY',runways:2,terminals:1,size:'medium'},
   'LLBG':{name:'Ben Gurion Intl',city:'Tel Aviv',country:'Israel',lat:32.0055,lon:34.8854,iata:'TLV',runways:3,terminals:3,size:'large'},
   'HECA':{name:'Cairo Intl',city:'Cairo',country:'Egypt',lat:30.1219,lon:31.4056,iata:'CAI',runways:3,terminals:3,size:'large'},
-  // Ã¢ÂÂÃ¢ÂÂ Asia Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── Asia ──────────────────────────────────────────────────────
   'VHHH':{name:'Hong Kong Intl',city:'Hong Kong',country:'China',lat:22.3089,lon:113.9144,iata:'HKG',runways:2,terminals:2,size:'mega'},
   'ZBAA':{name:'Beijing Capital Intl',city:'Beijing',country:'China',lat:40.0799,lon:116.6031,iata:'PEK',runways:3,terminals:3,size:'mega'},
   'ZBAD':{name:'Beijing Daxing Intl',city:'Beijing',country:'China',lat:39.5098,lon:116.4105,iata:'PKX',runways:4,terminals:1,size:'mega'},
@@ -903,7 +904,7 @@ const AIRPORT_DB = {
   'VVNB':{name:'Noi Bai Intl',city:'Hanoi',country:'Vietnam',lat:21.2212,lon:105.8072,iata:'HAN',runways:2,terminals:2,size:'large'},
   'VDPP':{name:'Phnom Penh Intl',city:'Phnom Penh',country:'Cambodia',lat:11.5466,lon:104.8441,iata:'PNH',runways:1,terminals:1,size:'medium'},
   'UAAA':{name:'Almaty Intl',city:'Almaty',country:'Kazakhstan',lat:43.3521,lon:77.0405,iata:'ALA',runways:2,terminals:2,size:'large'},
-  // Ã¢ÂÂÃ¢ÂÂ Africa Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── Africa ────────────────────────────────────────────────────
   'FAOR':{name:'O.R. Tambo Intl',city:'Johannesburg',country:'South Africa',lat:-26.1392,lon:28.2460,iata:'JNB',runways:2,terminals:2,size:'large'},
   'FACT':{name:'Cape Town Intl',city:'Cape Town',country:'South Africa',lat:-33.9649,lon:18.6017,iata:'CPT',runways:2,terminals:2,size:'large'},
   'DNMM':{name:'Murtala Muhammed Intl',city:'Lagos',country:'Nigeria',lat:6.5774,lon:3.3211,iata:'LOS',runways:2,terminals:2,size:'large'},
@@ -914,23 +915,23 @@ const AIRPORT_DB = {
   'DAAG':{name:'Houari Boumediene',city:'Algiers',country:'Algeria',lat:36.6910,lon:3.2154,iata:'ALG',runways:2,terminals:2,size:'large'},
   'HSSS':{name:'Khartoum Intl',city:'Khartoum',country:'Sudan',lat:15.5895,lon:32.5532,iata:'KRT',runways:2,terminals:2,size:'medium'},
   'FMMI':{name:'Ivato Intl',city:'Antananarivo',country:'Madagascar',lat:-18.7969,lon:47.4788,iata:'TNR',runways:1,terminals:1,size:'medium'},
-  'GOOY':{name:'LÃÂ©opold SÃÂ©dar Senghor',city:'Dakar',country:'Senegal',lat:14.7397,lon:-17.4902,iata:'DKR',runways:2,terminals:1,size:'medium'},
+  'GOOY':{name:'Léopold Sédar Senghor',city:'Dakar',country:'Senegal',lat:14.7397,lon:-17.4902,iata:'DKR',runways:2,terminals:1,size:'medium'},
   'FTTA':{name:'N\'Djamena Intl',city:'N\'Djamena',country:'Chad',lat:12.1337,lon:15.0340,iata:'NDJ',runways:1,terminals:1,size:'small'},
-  // Ã¢ÂÂÃ¢ÂÂ Australasia Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ── Australasia ───────────────────────────────────────────────
   'YSSY':{name:'Sydney Kingsford Smith',city:'Sydney',country:'Australia',lat:-33.9399,lon:151.1753,iata:'SYD',runways:3,terminals:3,size:'mega'},
   'YMML':{name:'Melbourne Airport',city:'Melbourne',country:'Australia',lat:-37.6690,lon:144.8410,iata:'MEL',runways:2,terminals:4,size:'large'},
   'YBBN':{name:'Brisbane Airport',city:'Brisbane',country:'Australia',lat:-27.3842,lon:153.1175,iata:'BNE',runways:2,terminals:2,size:'large'},
   'YPPH':{name:'Perth Airport',city:'Perth',country:'Australia',lat:-31.9403,lon:115.9674,iata:'PER',runways:2,terminals:4,size:'large'},
   'NZAA':{name:'Auckland Airport',city:'Auckland',country:'New Zealand',lat:-37.0082,lon:174.7917,iata:'AKL',runways:2,terminals:2,size:'large'},
   'NZWN':{name:'Wellington Airport',city:'Wellington',country:'New Zealand',lat:-41.3272,lon:174.8050,iata:'WLG',runways:1,terminals:1,size:'medium'},
-  // Ã¢ÂÂÃ¢ÂÂ South America Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
-  'SBGR':{name:'SÃÂ£o Paulo Guarulhos',city:'SÃÂ£o Paulo',country:'Brazil',lat:-23.4356,lon:-46.4731,iata:'GRU',runways:2,terminals:3,size:'mega'},
-  'SBGL':{name:'Rio de Janeiro GaleÃÂ£o',city:'Rio de Janeiro',country:'Brazil',lat:-22.8099,lon:-43.2506,iata:'GIG',runways:2,terminals:2,size:'large'},
+  // ── South America ─────────────────────────────────────────────
+  'SBGR':{name:'São Paulo Guarulhos',city:'São Paulo',country:'Brazil',lat:-23.4356,lon:-46.4731,iata:'GRU',runways:2,terminals:3,size:'mega'},
+  'SBGL':{name:'Rio de Janeiro Galeão',city:'Rio de Janeiro',country:'Brazil',lat:-22.8099,lon:-43.2506,iata:'GIG',runways:2,terminals:2,size:'large'},
   'SAEZ':{name:'Buenos Aires Ezeiza',city:'Buenos Aires',country:'Argentina',lat:-34.8222,lon:-58.5358,iata:'EZE',runways:3,terminals:2,size:'large'},
   'SCEL':{name:'Santiago Arturo Merino',city:'Santiago',country:'Chile',lat:-33.3930,lon:-70.7858,iata:'SCL',runways:3,terminals:2,size:'large'},
-  'SKBO':{name:'El Dorado Intl',city:'BogotÃÂ¡',country:'Colombia',lat:4.7016,lon:-74.1469,iata:'BOG',runways:2,terminals:2,size:'large'},
-  'SPJC':{name:'Jorge ChÃÂ¡vez Intl',city:'Lima',country:'Peru',lat:-12.0219,lon:-77.1143,iata:'LIM',runways:2,terminals:2,size:'large'},
-  'SVMI':{name:'SimÃÂ³n BolÃÂ­var Intl',city:'Caracas',country:'Venezuela',lat:10.6012,lon:-66.9913,iata:'CCS',runways:2,terminals:2,size:'medium'},
+  'SKBO':{name:'El Dorado Intl',city:'Bogotá',country:'Colombia',lat:4.7016,lon:-74.1469,iata:'BOG',runways:2,terminals:2,size:'large'},
+  'SPJC':{name:'Jorge Chávez Intl',city:'Lima',country:'Peru',lat:-12.0219,lon:-77.1143,iata:'LIM',runways:2,terminals:2,size:'large'},
+  'SVMI':{name:'Simón Bolívar Intl',city:'Caracas',country:'Venezuela',lat:10.6012,lon:-66.9913,iata:'CCS',runways:2,terminals:2,size:'medium'},
   'MMMX':{name:'Mexico City NAICM',city:'Mexico City',country:'Mexico',lat:19.4363,lon:-99.0721,iata:'MEX',runways:2,terminals:2,size:'large'},
   'MPTO':{name:'Tocumen Intl',city:'Panama City',country:'Panama',lat:9.0714,lon:-79.3835,iata:'PTY',runways:2,terminals:2,size:'large'},
 };
@@ -961,15 +962,15 @@ const ILS_DATA = [
 ];
 
 const FIXES = {
-  // Ã¢ÂÂÃ¢ÂÂ North Atlantic Ã¢ÂÂÃ¢ÂÂ
+  // ── North Atlantic ──
   SOMAX:[51.0,-15.0], MIMKU:[52.0,-20.0], DOLIR:[53.0,-30.0], BEDRA:[54.0,-40.0],
   RAFOX:[55.0,-50.0], DOGAL:[51.5,-15.0], BEXET:[51.0,-10.0], LIMRI:[56.0,-20.0],
   MALOT:[58.0,-30.0], MIMLO:[57.0,-20.0], RESNO:[57.0,-30.0], GISTI:[56.5,-40.0],
   DINIM:[55.0,-45.0], LOMSI:[53.0,-55.0], BOBTU:[50.0,-50.0], JANJO:[49.0,-45.0],
-  // Ã¢ÂÂÃ¢ÂÂ North Pacific Ã¢ÂÂÃ¢ÂÂ
+  // ── North Pacific ──
   NORDO:[48.0,-150.0], TALON:[47.0,-160.0], NIPPI:[45.0,-170.0], EMRON:[43.0,180.0],
   ADNAP:[42.0,170.0], LEKOS:[44.0,155.0], POXUT:[46.0,145.0], ENKAS:[49.0,135.0],
-  // Ã¢ÂÂÃ¢ÂÂ Europe major fixes Ã¢ÂÂÃ¢ÂÂ
+  // ── Europe major fixes ──
   LAM:[51.64,-0.15], DET:[51.28,0.61], CLN:[51.84,0.89], TNT:[51.47,0.45],
   DVR:[51.16,1.35], KONAN:[51.08,2.61], POL:[55.68,-4.68], TLA:[48.77,2.20],
   BIG:[51.33,0.03], MAY:[50.86,-0.12], SFD:[50.99,-0.11], BNN:[51.64,-0.55],
@@ -982,19 +983,19 @@ const FIXES = {
   MOKDI:[44.00,2.00],  NARAK:[44.50,1.50],  LERGA:[43.80,1.00],  REPSI:[43.20,0.50],
   TOLVU:[51.00,0.50],  KELLY:[50.50,1.00],  CALDA:[50.00,1.50],  AMGEM:[49.50,2.00],
   KOTUN:[48.00,4.50],  OKABE:[47.50,5.50],  SOVAT:[47.00,6.00],  DENUT:[46.50,6.50],
-  // Ã¢ÂÂÃ¢ÂÂ Middle East Ã¢ÂÂÃ¢ÂÂ
+  // ── Middle East ──
   OLMUD:[25.00,55.00], IMDAD:[24.50,54.00], GOVLA:[24.00,53.00], TUMAK:[23.50,52.00],
   KATIT:[26.00,56.00], LALDO:[27.00,57.00], GOBNA:[28.00,58.00], NABIX:[29.00,59.00],
   RIDAP:[25.50,50.50], OSVOD:[26.00,49.00], LOTAM:[26.50,47.50], GAMED:[27.00,46.00],
   OSDED:[23.00,45.00], EGPOX:[22.00,44.00], ITBUD:[21.00,43.00], ASMEK:[20.00,42.00],
   BETOX:[32.00,35.00], LATAX:[31.50,35.50], TONRA:[31.00,36.00], OMDAN:[30.50,36.50],
-  // Ã¢ÂÂÃ¢ÂÂ Asia Ã¢ÂÂÃ¢ÂÂ
+  // ── Asia ──
   AKMET:[28.00,77.00], DOLNI:[27.00,78.00], ANPAX:[26.00,79.00], BIDAR:[25.00,80.00],
   LAGAM:[22.00,113.0], MUVNO:[22.50,114.0], SIERA:[23.00,115.0], IDUMA:[23.50,116.0],
   ENVAR:[1.50,104.0],  OXARI:[2.00,104.5], SALOT:[2.50,105.0],  BOSNU:[3.00,105.5],
   RAXTO:[35.00,140.0], DOLBA:[35.50,141.0], LIBRA:[36.00,142.0], SAPAN:[36.50,143.0],
   ADGUL:[37.50,126.0], BOTLA:[38.00,127.0], SUNIN:[38.50,128.0], KALOX:[39.00,129.0],
-  // Ã¢ÂÂÃ¢ÂÂ Americas Ã¢ÂÂÃ¢ÂÂ
+  // ── Americas ──
   SEPPO:[41.00,-73.0], JUDDS:[40.50,-74.0], MERIT:[40.00,-75.0], SAAME:[39.50,-76.0],
   MUSAK:[43.00,-80.0], LINND:[43.50,-79.0], MIILS:[44.00,-78.0],
   CAMRN:[33.00,-84.0], SLENK:[32.50,-83.0], WIMAN:[32.00,-82.0], HAARP:[31.50,-81.0],
@@ -1074,42 +1075,98 @@ const WAYPOINTS = [
 const TILE_LAYERS = {
   osm: {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attr: 'ÃÂ© OpenStreetMap contributors',
+    attr: '© OpenStreetMap contributors',
     maxZoom: 19
   },
   sat: {
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attr: 'ÃÂ© Esri, DigitalGlobe',
+    attr: '© Esri, DigitalGlobe',
     maxZoom: 19
   },
   aero: {
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attr: 'ÃÂ© OpenStreetMap',
+    attr: '© OpenStreetMap',
     maxZoom: 19
   }
 };
 
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Aircraft Icons Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Aircraft Icons ─────────────────────────────────────────────
 const flightTrails = new Map();
 const MAX_TRAIL_POINTS = 20;
 
 const AIRCRAFT_ICONS = {
-  narrowbody: 'M0,-8 L2,-2 L8,0 L2,1 L1,6 L3,7 L3,8 L0,7 L-3,8 L-3,7 L-1,6 L-2,1 L-8,0 L-2,-2 Z',
-  widebody:   'M0,-10 L3,-3 L10,0 L3,1.5 L1.5,7 L4,8 L4,9.5 L0,8.5 L-4,9.5 L-4,8 L-1.5,7 L-3,1.5 L-10,0 L-3,-3 Z',
-  cargo:      'M0,-9 L2.5,-2 L9,0 L2.5,1.5 L1,6 L3,7 L3,8.5 L0,7.5 L-3,8.5 L-3,7 L-1,6 L-2.5,1.5 L-9,0 L-2.5,-2 Z',
-  military:   'M0,-9 L1.5,-4 L6,-5 L4,-1 L8,1 L4,1.5 L2,6 L0,5 L-2,6 L-4,1.5 L-8,1 L-4,-1 L-6,-5 L-1.5,-4 Z',
-  helicopter: 'M-8,0 L8,0 M0,-5 L0,5 M-4,-4 L4,4 M4,-4 L-4,4',
-  general:    'M0,-6 L1.5,-1 L6,0 L1.5,1 L0.5,4 L2,5 L0,4.5 L-2,5 L-0.5,4 L-1.5,1 L-6,0 L-1.5,-1 Z',
-  glider:     'M0,-5 L1,-1 L12,1 L1,1.5 L0.5,4 L0,5 L-0.5,4 L-1,1.5 L-12,1 L-1,-1 Z',
+  // Top-down silhouettes, nose pointing UP (negative Y)
+  // Commercial narrow-body (A320/B737 style)
+  narrowbody:
+    'M0,-9 L1,-6 L1.5,-2 L8.5,0 L8,2 L1.5,1.5 L1,5 ' +
+    'L3,6.5 L2.5,8 L0.8,7.5 L0.5,9 L-0.5,9 ' +
+    'L-0.8,7.5 L-2.5,8 L-3,6.5 L-1,5 ' +
+    'L-1.5,1.5 L-8,2 L-8.5,0 L-1.5,-2 L-1,-6 Z',
+
+  // Wide-body (B777/A380 style) — wider wings, twin-aisle fuselage
+  widebody:
+    'M0,-11 L1.5,-8 L2,-3 L12,1 L11,3.5 L2,2.5 L1.5,7 ' +
+    'L4.5,9 L4,10.5 L1,10 L0.5,12 L-0.5,12 ' +
+    'L-1,10 L-4,10.5 L-4.5,9 L-1.5,7 ' +
+    'L-2,2.5 L-11,3.5 L-12,1 L-2,-3 L-1.5,-8 Z',
+
+  // Military cargo/transport (C-130/C-17 style)
+  cargo:
+    'M0,-9 L1.2,-6.5 L1.5,-2.5 L9,0.5 L8.5,2.5 L1.5,2 L1,5.5 ' +
+    'L3.5,7 L3,8.5 L0.8,8 L0.5,9.5 L-0.5,9.5 ' +
+    'L-0.8,8 L-3,8.5 L-3.5,7 L-1,5.5 ' +
+    'L-1.5,2 L-8.5,2.5 L-9,0.5 L-1.5,-2.5 L-1.2,-6.5 Z',
+
+  // Fighter jet (F-16/F-35 delta-wing style) — sharp nose, swept delta
+  military:
+    'M0,-12 L0.8,-7 L7,-6 L8,0 L7,2 L3,3 L2.5,6 ' +
+    'L3.5,7.5 L2,8.5 L0,9 ' +
+    'L-2,8.5 L-3.5,7.5 L-2.5,6 L-3,3 L-7,2 L-8,0 L-7,-6 L-0.8,-7 Z',
+
+  // Helicopter — oval cabin + tail boom + tail rotor
+  helicopter:
+    'M0,-5 L2,-3.5 L3,0 L2.5,3 L1.5,6 L2,8.5 L2,10 ' +
+    'L-2,10 L-2,8.5 L-1.5,6 L-2.5,3 L-3,0 L-2,-3.5 Z',
+
+  // General aviation (Cessna style) — smaller, high-wing
+  general:
+    'M0,-6 L0.8,-4 L1,-1 L6,1 L5.5,2.5 L1,1.5 ' +
+    'L0.5,3.5 L2,4.5 L1.5,5.5 L0,5.2 ' +
+    'L-1.5,5.5 L-2,4.5 L-0.5,3.5 ' +
+    'L-1,1.5 L-5.5,2.5 L-6,1 L-1,-1 L-0.8,-4 Z',
+
+  // Drone / UAV — X-frame quad style
+  drone:
+    'M0,-2.5 L2.5,-5 L4.5,-5.5 L5,-3.5 L2.5,-1 ' +
+    'L2.5,1 L5,3.5 L4.5,5.5 L2.5,5 L0,2.5 ' +
+    'L-2.5,5 L-4.5,5.5 L-5,3.5 L-2.5,1 ' +
+    'L-2.5,-1 L-5,-3.5 L-4.5,-5.5 L-2.5,-5 Z',
+
+  // Glider — very long thin wings, no engine nacelles
+  glider:
+    'M0,-7 L0.6,-4 L0.8,0 L10,1 L10,2 L0.8,1.5 L0.5,4 ' +
+    'L1.5,5 L1.2,6 L0,5.8 L-1.2,6 L-1.5,5 L-0.5,4 ' +
+    'L-0.8,1.5 L-10,2 L-10,1 L-0.8,0 L-0.6,-4 Z',
 };
 
-function getIconScale(cat, isSelected, onGround) {
-  const base = { widebody:1.8, narrowbody:1.4, cargo:1.5, military:1.4, helicopter:1.2, general:1.0, glider:1.3 }[cat] || 1.4;
-  return onGround ? base * 0.75 : isSelected ? base * 1.4 : base;
+function getIconScale(f) {
+  // Returns [svgPath, scale]
+  const cat = getAircraftCategory(f);
+  const scales = {
+    widebody:   [AIRCRAFT_ICONS.widebody,   1.0],
+    narrowbody: [AIRCRAFT_ICONS.narrowbody, 0.9],
+    cargo:      [AIRCRAFT_ICONS.cargo,      0.9],
+    military:   [AIRCRAFT_ICONS.military,   0.95],
+    helicopter: [AIRCRAFT_ICONS.helicopter, 0.85],
+    general:    [AIRCRAFT_ICONS.general,    0.75],
+    drone:      [AIRCRAFT_ICONS.drone,      0.75],
+    glider:     [AIRCRAFT_ICONS.glider,     0.80],
+  };
+  return scales[cat] || scales.narrowbody;
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Globe Init Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Globe Init ─────────────────────────────────────────────────
 function initGlobe() {
   svg.selectAll('*').remove();
   svg.attr('width','100%').attr('height','100%').style('display','block');
@@ -1154,7 +1211,7 @@ function initGlobe() {
   if (filteredFlights.length) renderFlights();
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Country labels Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Country labels ─────────────────────────────────────────────
 const COUNTRY_LABELS = {
   '004':['Afghanistan',67,33],'008':['Albania',20,41],'012':['Algeria',3,28],
   '024':['Angola',18,-12],'032':['Argentina',-64,-34],'036':['Australia',134,-25],
@@ -1238,7 +1295,7 @@ function renderAirspace() {
     });
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ renderGlobeOnly (fast path during drag/zoom) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── renderGlobeOnly (fast path during drag/zoom) ───────────────
 function renderGlobeOnly() {
   if (!g) return;
   const t = getTheme();
@@ -1309,7 +1366,7 @@ function updateGlobe() {
   }
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Drag & Inertia Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Drag & Inertia ─────────────────────────────────────────────
 svg.call(d3.drag()
   .on('start', event => {
     isDragging = true;
@@ -1352,7 +1409,7 @@ function applyInertia() {
   inertiaFrame = requestAnimationFrame(applyInertia);
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Zoom Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Zoom ───────────────────────────────────────────────────────
 container.addEventListener('wheel', event => {
   event.preventDefault();
   currentZoomK = Math.min(8, Math.max(0.5, currentZoomK * (event.deltaY > 0 ? 0.9 : 1.1)));
@@ -1364,7 +1421,7 @@ container.addEventListener('wheel', event => {
   window._zoomEnd = setTimeout(() => updateGlobe(), 150);
 }, { passive: false });
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Sidebar Resize Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Sidebar Resize ─────────────────────────────────────────────
 (function() {
   const sidebar = document.getElementById('sidebar');
   const handle  = document.getElementById('sidebar-resize');
@@ -1396,7 +1453,7 @@ container.addEventListener('wheel', event => {
   });
 })();
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Font Size Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Font Size ──────────────────────────────────────────────────
 (function() {
   const slider = document.getElementById('font-size-slider');
   const valEl  = document.getElementById('font-size-val');
@@ -1408,7 +1465,7 @@ container.addEventListener('wheel', event => {
   slider.addEventListener('input', () => apply(parseFloat(slider.value)));
 })();
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Auto Rotate Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Auto Rotate ────────────────────────────────────────────────
 function startAutoRotate() {
   if (rotateTimer) return;
   rotateTimer = d3.timer(() => {
@@ -1421,7 +1478,7 @@ function startAutoRotate() {
 }
 startAutoRotate();
 
-// Ã¢ÂÂÃ¢ÂÂ Dead Reckoning Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Dead Reckoning ─────────────────────────────────────────────
 // Smoothly extrapolates aircraft positions between API refreshes
 // based on ground speed (gs_kts) and heading (true_track).
 let _drFrame = null;
@@ -1483,11 +1540,11 @@ if (autorotateBtn) {
 const refreshBtn = document.getElementById('refresh-btn');
 if (refreshBtn) refreshBtn.addEventListener('click', () => fetchFlights());
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Window resize Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Window resize ──────────────────────────────────────────────
 let _resizeTimer;
 
-// Ã¢ÂÂÃ¢ÂÂ Route data cache Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
-const routeCache = new Map(); // icao24 Ã¢ÂÂ {dep, arr, depName, arrName, depLon, depLat, arrLon, arrLat}
+// ── Route data cache ────────────────────────────────────────────
+const routeCache = new Map(); // icao24 → {dep, arr, depName, arrName, depLon, depLat, arrLon, arrLat}
 // Fetch route from OpenSky flights endpoint
 async function fetchRoute(f) {
   if (!f?.icao24) return null;
@@ -1539,7 +1596,7 @@ function renderRoutePath(f, route) {
       [f.longitude, f.latitude],   // current position
       [arrInfo.lon, arrInfo.lat]
     ]};
-    // Full planned route (dep Ã¢ÂÂ arr)
+    // Full planned route (dep → arr)
     const fullLine = { type: 'LineString', coordinates: [
       [depInfo.lon, depInfo.lat],
       [arrInfo.lon, arrInfo.lat]
@@ -1548,7 +1605,7 @@ function renderRoutePath(f, route) {
     routeG.append('path').datum(fullLine).attr('d', path)
       .attr('fill','none').attr('stroke','#00d4ff').attr('stroke-width','1.2')
       .attr('stroke-dasharray','6,5').attr('opacity','0.45').attr('pointer-events','none');
-    // Solid flown portion (dep Ã¢ÂÂ current)
+    // Solid flown portion (dep → current)
     const flownLine = { type: 'LineString', coordinates: [
       [depInfo.lon, depInfo.lat], [f.longitude, f.latitude]
     ]};
@@ -1579,7 +1636,7 @@ function renderRoutePath(f, route) {
         .text(route.arr);
     }
   } else if (depInfo || arrInfo) {
-    // Only one end known Ã¢ÂÂ draw line to current position
+    // Only one end known — draw line to current position
     const knownInfo = depInfo || arrInfo;
     const knownPt = projection([knownInfo.lon, knownInfo.lat]);
     const currPt  = projection([f.longitude, f.latitude]);
@@ -1618,7 +1675,7 @@ window.addEventListener('resize', () => {
   }, 200);
 });
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Layer toggles Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Layer toggles ──────────────────────────────────────────────
 document.querySelectorAll('.layer-row').forEach(row => {
   row.addEventListener('click', () => {
     const layer = row.dataset.layer;
@@ -1634,7 +1691,7 @@ document.querySelectorAll('.layer-row').forEach(row => {
   });
 });
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Filter tabs Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Filter tabs ────────────────────────────────────────────────
 document.querySelectorAll('.filter-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
@@ -1660,10 +1717,10 @@ if (searchEl) searchEl.addEventListener('input', e => {
 });
 
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Tooltip Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Tooltip ────────────────────────────────────────────────────
 const tooltipEl = document.getElementById('tooltip');
 
-// Ã¢ÂÂÃ¢ÂÂ Debug helper Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ── Debug helper ───────────────────────────────────────────────
 function dbg(msg) {
   const el = document.getElementById('debug-panel');
   const tx = document.getElementById('debug-text');
@@ -1675,8 +1732,8 @@ function dbg(msg) {
 function showTooltip(event, f) {
   if (!tooltipEl) return;
   const alt  = f.alt_baro_ft != null ? (f.alt_baro_ft >= 1000 ? (f.alt_baro_ft/1000).toFixed(1)+'k ft' : f.alt_baro_ft+' ft') : 'GND';
-  const spd  = f.gs_kts ? f.gs_kts + ' kts' : 'Ã¢ÂÂ';
-  const vr   = f.vr_fpm > 100 ? 'Ã¢ÂÂ²' : f.vr_fpm < -100 ? 'Ã¢ÂÂ¼' : 'Ã¢ÂÂº';
+  const spd  = f.gs_kts ? f.gs_kts + ' kts' : '–';
+  const vr   = f.vr_fpm > 100 ? '▲' : f.vr_fpm < -100 ? '▼' : '►';
   const cat  = getAircraftCategory(f);
   const col  = flightColor(f);
   const airline = getAirline(f.callsign) || f.operator || '';
@@ -1690,7 +1747,7 @@ function showTooltip(event, f) {
     <div style="display:grid;grid-template-columns:auto 1fr;gap:2px 8px;font-size:9px;margin-top:4px">
       <span style="color:#5a7a9a">Alt</span><span style="color:#c8d8e8">${alt}</span>
       <span style="color:#5a7a9a">Spd</span><span style="color:#c8d8e8">${spd}</span>
-      <span style="color:#5a7a9a">Hdg</span><span style="color:#c8d8e8">${Math.round(f.true_track||0)}ÃÂ°</span>
+      <span style="color:#5a7a9a">Hdg</span><span style="color:#c8d8e8">${Math.round(f.true_track||0)}°</span>
       <span style="color:#5a7a9a">V/R</span><span style="color:#c8d8e8">${vr} ${Math.abs(f.vr_fpm||0)} fpm</span>
       <span style="color:#5a7a9a">Type</span><span style="color:${col};text-transform:capitalize">${cat}</span>
     </div>
@@ -1712,25 +1769,66 @@ function hideTooltip() {
   if (tooltipEl) tooltipEl.style.display = 'none';
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Aircraft Color Coding Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Aircraft Color Coding ──────────────────────────────────────
 function getAircraftCategory(f) {
-  if (f._isMil || !!(f.dbFlags & 1)) return 'military';
-  const cat  = (f.category || '').toUpperCase();
-  const t    = (f.type_code || f.aircraft_type || '').toUpperCase();
+  const cat  = (f.category  || '').toUpperCase();
+  const type = (f.type_code || f.aircraft_type || '').toUpperCase().replace(/[^A-Z0-9]/g,'');
   const desc = (f.desc || f.description || f.make_model || '').toLowerCase();
-  // Helicopter: category A7, or type starts with H, or desc
-  if (cat === 'A7' || t.match(/^H[A-Z0-9]/) || desc.includes('helicopter') || desc.includes('rotor') || desc.includes('gyro')) return 'helicopter';
-  // Wide-body jets
-  const wideTypes = new Set(['B744','B748','B77W','B772','B773','B778','B779','B762','B763','B764',
-    'A380','A332','A333','A339','A35K','A359','A388','B788','B789','B78X','B738MAX',
-    'A306','A310','A342','A343','A345','A346','B752','B753','B764']);
-  if (wideTypes.has(t)) return 'widebody';
+  const isMil = f._isMil || !!(f.dbFlags & 1);
+
+  // Drone / UAV — category B6 or keyword in description
+  if (cat === 'B6' || desc.includes('drone') || desc.includes('uav') || desc.includes('uas') ||
+      desc.includes('unmanned') || type === 'MQ9' || type === 'MQ1' || type === 'RQ4') {
+    return 'drone';
+  }
+
+  // Glider / lighter-than-air
+  if (cat === 'B1' || cat === 'B2' ||
+      desc.includes('glider') || desc.includes('balloon') || desc.includes('airship')) {
+    return 'glider';
+  }
+
+  // Helicopter / rotorcraft
+  if (cat === 'A7' || /^[HR]/.test(type) ||
+      desc.includes('helicopter') || desc.includes('rotor') || desc.includes('gyro')) {
+    return 'helicopter';
+  }
+
+  // Military — fighter jets vs transports
+  if (isMil) {
+    const FIGHTERS = new Set(['F16','F15','F35','F18','F14','F22','B2','B52','B1',
+      'F117','A10','FA18','EF2000','RFAL','GRIF','TORNA','E3TF','MQ9','MQ1','RQ4']);
+    if (FIGHTERS.has(type) ||
+        desc.includes('fighter') || desc.includes('bomber') || desc.includes('attack') ||
+        desc.includes('stealth') || desc.includes('interceptor')) {
+      return 'military'; // fighter icon
+    }
+    return 'cargo'; // military transport uses cargo icon shape
+  }
+
+  // Wide-body heavy jets
+  const WIDE = new Set(['B744','B74S','B748','B77W','B77L','B772','B773','B788','B789','B78X',
+    'A332','A333','A338','A339','A342','A343','A345','A346','A380','A388',
+    'B747','B777','A300','A310','IL96','AN12','AN124','C5']);
+  if (WIDE.has(type) || cat === 'A5' || (cat === 'A4') ||
+      desc.includes('wide') || desc.includes('747') || desc.includes('380')) {
+    return 'widebody';
+  }
+
   // Cargo / freighter
-  if (desc.includes('cargo') || desc.includes('freighter') || cat === 'C') return 'cargo';
-  // General aviation: small piston/turboprop
-  if (cat === 'A1' || cat === 'A2') return 'general';
-  // Glider
-  if (cat === 'B1' || cat === 'B2' || desc.includes('glider') || desc.includes('balloon')) return 'glider';
+  if (cat === 'C' || desc.includes('cargo') || desc.includes('freighter') ||
+      desc.includes('express') || type === 'B752' && desc.includes('freight')) {
+    return 'cargo';
+  }
+
+  // Small general aviation
+  if (cat === 'A1' || cat === 'B4' ||
+      desc.includes('cessna') || desc.includes('piper') || desc.includes('beech') ||
+      desc.includes('cirrus') || desc.includes('mooney')) {
+    return 'general';
+  }
+
+  // Default: narrow-body commercial
   return 'narrowbody';
 }
 
@@ -1745,13 +1843,15 @@ function flightColor(f) {
   if (cat === 'widebody')   return '#ffffff';   // white
   if (cat === 'general')    return '#ffaa00';   // amber
   if (cat === 'glider')     return '#88ccff';   // light blue
-  const vr = f.vr_fpm || (f.vertical_rate * 196.85);
-  if (vr > 200)  return '#00ff88';             // climbing Ã¢ÂÂ green
-  if (vr < -200) return '#ff6b35';             // descending Ã¢ÂÂ orange
-  return isDayMode ? '#1a88ff' : '#00d4ff';    // narrowbody Ã¢ÂÂ cyan
+  if (cat === 'drone')      return '#ff9966';   // orange (drones)
+  const vr = f.vr_fpm || 0;
+  if (vr > 200)  return '#00ff88';  // climbing
+  if (vr < -200) return '#ff6b35';  // descending
+  const day = typeof isDayMode !== 'undefined' && isDayMode;
+  return day ? '#1a88ff' : '#00d4ff'; // narrowbody
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Render Flights Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Render Flights ─────────────────────────────────────────────
 function recordTrail(f) {
   if (!f.icao24 || f.on_ground) return;
   const trail = flightTrails.get(f.icao24) || [];
@@ -1780,8 +1880,8 @@ function renderFlights() {
 
     const cat   = getAircraftCategory(f);
     const color = (f === selectedFlight) ? '#ffffff' : flightColor(f);
-    const sc    = getIconScale(cat, f === selectedFlight, f.on_ground);
-    const icon  = AIRCRAFT_ICONS[cat] || AIRCRAFT_ICONS.narrowbody;
+    const [icon, baseScale] = getIconScale(f);
+    const sc = baseScale * (f.on_ground ? 0.75 : f === selectedFlight ? 1.4 : 1.0);
 
     // Trail
     if (layers.trails && !f.on_ground) {
@@ -1800,7 +1900,7 @@ function renderFlights() {
       }
     }
 
-    // Aircraft group Ã¢ÂÂ bound with datum for drag reprojection
+    // Aircraft group — bound with datum for drag reprojection
     const gp = flightG.append('g')
       .attr('class','aircraft-group')
       .datum(f)
@@ -1809,6 +1909,15 @@ function renderFlights() {
       .style('cursor','pointer')
       .on('click', function(ev) {
         ev.stopPropagation();
+        clearTimeout(window._sct);
+        window._sct = setTimeout(() => {
+          selectedFlight = f;
+          renderFlights(); renderList(); panToFlight(f);
+        }, 190);
+      })
+      .on('dblclick', function(ev) {
+        ev.stopPropagation();
+        clearTimeout(window._sct);
         selectFlight(f);
       });
 
@@ -1819,12 +1928,12 @@ function renderFlights() {
     gp.append('path').attr('d', icon).attr('fill', color)
       .attr('stroke','rgba(0,0,0,0.4)').attr('stroke-width','0.3');
 
-    // Hit area Ã¢ÂÂ bound with datum for drag reprojection
+    // Hit area — bound with datum for drag reprojection
     flightG.append('circle')
       .attr('class','hit-area')
       .datum(f)
       .attr('cx', proj[0]).attr('cy', proj[1])
-      .attr('r', Math.max(14, sc * 8))
+      .attr('r', Math.max(14, sc * 8))  // larger hit area
       .attr('fill','transparent')
       .on('mouseover',  (ev) => showTooltip(ev, f))
       .on('mousemove',  (ev) => moveTooltip(ev))
@@ -1836,10 +1945,9 @@ function renderFlights() {
   });
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Select Flight (detail panel) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Select Flight (detail panel) ───────────────────────────────
 function selectFlight(f) {
-  // Always open/update on dblclick Ã¢ÂÂ never toggle-close from here
-  // (use the Ã¢ÂÂ button inside the panel to close)
+  // Always open/update panel on double-click — never toggle-close
   selectedFlight = f;
   renderFlights(); renderList();
 
@@ -1850,106 +1958,130 @@ function selectFlight(f) {
 
   const cat      = getAircraftCategory(f);
   const color    = flightColor(f);
-  const airline  = getAirline(f.callsign) || getAirline(f.flight_number) || f.operator || 'Ã¢ÂÂ';
-  const typeDesc = getAircraftType(f.type_code || f.aircraft_type) || f.make_model || f.description || 'Ã¢ÂÂ';
+  const airline  = getAirline(f.callsign) || getAirline(f.flight_number) || f.operator || '';
+  const typeDesc = getAircraftType(f.type_code || f.aircraft_type) || f.make_model || f.description || '';
   const altFt    = f.alt_baro_ft;
-  const altStr   = altFt != null ? (altFt >= 1000 ? (altFt/1000).toFixed(1)+'k ft' : altFt+' ft') : 'GND';
-  const spdKts   = f.gs_kts || Math.round((f.velocity||0) * 1.944);
-  const vrFpm    = f.vr_fpm || Math.round((f.vertical_rate||0) * 196.85);
-  const vrArrow  = vrFpm > 100 ? 'Ã¢ÂÂ²' : vrFpm < -100 ? 'Ã¢ÂÂ¼' : 'Ã¢ÂÂº';
-  const catColorMap = {military:'#5cb85c',cargo:'#cc88ff',helicopter:'#00ffcc',widebody:'#e0e0e0',general:'#ffaa00',glider:'#88ccff',narrowbody:color};
-  const catColor = catColorMap[cat] || color;
+  const altStr   = altFt == null ? 'GND' : altFt === 'ground' ? 'GND' :
+                   +altFt >= 1000 ? (+altFt/1000).toFixed(1) + 'k ft' : Math.round(+altFt) + ' ft';
+  const spdKts   = f.gs_kts != null ? Math.round(f.gs_kts) : Math.round((f.velocity||0)*1.944);
+  const vrFpm    = f.vr_fpm != null ? Math.round(f.vr_fpm) : Math.round((f.vertical_rate||0)*196.85);
+  const vrArrow  = vrFpm > 100 ? '[+]' : vrFpm < -100 ? '[-]' : '[=]';
+  const vrColor  = vrFpm > 100 ? '#00ff88' : vrFpm < -100 ? '#ff6b35' : 'inherit';
+  const hdg      = Math.round(f.true_track || 0);
+  const catColors = {military:'#5cb85c',cargo:'#cc88ff',helicopter:'#00ffcc',
+                     widebody:'#e0e0e0',general:'#ffaa00',glider:'#88ccff',
+                     drone:'#ff9966',narrowbody:color};
+  const catColor = catColors[cat] || color;
+  const isEmerg  = ['7700','7600','7500'].includes(f.squawk);
+  const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
 
   if (dpTitle) dpTitle.innerHTML =
-    `<span style="color:${catColor}">${f.callsign||f.icao24}</span>` +
-    (f.registration && f.registration !== f.callsign ? ` <span style="font-size:11px;color:#5a7a9a">ÃÂ· ${f.registration}</span>` : '');
+    '<span style="color:' + catColor + '">' + (f.callsign || f.icao24) + '</span>' +
+    (f.registration && f.registration !== f.callsign
+      ? ' <span style="font-size:11px;color:#5a7a9a">/ ' + f.registration + '</span>' : '');
 
-  // Render initial panel immediately (no route yet)
+  function row(label, val, style) {
+    return '<div class="dp-row"><span class="dp-label">' + label + '</span>' +
+           '<span class="dp-value' + (style ? '" style="' + style : '') + '">' + val + '</span></div>';
+  }
+
   function buildPanel(route) {
-    const dep      = route?.dep;
-    const arr      = route?.arr;
-    const depInfo  = route?.depInfo;
-    const arrInfo  = route?.arrInfo;
-    const progress = route ? calcProgress(f, route) : null;
-    const totalKm  = depInfo && arrInfo ? (() => {
-      const toRad = x => x*Math.PI/180;
-      const dLat = toRad(arrInfo.lat-depInfo.lat), dLon = toRad(arrInfo.lon-depInfo.lon);
-      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(depInfo.lat))*Math.cos(toRad(arrInfo.lat))*Math.sin(dLon/2)**2;
+    const dep       = route && route.dep;
+    const arr       = route && route.arr;
+    const depInfo   = route && route.depInfo;
+    const arrInfo   = route && route.arrInfo;
+    const progress  = route ? calcProgress(f, route) : null;
+    const totalKm   = depInfo && arrInfo ? (function() {
+      function toR(x) { return x * Math.PI / 180; }
+      var dLat=toR(arrInfo.lat-depInfo.lat), dLon=toR(arrInfo.lon-depInfo.lon);
+      var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(toR(depInfo.lat))*Math.cos(toR(arrInfo.lat))*Math.sin(dLon/2)*Math.sin(dLon/2);
       return Math.round(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
     })() : null;
 
-    dpBody.innerHTML = `
-      <!-- Route banner -->
-      <div class="dp-section" style="grid-column:1/-1">
-        <div class="dp-section-title">Ã°ÂÂÂ« Route</div>
-        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11px">
-          <div style="text-align:center;flex:1">
-            <div style="font-size:14px;font-weight:700;color:#00ff88">${dep||'???'}</div>
-            <div style="font-size:8px;color:#5a7a9a;margin-top:2px">${depInfo?.name||'Departing'}</div>
-          </div>
-          <div style="flex:2;position:relative">
-            <div style="height:2px;background:linear-gradient(90deg,#00ff88,#ff6b35);border-radius:1px"></div>
-            ${progress!=null ? `
-              <div style="position:absolute;top:-8px;left:${progress}%;transform:translateX(-50%);font-size:14px;filter:drop-shadow(0 0 4px #00d4ff)">Ã¢ÂÂ</div>
-              <div style="text-align:center;font-size:8px;color:#5a7a9a;margin-top:4px">${progress}%${totalKm?' ÃÂ· '+totalKm+'km':''}</div>
-            ` : `<div style="text-align:center;font-size:8px;color:#3a5a7a;margin-top:4px">${route===null?'Route unknown':'LoadingÃ¢ÂÂ¦'}</div>`}
-          </div>
-          <div style="text-align:center;flex:1">
-            <div style="font-size:14px;font-weight:700;color:#ff6b35">${arr||'???'}</div>
-            <div style="font-size:8px;color:#5a7a9a;margin-top:2px">${arrInfo?.name||'Destination'}</div>
-          </div>
-        </div>
-        ${progress!=null ? `
-          <div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px">
-            <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,#00ff88,#00d4ff);border-radius:2px;transition:width 0.5s"></div>
-          </div>
-        ` : ''}
-      </div>
+    var depName = depInfo ? depInfo.name : 'Unknown';
+    var arrName = arrInfo ? arrInfo.name : 'Unknown';
+    var depCode = dep || '???';
+    var arrCode = arr || '???';
+    var progPct = progress != null ? progress : null;
+    var progBar = progPct != null
+      ? '<div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin:4px 0">' +
+        '<div style="height:100%;width:' + progPct + '%;background:linear-gradient(90deg,#00ff88,#00d4ff);border-radius:2px"></div></div>'
+      : '';
+    var loadMsg = route === undefined ? 'Loading route...' : 'Route data unavailable';
+    var routeStatus = progPct != null
+      ? (progPct + '% flown' + (totalKm ? ' &middot; ' + totalKm + ' km' : ''))
+      : loadMsg;
 
-      <!-- Aircraft info -->
-      <div class="dp-section">
-        <div class="dp-section-title">Ã¢ÂÂ Aircraft</div>
-        <div class="dp-row"><span class="dp-label">Flight</span><span class="dp-value mono">${f.callsign||'Ã¢ÂÂ'}</span></div>
-        <div class="dp-row"><span class="dp-label">Tail No.</span><span class="dp-value mono" style="color:var(--accent)">${f.registration||'Ã¢ÂÂ'}</span></div>
-        <div class="dp-row"><span class="dp-label">Airline</span><span class="dp-value" style="font-size:9px">${airline}</span></div>
-        <div class="dp-row"><span class="dp-label">Type</span><span class="dp-value mono">${f.type_code||f.aircraft_type||'Ã¢ÂÂ'}</span></div>
-        <div class="dp-row"><span class="dp-label">Model</span><span class="dp-value" style="font-size:9px">${typeDesc}</span></div>
-        <div class="dp-row"><span class="dp-label">Category</span><span class="dp-value" style="color:${catColor};text-transform:capitalize">${cat}</span></div>
-        <div class="dp-row"><span class="dp-label">ICAO</span><span class="dp-value mono dim">${f.icao24}</span></div>
-      </div>
+    dpBody.innerHTML =
+      // ── Route banner ──
+      '<div class="dp-section" style="grid-column:1/-1">' +
+        '<div class="dp-section-title">ROUTE</div>' +
+        '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px">' +
+          '<div style="text-align:center;flex:1">' +
+            '<div style="font-size:15px;font-weight:700;color:#00ff88;letter-spacing:1px">' + depCode + '</div>' +
+            '<div style="font-size:8px;color:#5a7a9a;margin-top:2px">' + depName + '</div>' +
+          '</div>' +
+          '<div style="flex:2;position:relative;padding:0 4px">' +
+            '<div style="height:2px;background:linear-gradient(90deg,#00ff88,#ff6b35);border-radius:1px"></div>' +
+            (progPct != null
+              ? '<div style="position:absolute;top:-9px;left:' + progPct + '%;transform:translateX(-50%);font-size:15px;filter:drop-shadow(0 0 4px #00d4ff)">^</div>'
+              : '') +
+            '<div style="text-align:center;font-size:8px;color:#5a7a9a;margin-top:3px">' + routeStatus + '</div>' +
+          '</div>' +
+          '<div style="text-align:center;flex:1">' +
+            '<div style="font-size:15px;font-weight:700;color:#ff6b35;letter-spacing:1px">' + arrCode + '</div>' +
+            '<div style="font-size:8px;color:#5a7a9a;margin-top:2px">' + arrName + '</div>' +
+          '</div>' +
+        '</div>' +
+        progBar +
+      '</div>' +
 
-      <!-- Live data -->
-      <div class="dp-section">
-        <div class="dp-section-title">Ã°ÂÂÂ¡ Live Data</div>
-        <div class="dp-row"><span class="dp-label">Status</span><span class="dp-value">${f.on_ground ? 'Ã°ÂÂÂ¡ Ground' : 'Ã°ÂÂÂµ Airborne'}</span></div>
-        <div class="dp-row"><span class="dp-label">Altitude</span><span class="dp-value" style="color:var(--accent)">${altStr}</span></div>
-        <div class="dp-row"><span class="dp-label">Speed</span><span class="dp-value">${spdKts||0} kts</span></div>
-        <div class="dp-row"><span class="dp-label">Heading</span><span class="dp-value">${Math.round(f.true_track||0)}ÃÂ°</span></div>
-        <div class="dp-row"><span class="dp-label">Vert Rate</span>
-          <span class="dp-value" style="color:${vrFpm>100?'#00ff88':vrFpm<-100?'#ff6b35':'inherit'}">${vrArrow} ${Math.abs(vrFpm)} fpm</span></div>
-        <div class="dp-row"><span class="dp-label">Squawk</span>
-          <span class="dp-value mono" style="color:${['7700','7600','7500'].includes(f.squawk)?'#ff4444':'inherit'}">${f.squawk||'Ã¢ÂÂ'}</span></div>
-        <div class="dp-row"><span class="dp-label">Operator</span><span class="dp-value" style="font-size:9px">${f.operator||f.origin_country||'Ã¢ÂÂ'}</span></div>
-        <div class="dp-row"><span class="dp-label">Position</span><span class="dp-value mono dim" style="font-size:9px">${f.latitude?.toFixed(3)}ÃÂ° / ${f.longitude?.toFixed(3)}ÃÂ°</span></div>
-      </div>
+      // ── Aircraft column ──
+      '<div class="dp-section">' +
+        '<div class="dp-section-title">AIRCRAFT</div>' +
+        row('Flight',    f.callsign || '–') +
+        row('Tail',      f.registration || '–', 'color:var(--accent)') +
+        row('Airline',   airline || '–', 'font-size:9px') +
+        row('Type',      (f.type_code || f.aircraft_type || '–')) +
+        row('Model',     typeDesc || '–', 'font-size:9px') +
+        row('Category',  catLabel, 'color:' + catColor + ';text-transform:capitalize') +
+        row('ICAO hex',  f.icao24 || '–') +
+      '</div>' +
 
-      <!-- Actions -->
-      <div style="grid-column:1/-1;margin-top:10px;display:flex;gap:6px">
-        <button class="zoom-to-map-btn" style="flex:1" onclick="panToFlight(selectedFlight);renderRoutePath(selectedFlight,routeCache.get(selectedFlight?.icao24)||null)">Ã¢ÂÂ Centre</button>
-        <button class="zoom-to-map-btn" style="flex:1;background:rgba(255,107,53,0.1);border-color:#ff6b35;color:#ff6b35"
-          onclick="document.getElementById('detail-panel').classList.remove('open');selectedFlight=null;if(routeG)routeG.selectAll('*').remove();renderFlights();renderList()">Ã¢ÂÂ Close</button>
-      </div>
-    `;
+      // ── Live data column ──
+      '<div class="dp-section">' +
+        '<div class="dp-section-title">LIVE DATA</div>' +
+        row('Status',    f.on_ground ? 'On Ground' : 'Airborne') +
+        row('Altitude',  altStr, 'color:var(--accent)') +
+        row('Speed',     spdKts + ' kts') +
+        row('Heading',   hdg + '&deg;') +
+        row('Vert Rate', vrArrow + ' ' + Math.abs(vrFpm) + ' fpm', 'color:' + vrColor) +
+        row('Squawk',    f.squawk || '–', isEmerg ? 'color:#ff4444;font-weight:700' : '') +
+        row('Operator',  f.operator || f.origin_country || '–', 'font-size:9px') +
+        row('Position',  (f.latitude ? f.latitude.toFixed(3) : '?') + ' / ' + (f.longitude ? f.longitude.toFixed(3) : '?'), 'font-size:9px') +
+      '</div>' +
+
+      // ── Actions ──
+      '<div style="grid-column:1/-1;margin-top:8px;display:flex;gap:6px">' +
+        '<button class="zoom-to-map-btn" style="flex:1" onclick="panToFlight(selectedFlight)">' +
+          'Centre' +
+        '</button>' +
+        '<button class="zoom-to-map-btn" style="flex:1;background:rgba(255,107,53,0.1);border-color:#ff6b35;color:#ff6b35" ' +
+          'onclick="document.getElementById(\'detail-panel\').classList.remove(\'open\');' +
+          'selectedFlight=null;if(routeG)routeG.selectAll(\'*\').remove();renderFlights();renderList()">' +
+          'Close' +
+        '</button>' +
+      '</div>';
   }
 
-  // Show panel immediately with "Loading route..."
+  // Show panel immediately with loading state
   buildPanel(undefined);
   panel.classList.add('open');
   panToFlight(f);
 
-  // Fetch route async Ã¢ÂÂ update panel when done
-  fetchRoute(f).then(route => {
-    if (selectedFlight !== f) return; // flight deselected while loading
+  // Fetch route async then update
+  fetchRoute(f).then(function(route) {
+    if (selectedFlight !== f) return;
     buildPanel(route);
     renderRoutePath(f, route);
   });
@@ -1966,7 +2098,7 @@ function panToFlight(f) {
   }).on('end', updateGlobe);
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Render List Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Render List ────────────────────────────────────────────────
 function renderList() {
   const list = document.getElementById('flight-list-items');
   const loading = document.getElementById('list-loading');
@@ -1981,7 +2113,7 @@ function renderList() {
   list.innerHTML = filteredFlights.slice(0, 300).map(f => {
     const altFt = f.alt_baro_ft;
     const alt = altFt != null ? (altFt>=1000 ? (altFt/1000).toFixed(1)+'k' : altFt+'ft') : 'GND';
-    const spd = f.gs_kts ? f.gs_kts+'kt' : 'Ã¢ÂÂ';
+    const spd = f.gs_kts ? f.gs_kts+'kt' : '–';
     const color = flightColor(f);
     const airline = getAirline(f.callsign) || f.operator || f.origin_country || '';
     const reg  = f.registration || '';
@@ -1991,7 +2123,7 @@ function renderList() {
       <div class="flight-dot" style="background:${color}"></div>
       <div class="flight-info">
         <div class="flight-cs">${f.callsign || f.icao24}${reg&&reg!==f.callsign?` <span style='color:#5a7a9a;font-size:9px'>${reg}</span>`:''}</div>
-        <div class="flight-airline">${airline||type||'Ã¢ÂÂ'}</div>
+        <div class="flight-airline">${airline||type||'–'}</div>
       </div>
       <div class="flight-meta" style="font-size:9px">${alt}<br><span style="color:#5a7a9a">${spd}</span></div>
     </div>`;
@@ -2005,7 +2137,7 @@ function renderList() {
   });
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Apply Filters Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Apply Filters ──────────────────────────────────────────────
 function applyFilters() {
   const s = searchTerm.toLowerCase();
   filteredFlights = flights.filter(f => {
@@ -2044,7 +2176,7 @@ function applyFilters() {
   if (lc) lc.textContent = filteredFlights.length.toLocaleString() + ' flights';
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Airports Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Airports ───────────────────────────────────────────────────
 function renderAirports() {
   if (!airportG) return;
   airportG.selectAll('*').remove();
@@ -2091,7 +2223,7 @@ function openAirportPanel(icao, ap) {
   const panel = document.getElementById('airport-map-panel');
   const title = document.getElementById('amp-title');
   if (!panel) return;
-  if (title) title.textContent = `${icao} Ã¢ÂÂ ${ap.name}`;
+  if (title) title.textContent = `${icao} — ${ap.name}`;
 
   // Nearby flights
   const nearby = flights.filter(f => {
@@ -2115,7 +2247,7 @@ function openAirportPanel(icao, ap) {
     if (window._leafletMap) { window._leafletMap.remove(); window._leafletMap = null; }
     window._leafletMap = L.map('leaflet-map').setView([ap.lat, ap.lon], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution:'ÃÂ© OpenStreetMap', maxZoom:19
+      attribution:'© OpenStreetMap', maxZoom:19
     }).addTo(window._leafletMap);
   }, 100);
 }
@@ -2142,7 +2274,7 @@ document.querySelectorAll('.tile-btn[data-tile]').forEach(b => {
   });
 });
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Render Waypoints / ILS (stubs) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Render Waypoints / ILS (stubs) ─────────────────────────────
 function renderWaypoints() {
   if (!waypointG) return;
   waypointG.selectAll('*').remove();
@@ -2162,7 +2294,7 @@ function renderWaypoints() {
 function renderILS() {}
 function renderRoutePath() {}
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Airline / Aircraft lookups Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── Airline / Aircraft lookups ─────────────────────────────────
 const AIRLINE_DB = {
   // Europe
   'BAW':'British Airways','EZY':'easyJet','RYR':'Ryanair','VIR':'Virgin Atlantic',
@@ -2195,7 +2327,7 @@ const AIRLINE_DB = {
   'SVA':'Saudia','SVI':'Saudia Cargo','FBA':'flynas','XYZ':'flyadeal',
   'MEA':'Middle East Airlines','LBN':'Lebanese Air Transport',
   'IAW':'Iraqi Airways','KAC':'Kuwait Airways',
-  'RAM':'Royal Air Maroc','TTA':'Tunisair','DAH':'Air AlgÃÂ©rie',
+  'RAM':'Royal Air Maroc','TTA':'Tunisair','DAH':'Air Algérie',
   'MSR':'EgyptAir','MSX':'EgyptAir Cargo',
   'RJA':'Royal Jordanian','IZY':'Air Arabia Jordan',
   // Asia Pacific
@@ -2230,14 +2362,14 @@ const AIRLINE_DB = {
   'GLO':'Gol Linhas','ONE':'Azul Brazilian','PTB':'Passaredo',
   'AVA':'Avianca','ARE':'Avianca Costa Rica','BOG':'Avianca Ecuador',
   'COA':'Copa Airlines','CMF':'Copa Airlines Colombia',
-  'ARG':'AerolÃÂ­neas Argentinas','PSR':'LADE',
+  'ARG':'Aerolíneas Argentinas','PSR':'LADE',
   // Africa
   'ETH':'Ethiopian Airlines','ETW':'Ethiopian Cargo',
   'KQA':'Kenya Airways','QNK':'Jambojet',
   'SAA':'South African Airways','MNO':'Mango',
   'EAN':'RwandAir','CAW':'Comair','FAN':'Fastjet',
   'MSC':'Egyptair','TUN':'Tunisair','RAM':'Royal Air Maroc',
-  'DAH':'Air AlgÃÂ©rie','SLM':'Surinam Airways',
+  'DAH':'Air Algérie','SLM':'Surinam Airways',
   // Cargo / Freighters
   'FDX':'FedEx Express','UPS':'UPS Airlines','ABX':'ABX Air',
   'GTI':'Atlas Air','PAC':'Polar Air Cargo','CLX':'Cargolux',
@@ -2275,7 +2407,7 @@ function getAircraftType(code) {
   return AIRCRAFT_DB[code.toUpperCase()] || null;
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ API / Fetch Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── API / Fetch ─────────────────────────────────────────────────
 const API_BASE = 'https://api.adsb.one/v2';
 
 const SAMPLE_POINTS = [
@@ -2361,7 +2493,7 @@ function mapAircraft(ac, isMil) {
     callsign:      flight || ac.r || ac.hex || '',
     flight_number: flight,
     registration:  ac.r || '',
-    // Both names for type Ã¢ÂÂ getAircraftCategory uses type_code/desc
+    // Both names for type — getAircraftCategory uses type_code/desc
     aircraft_type: ac.t || '',
     type_code:     ac.t || '',
     description:   ac.desc || '',
@@ -2393,7 +2525,7 @@ function mapAircraft(ac, isMil) {
 }
 
 async function fetchFlights() {
-  setStatus('loading', 'UpdatingÃ¢ÂÂ¦');
+  setStatus('loading', 'Updating…');
 
   function fetchWithTimeout(url, ms) {
     const ctrl = new AbortController();
@@ -2405,7 +2537,7 @@ async function fetchFlights() {
 
   // Build index of existing flights so we can UPDATE in-place, not replace
   const existing = new Map(flights.map(f => [f.icao24, f]));
-  const fresh    = new Map();   // icao24 Ã¢ÂÂ raw ac object from API
+  const fresh    = new Map();   // icao24 → raw ac object from API
   let tileOk = 0, tileFail = 0, milCount = 0;
 
   // Military endpoint
@@ -2417,7 +2549,7 @@ async function fetchFlights() {
     }
   } catch(e) {}
 
-  // All tiles fully parallel Ã¢ÂÂ 2000nm radius for global coverage
+  // All tiles fully parallel — 2000nm radius for global coverage
   const RADIUS = 2000;
   await Promise.allSettled(SAMPLE_POINTS.map(async ([lat, lon]) => {
     try {
@@ -2439,7 +2571,7 @@ async function fetchFlights() {
     const mapped = mapAircraft(ac, isMil);
     if (!mapped) return;
     if (existing.has(hex)) {
-      // Update in-place Ã¢ÂÂ preserve object reference so DR still works
+      // Update in-place — preserve object reference so DR still works
       const ex = existing.get(hex);
       // Snap base position for fresh DR
       ex._lat0      = ac.lat;
@@ -2464,7 +2596,7 @@ async function fetchFlights() {
   flights = Array.from(existing.values());
 
   if (flights.length === 0) {
-    setStatus('error', `No data (ok:${tileOk} fail:${tileFail}) Ã¢ÂÂ demo`);
+    setStatus('error', `No data (ok:${tileOk} fail:${tileFail}) — demo`);
     loadMockData(); return;
   }
 
@@ -2473,8 +2605,8 @@ async function fetchFlights() {
   const el = id => document.getElementById(id);
   if (el('stat-total'))     el('stat-total').textContent     = flights.length.toLocaleString();
   if (el('stat-airborne'))  el('stat-airborne').textContent  = airborne.toLocaleString();
-  if (el('stat-countries')) el('stat-countries').textContent = countries || 'Ã¢ÂÂ';
-  setStatus('ok', `${flights.length.toLocaleString()} live ÃÂ· ${tileOk}/${SAMPLE_POINTS.length} tiles`);
+  if (el('stat-countries')) el('stat-countries').textContent = countries || '–';
+  setStatus('ok', `${flights.length.toLocaleString()} live · ${tileOk}/${SAMPLE_POINTS.length} tiles`);
 
   applyFilters();
   renderFlights();
@@ -2502,12 +2634,12 @@ function loadMockData() {
   const airborne = flights.filter(f=>!f.on_ground).length;
   document.getElementById('stat-total').textContent = flights.length.toLocaleString()+'*';
   document.getElementById('stat-airborne').textContent = airborne.toLocaleString()+'*';
-  document.getElementById('stat-countries').textContent = 'Ã¢ÂÂ';
-  setStatus('error', 'Demo mode Ã¢ÂÂ API unavailable');
+  document.getElementById('stat-countries').textContent = '–';
+  setStatus('error', 'Demo mode — API unavailable');
   applyFilters(); renderFlights(); renderList();
 }
 
-// Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ World topology load + startup Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+// ─── World topology load + startup ──────────────────────────────
 fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
   .then(r => r.json())
   .then(data => {
@@ -2520,7 +2652,7 @@ fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
     fetchFlights();
   });
 
-setInterval(fetchFlights, 60000); // 60s refresh Ã¢ÂÂ dead reckoning handles smooth movement
+setInterval(fetchFlights, 60000); // 60s refresh — dead reckoning handles smooth movement
 
 </script>
 </body>
