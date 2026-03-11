@@ -1300,56 +1300,72 @@ function renderGlobeOnly() {
   if (!g) return;
   const t = getTheme();
   svg.style('background', t.ocean);
+
+  // Reproject background paths
   if (layers.graticule && gratG) gratG.selectAll('path').attr('d', path);
-  if (landG) landG.selectAll('path').attr('d', path);
+  if (landG)    landG.selectAll('path').attr('d', path);
   if (bordersG) bordersG.selectAll('path').attr('d', path);
-  if (airspaceG) airspaceG.selectAll('path').attr('d', path);
+  if (airspaceG && layers.airspace) airspaceG.selectAll('path').attr('d', path);
   renderCountryLabels();
   if (layers.airports) renderAirports();
 
-  // Reproject route arc during drag/zoom
-  if (routeG) routeG.selectAll('path').attr('d', path);
-  if (routeG && selectedFlight) {
-    // Reproject route dots
-    const cached = routeCache.get(selectedFlight.icao24);
+  // Reproject route arc
+  if (routeG) {
+    routeG.selectAll('path').attr('d', path);
     routeG.selectAll('circle').each(function() {
-      const cx = +d3.select(this).attr('data-lon'), cy = +d3.select(this).attr('data-lat');
-      if (!isNaN(cx) && !isNaN(cy)) {
-        const p = projection([cx, cy]);
+      const lon = +d3.select(this).attr('data-lon');
+      const lat = +d3.select(this).attr('data-lat');
+      if (!isNaN(lon) && !isNaN(lat)) {
+        const p = projection([lon, lat]);
         if (p) d3.select(this).attr('cx', p[0]).attr('cy', p[1]);
       }
     });
     routeG.selectAll('text').each(function() {
-      const tx = +d3.select(this).attr('data-lon'), ty = +d3.select(this).attr('data-lat');
-      if (!isNaN(tx) && !isNaN(ty)) {
-        const p = projection([tx, ty]);
+      const lon = +d3.select(this).attr('data-lon');
+      const lat = +d3.select(this).attr('data-lat');
+      if (!isNaN(lon) && !isNaN(lat)) {
+        const p = projection([lon, lat]);
         if (p) d3.select(this).attr('x', p[0]+7).attr('y', p[1]+4);
       }
     });
   }
 
-  // Reproject aircraft positions live during drag/zoom
-  if (flightG && filteredFlights.length) {
-    const r = projection.rotate();
-    const center = [-r[0], -r[1]];
-    flightG.selectAll('g.aircraft-group').each(function() {
-      const f = d3.select(this).datum();
-      if (!f) return;
-      const geoAngle = d3.geoDistance([f.longitude, f.latitude], center);
-      if (geoAngle > Math.PI * 0.52) { d3.select(this).attr('visibility','hidden'); return; } // slight overdraw
-      const proj = projection([f.longitude, f.latitude]);
-      if (!proj) { d3.select(this).attr('visibility','hidden'); return; }
-      const sc = getIconScale(getAircraftCategory(f), f === selectedFlight, f.on_ground);
-      d3.select(this).attr('visibility','visible')
-        .attr('transform', `translate(${proj[0]},${proj[1]}) rotate(${f.true_track||0}) scale(${sc})`);
-    });
-    flightG.selectAll('circle.hit-area').each(function() {
-      const f = d3.select(this).datum();
-      if (!f) return;
-      const proj = projection([f.longitude, f.latitude]);
-      if (proj) d3.select(this).attr('cx', proj[0]).attr('cy', proj[1]);
-    });
-  }
+  // Reproject aircraft — FAST path, no DOM creation
+  reprojectAircraft();
+}
+
+// Separate fast path for 60fps dead-reckoning (only moves aircraft, no background)
+function reprojectAircraft() {
+  if (!flightG || !filteredFlights.length) return;
+  const r = projection.rotate();
+  const center = [-r[0], -r[1]];
+
+  flightG.selectAll('g.aircraft-group').each(function() {
+    const f = d3.select(this).datum();
+    if (!f) return;
+    const geo = d3.geoDistance([f.longitude, f.latitude], center);
+    if (geo > Math.PI * 0.52) {
+      d3.select(this).attr('visibility', 'hidden');
+      return;
+    }
+    const proj = projection([f.longitude, f.latitude]);
+    if (!proj) { d3.select(this).attr('visibility', 'hidden'); return; }
+
+    // Use new getIconScale signature — returns [path, baseScale]
+    const [, baseScale] = getIconScale(f);
+    const sc = baseScale * (f.on_ground ? 0.75 : f === selectedFlight ? 1.4 : 1.0);
+
+    d3.select(this)
+      .attr('visibility', 'visible')
+      .attr('transform', `translate(${proj[0]},${proj[1]}) rotate(${f.true_track||0}) scale(${sc})`);
+  });
+
+  flightG.selectAll('circle.hit-area').each(function() {
+    const f = d3.select(this).datum();
+    if (!f) return;
+    const proj = projection([f.longitude, f.latitude]);
+    if (proj) d3.select(this).attr('cx', proj[0]).attr('cy', proj[1]);
+  });
 }
 
 function updateGlobe() {
@@ -1364,6 +1380,8 @@ function updateGlobe() {
     const cached = routeCache.get(selectedFlight.icao24);
     if (cached) renderRoutePath(selectedFlight, cached);
   }
+  // Ensure aircraft are in DR-corrected positions after full rebuild
+  reprojectAircraft();
 }
 
 // ─── Drag & Inertia ─────────────────────────────────────────────
@@ -1412,13 +1430,27 @@ function applyInertia() {
 // ─── Zoom ───────────────────────────────────────────────────────
 container.addEventListener('wheel', event => {
   event.preventDefault();
-  currentZoomK = Math.min(8, Math.max(0.5, currentZoomK * (event.deltaY > 0 ? 0.9 : 1.1)));
-  width = container.clientWidth;
+  const factor = event.deltaY > 0 ? 0.88 : 1.14;
+  currentZoomK  = Math.min(10, Math.max(0.35, currentZoomK * factor));
+  width  = container.clientWidth;
   height = window.innerHeight - 48;
-  projection.scale(Math.min(width,height) * 0.42 * currentZoomK).translate([width/2, height/2]);
-  renderGlobeOnly();
+  projection.scale(Math.min(width, height) * 0.42 * currentZoomK).translate([width/2, height/2]);
+
+  // Smooth: reproject all paths without full DOM rebuild
+  if (!window._zoomRafPending) {
+    window._zoomRafPending = true;
+    requestAnimationFrame(() => {
+      window._zoomRafPending = false;
+      renderGlobeOnly();
+    });
+  }
+
+  // Full re-render after zoom settles (airports, waypoints, labels)
   clearTimeout(window._zoomEnd);
-  window._zoomEnd = setTimeout(() => updateGlobe(), 150);
+  window._zoomEnd = setTimeout(() => {
+    updateGlobe();
+    reprojectAircraft();
+  }, 220);
 }, { passive: false });
 
 // ─── Sidebar Resize ─────────────────────────────────────────────
@@ -1520,7 +1552,7 @@ function deadReckon() {
       }
     });
 
-    renderGlobeOnly();
+    reprojectAircraft();
   }
 
   _drFrame = requestAnimationFrame(deadReckon);
@@ -1687,6 +1719,9 @@ document.querySelectorAll('.layer-row').forEach(row => {
     else if (layer === 'airports') { if (layers.airports) renderAirports(); else if (airportG) airportG.selectAll('*').remove(); }
     else if (layer === 'airspace') { if (layers.airspace) renderAirspace(); else if (airspaceG) airspaceG.selectAll('*').remove(); }
     else if (layer === 'waypoints') { if (layers.waypoints) renderWaypoints(); else if (waypointG) waypointG.selectAll('*').remove(); }
+    else if (layer === 'trails')   { renderFlights(); }
+    else if (layer === 'graticule') { renderGlobeOnly(); }
+    else if (layer === 'ils')      { updateGlobe(); }
     else updateGlobe();
   });
 });
@@ -1940,6 +1975,15 @@ function renderFlights() {
       .on('mouseout',   () => hideTooltip())
       .on('click', function(ev) {
         ev.stopPropagation();
+        clearTimeout(window._sct);
+        window._sct = setTimeout(() => {
+          selectedFlight = f;
+          renderFlights(); renderList(); panToFlight(f);
+        }, 190);
+      })
+      .on('dblclick', function(ev) {
+        ev.stopPropagation();
+        clearTimeout(window._sct);
         selectFlight(f);
       });
   });
@@ -2411,73 +2455,109 @@ function getAircraftType(code) {
 const API_BASE = 'https://api.adsb.one/v2';
 
 const SAMPLE_POINTS = [
+  [-70,-180],
+  [-70,-78],
+  [-70,24],
+  [-70,126],
+  [-35,-180],
+  [-35,-137],
+  [-35,-94],
+  [-35,-51],
+  [-35,-8],
+  [-35,35],
+  [-35,78],
+  [-35,121],
+  [-35,164],
   [0,-180],
-  [0,-135],
-  [0,-90],
-  [0,-45],
-  [0,0],
-  [0,45],
-  [0,90],
-  [0,135],
-  [32,-180],
-  [-32,-180],
-  [32,-120],
-  [-32,-120],
-  [32,-60],
-  [-32,-60],
-  [32,0],
-  [-32,0],
-  [32,60],
-  [-32,60],
-  [32,120],
-  [-32,120],
-  [60,-180],
-  [-60,-180],
-  [60,-90],
-  [-60,-90],
-  [60,0],
-  [-60,0],
-  [60,90],
-  [-60,90],
-  [35,-90],
-  [45,-75],
-  [40,-115],
-  [50,-100],
-  [52,10],
-  [48,2],
-  [55,25],
-  [40,20],
-  [35,120],
-  [35,140],
-  [25,121],
-  [50,120],
-  [28,108],
-  [22,114],
-  [25,50],
-  [32,44],
-  [24,38],
-  [30,65],
-  [20,80],
-  [12,80],
-  [13,100],
-  [20,105],
-  [5,103],
-  [5,20],
-  [20,10],
-  [-10,25],
+  [0,-145],
+  [0,-110],
+  [0,-75],
+  [0,-40],
   [0,-5],
-  [-10,-55],
-  [-5,-75],
-  [5,-70],
-  [-30,-55],
-  [-25,135],
+  [0,30],
+  [0,65],
+  [0,100],
+  [0,135],
+  [0,170],
+  [35,-180],
+  [35,-137],
+  [35,-94],
+  [35,-51],
+  [35,-8],
+  [35,35],
+  [35,78],
+  [35,121],
+  [35,164],
+  [70,-180],
+  [70,-78],
+  [70,24],
+  [70,126],
+  [50,-125],
+  [50,-90],
+  [50,-60],
+  [35,-120],
+  [35,-95],
+  [35,-75],
+  [25,-100],
+  [25,-80],
+  [60,10],
+  [55,25],
+  [50,5],
+  [50,20],
+  [45,10],
+  [45,30],
+  [32,35],
+  [28,45],
+  [22,45],
+  [25,55],
+  [32,55],
+  [22,65],
+  [15,15],
+  [5,15],
+  [0,25],
+  [-10,25],
+  [-20,30],
+  [5,40],
+  [12,0],
+  [5,-5],
+  [0,10],
+  [40,120],
+  [35,120],
+  [30,115],
+  [25,115],
+  [25,125],
+  [38,140],
+  [35,135],
+  [20,105],
+  [15,100],
+  [10,105],
+  [5,110],
+  [0,115],
+  [-5,115],
+  [28,75],
+  [20,80],
+  [12,78],
+  [22,88],
+  [-25,130],
+  [-30,150],
+  [-15,130],
+  [-10,140],
   [-35,150],
-  [-10,142],
-  [-25,115],
-  [55,-30],
-  [55,-140],
-  [35,-165],
-  [25,-150]
+  [-5,-60],
+  [-15,-50],
+  [-25,-50],
+  [-35,-60],
+  [5,-60],
+  [10,-70],
+  [20,-75],
+  [15,-90],
+  [10,-85],
+  [60,-30],
+  [55,-45],
+  [50,-30],
+  [42,65],
+  [55,65],
+  [40,75]
 ];
 
 function setStatus(state, text) {
@@ -2525,69 +2605,81 @@ function mapAircraft(ac, isMil) {
 }
 
 async function fetchFlights() {
-  setStatus('loading', 'Updating…');
+  setStatus('loading', 'Updating live traffic...');
 
   function fetchWithTimeout(url, ms) {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), ms);
-    return fetch(url, {signal: ctrl.signal})
+    return fetch(url, { signal: ctrl.signal })
       .then(r => { clearTimeout(t); return r; })
       .catch(e => { clearTimeout(t); throw e; });
   }
 
-  // Build index of existing flights so we can UPDATE in-place, not replace
-  const existing = new Map(flights.map(f => [f.icao24, f]));
-  const fresh    = new Map();   // icao24 → raw ac object from API
-  let tileOk = 0, tileFail = 0, milCount = 0;
+  // Batch parallel requests to avoid rate-limiting
+  async function fetchBatch(urls, concurrency) {
+    const results = [];
+    for (let i = 0; i < urls.length; i += concurrency) {
+      const batch = urls.slice(i, i + concurrency);
+      const settled = await Promise.allSettled(batch.map(url =>
+        fetchWithTimeout(url, 15000).then(r => r.ok ? r.json() : null).catch(() => null)
+      ));
+      results.push(...settled.map(s => s.status === 'fulfilled' ? s.value : null));
+    }
+    return results;
+  }
 
-  // Military endpoint
+  // Build index of existing flights for merge strategy
+  const existing = new Map(flights.map(f => [f.icao24, f]));
+  const fresh = new Map();
+  let milCount = 0, tileOk = 0, tileFail = 0;
+
+  // Fetch military endpoint first
   try {
     const r = await fetchWithTimeout(`${API_BASE}/mil`, 12000);
     if (r.ok) {
       const d = await r.json();
-      (d.ac||[]).forEach(ac => { if (ac.lat && ac.lon) { fresh.set(ac.hex, {ac, isMil:true}); milCount++; } });
+      (d.ac || []).forEach(ac => {
+        if (ac.lat && ac.lon) { fresh.set(ac.hex, { ac, isMil: true }); milCount++; }
+      });
     }
   } catch(e) {}
 
-  // All tiles fully parallel — 2000nm radius for global coverage
-  const RADIUS = 2000;
-  await Promise.allSettled(SAMPLE_POINTS.map(async ([lat, lon]) => {
-    try {
-      const r = await fetchWithTimeout(`${API_BASE}/point/${lat}/${lon}/${RADIUS}`, 14000);
-      if (!r.ok) { tileFail++; return; }
-      const d = await r.json();
-      (d.ac||[]).forEach(ac => {
-        if (!ac.lat || !ac.lon) return;
-        if (!fresh.has(ac.hex)) fresh.set(ac.hex, {ac, isMil:false});
-      });
-      tileOk++;
-    } catch(e) { tileFail++; }
-  }));
+  // Fetch all tiles in batches of 8
+  const RADIUS = 3000; // nm — large enough to ensure no dead zones
+  const urls = SAMPLE_POINTS.map(([lat, lon]) => `${API_BASE}/point/${lat}/${lon}/${RADIUS}`);
+  const responses = await fetchBatch(urls, 8);
+
+  responses.forEach(data => {
+    if (!data) { tileFail++; return; }
+    tileOk++;
+    (data.ac || []).forEach(ac => {
+      if (!ac.lat || !ac.lon) return;
+      if (!fresh.has(ac.hex)) fresh.set(ac.hex, { ac, isMil: false });
+    });
+  });
 
   const now = Date.now();
 
-  // MERGE: update existing aircraft in-place, add new ones, keep recent ones
-  fresh.forEach(({ac, isMil}, hex) => {
+  // Merge: update existing in-place, add new
+  fresh.forEach(({ ac, isMil }, hex) => {
     const mapped = mapAircraft(ac, isMil);
     if (!mapped) return;
     if (existing.has(hex)) {
-      // Update in-place — preserve object reference so DR still works
       const ex = existing.get(hex);
-      // Snap base position for fresh DR
-      ex._lat0      = ac.lat;
-      ex._lon0      = ac.lon;
+      Object.assign(ex, mapped);
+      ex._lat0 = ac.lat; ex._lon0 = ac.lon;
+      ex._alt0 = typeof ac.alt_baro === 'number' ? ac.alt_baro : ex._alt0;
       ex._fetchedAt = now;
-      // Update all live fields
-      Object.assign(ex, mapped, { _lat0: ac.lat, _lon0: ac.lon, _fetchedAt: now });
     } else {
       mapped._fetchedAt = now;
-      mapped._lat0      = ac.lat;
-      mapped._lon0      = ac.lon;
+      mapped._lat0 = ac.lat;
+      mapped._lon0 = ac.lon;
+      mapped._alt0 = typeof ac.alt_baro === 'number' ? ac.alt_baro : null;
       existing.set(hex, mapped);
     }
   });
 
-  // Drop aircraft not seen for more than 90 seconds
+  // Drop stale aircraft (> 90s not seen)
   const STALE_MS = 90000;
   existing.forEach((f, hex) => {
     if (now - (f._fetchedAt || 0) > STALE_MS) existing.delete(hex);
@@ -2596,8 +2688,9 @@ async function fetchFlights() {
   flights = Array.from(existing.values());
 
   if (flights.length === 0) {
-    setStatus('error', `No data (ok:${tileOk} fail:${tileFail}) — demo`);
-    loadMockData(); return;
+    setStatus('error', `No data — ok:${tileOk} fail:${tileFail} — using demo`);
+    loadMockData();
+    return;
   }
 
   const airborne  = flights.filter(f => !f.on_ground).length;
@@ -2605,8 +2698,8 @@ async function fetchFlights() {
   const el = id => document.getElementById(id);
   if (el('stat-total'))     el('stat-total').textContent     = flights.length.toLocaleString();
   if (el('stat-airborne'))  el('stat-airborne').textContent  = airborne.toLocaleString();
-  if (el('stat-countries')) el('stat-countries').textContent = countries || '–';
-  setStatus('ok', `${flights.length.toLocaleString()} live · ${tileOk}/${SAMPLE_POINTS.length} tiles`);
+  if (el('stat-countries')) el('stat-countries').textContent = countries || '?';
+  setStatus('ok', `${flights.length.toLocaleString()} live · ${tileOk}/${SAMPLE_POINTS.length} tiles · ${milCount} mil`);
 
   applyFilters();
   renderFlights();
