@@ -345,24 +345,44 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 /* Detail panel */
 .detail-panel {
   position: fixed;
-  top: var(--header-h);
-  right: var(--sidebar-w);
-  width: 300px;
-  max-height: calc(100vh - var(--header-h));
-  background: rgba(5,10,20,0.98);
-  border: 1px solid var(--border);
-  border-right: none;
-  overflow-y: auto;
-  z-index: 300;
-  transform: translateX(105%);
-  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  bottom: 0; left: 0; right: 0;
+  height: 0;
+  background: rgba(3,7,16,0.98);
+  border-top: 2px solid #1a2d4a;
+  z-index: 400;
   pointer-events: none;
-  box-shadow: -4px 0 24px rgba(0,0,0,0.5);
+  transition: height 0.28s cubic-bezier(.4,0,.2,1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.8);
+  backdrop-filter: blur(12px);
 }
 .detail-panel.open {
-  transform: translateX(0);
+  height: 220px;
   pointer-events: all;
 }
+.dp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px;
+  border-bottom: 1px solid #1a2d4a;
+  flex-shrink: 0;
+  background: rgba(0,212,255,0.04);
+}
+.dp-close-btn {
+  background: rgba(255,107,53,0.12);
+  border: 1px solid rgba(255,107,53,0.5);
+  color: #ff6b35;
+  padding: 3px 12px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  transition: background 0.15s;
+}
+.dp-close-btn:hover { background: rgba(255,107,53,0.25); }
 
 .dp-header {
   padding: 12px 16px;
@@ -378,8 +398,8 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 }
 .dp-close:hover { color: var(--text); }
 
-.dp-body { padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.dp-section { grid-column: 1 / -1; }
+.dp-body { padding: 8px 16px; display: grid; grid-template-columns: 180px 1fr 1fr 1fr; gap: 0 16px; overflow: hidden; flex: 1; }
+.dp-section { grid-column: auto; }
 .dp-section-title { font-size: 9px; letter-spacing: 2px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; }
 .dp-row { display: flex; justify-content: space-between; align-items: baseline; padding: 3px 0; border-bottom: 1px solid rgba(26,45,74,0.4); }
 .dp-label { font-size: 9px; color: var(--text-dim); }
@@ -507,7 +527,7 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
       <div class="legend-row"><div class="legend-dot" style="background:#ffcc00"></div>Climbing/Descending</div>
       <div class="legend-row"><div class="legend-dot" style="background:#ff4444"></div>Emergency Squawk</div>
       <div style="padding-top:6px;color:#5a7a9a">Drag to rotate · Scroll to zoom</div>
-      <div style="color:#5a7a9a">Click aircraft for details</div>
+      <div style="color:#5a7a9a">Double-click aircraft for details</div>
     </div>
     <div class="type-filter-section">
       <div class="type-filter-title">Aircraft Type</div>
@@ -545,8 +565,12 @@ body.day-mode header { background: rgba(232,240,248,0.95); }
 
 <div class="detail-panel" id="detail-panel">
   <div class="dp-header">
-    <span class="dp-title" id="dp-title">–</span>
-    <button class="dp-close" onclick="document.getElementById('detail-panel').classList.remove('open')">✕</button>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="dp-callsign" style="font-size:16px;font-weight:700;letter-spacing:2px;color:#00d4ff"></span>
+      <span id="dp-reg" style="font-size:11px;color:#5a7a9a"></span>
+      <span id="dp-cat-badge" style="font-size:8px;padding:2px 6px;border-radius:2px;letter-spacing:1px;font-weight:700"></span>
+    </div>
+    <button class="dp-close-btn" id="dp-close-btn">&#x2715; CLOSE</button>
   </div>
   <div class="dp-body" id="dp-body"></div>
 </div>
@@ -1154,14 +1178,14 @@ function getIconScale(f) {
   // Returns [svgPath, scale]
   const cat = getAircraftCategory(f);
   const scales = {
-    widebody:   [AIRCRAFT_ICONS.widebody,   1.0],
-    narrowbody: [AIRCRAFT_ICONS.narrowbody, 0.9],
-    cargo:      [AIRCRAFT_ICONS.cargo,      0.9],
-    military:   [AIRCRAFT_ICONS.military,   0.95],
-    helicopter: [AIRCRAFT_ICONS.helicopter, 0.85],
-    general:    [AIRCRAFT_ICONS.general,    0.75],
-    drone:      [AIRCRAFT_ICONS.drone,      0.75],
-    glider:     [AIRCRAFT_ICONS.glider,     0.80],
+    widebody:   [AIRCRAFT_ICONS.widebody,   1.4],
+    narrowbody: [AIRCRAFT_ICONS.narrowbody, 1.2],
+    cargo:      [AIRCRAFT_ICONS.cargo,      1.2],
+    military:   [AIRCRAFT_ICONS.military,   1.3],
+    helicopter: [AIRCRAFT_ICONS.helicopter, 1.1],
+    general:    [AIRCRAFT_ICONS.general,    1.0],
+    drone:      [AIRCRAFT_ICONS.drone,      1.0],
+    glider:     [AIRCRAFT_ICONS.glider,     1.1],
   };
   return scales[cat] || scales.narrowbody;
 }
@@ -1961,7 +1985,8 @@ function renderFlights() {
         .attr('filter','url(#glow)').attr('opacity',0.35).attr('transform','scale(1.6)');
     }
     gp.append('path').attr('d', icon).attr('fill', color)
-      .attr('stroke','rgba(0,0,0,0.4)').attr('stroke-width','0.3');
+      .attr('stroke', color === '#ffffff' ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.6)')
+      .attr('stroke-width', '0.4');
 
     // Hit area — bound with datum for drag reprojection
     flightG.append('circle')
@@ -1990,144 +2015,137 @@ function renderFlights() {
 }
 
 // ─── Select Flight (detail panel) ───────────────────────────────
+function closeDpanel() {
+  const panel = document.getElementById('detail-panel');
+  if (panel) panel.classList.remove('open');
+  if (routeG) routeG.selectAll('*').remove();
+  selectedFlight = null;
+  renderFlights();
+  renderList();
+}
+
 function selectFlight(f) {
-  // Always open/update panel on double-click — never toggle-close
   selectedFlight = f;
-  renderFlights(); renderList();
-
-  const panel   = document.getElementById('detail-panel');
-  const dpTitle = document.getElementById('dp-title');
-  const dpBody  = document.getElementById('dp-body');
-  if (!panel || !dpBody) return;
-
-  const cat      = getAircraftCategory(f);
-  const color    = flightColor(f);
-  const airline  = getAirline(f.callsign) || getAirline(f.flight_number) || f.operator || '';
-  const typeDesc = getAircraftType(f.type_code || f.aircraft_type) || f.make_model || f.description || '';
-  const altFt    = f.alt_baro_ft;
-  const altStr   = altFt == null ? 'GND' : altFt === 'ground' ? 'GND' :
-                   +altFt >= 1000 ? (+altFt/1000).toFixed(1) + 'k ft' : Math.round(+altFt) + ' ft';
-  const spdKts   = f.gs_kts != null ? Math.round(f.gs_kts) : Math.round((f.velocity||0)*1.944);
-  const vrFpm    = f.vr_fpm != null ? Math.round(f.vr_fpm) : Math.round((f.vertical_rate||0)*196.85);
-  const vrArrow  = vrFpm > 100 ? '[+]' : vrFpm < -100 ? '[-]' : '[=]';
-  const vrColor  = vrFpm > 100 ? '#00ff88' : vrFpm < -100 ? '#ff6b35' : 'inherit';
-  const hdg      = Math.round(f.true_track || 0);
-  const catColors = {military:'#5cb85c',cargo:'#cc88ff',helicopter:'#00ffcc',
-                     widebody:'#e0e0e0',general:'#ffaa00',glider:'#88ccff',
-                     drone:'#ff9966',narrowbody:color};
-  const catColor = catColors[cat] || color;
-  const isEmerg  = ['7700','7600','7500'].includes(f.squawk);
-  const catLabel = cat.charAt(0).toUpperCase() + cat.slice(1);
-
-  if (dpTitle) dpTitle.innerHTML =
-    '<span style="color:' + catColor + '">' + (f.callsign || f.icao24) + '</span>' +
-    (f.registration && f.registration !== f.callsign
-      ? ' <span style="font-size:11px;color:#5a7a9a">/ ' + f.registration + '</span>' : '');
-
-  function row(label, val, style) {
-    return '<div class="dp-row"><span class="dp-label">' + label + '</span>' +
-           '<span class="dp-value' + (style ? '" style="' + style : '') + '">' + val + '</span></div>';
-  }
-
-  function buildPanel(route) {
-    const dep       = route && route.dep;
-    const arr       = route && route.arr;
-    const depInfo   = route && route.depInfo;
-    const arrInfo   = route && route.arrInfo;
-    const progress  = route ? calcProgress(f, route) : null;
-    const totalKm   = depInfo && arrInfo ? (function() {
-      function toR(x) { return x * Math.PI / 180; }
-      var dLat=toR(arrInfo.lat-depInfo.lat), dLon=toR(arrInfo.lon-depInfo.lon);
-      var a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(toR(depInfo.lat))*Math.cos(toR(arrInfo.lat))*Math.sin(dLon/2)*Math.sin(dLon/2);
-      return Math.round(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));
-    })() : null;
-
-    var depName = depInfo ? depInfo.name : 'Unknown';
-    var arrName = arrInfo ? arrInfo.name : 'Unknown';
-    var depCode = dep || '???';
-    var arrCode = arr || '???';
-    var progPct = progress != null ? progress : null;
-    var progBar = progPct != null
-      ? '<div style="height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin:4px 0">' +
-        '<div style="height:100%;width:' + progPct + '%;background:linear-gradient(90deg,#00ff88,#00d4ff);border-radius:2px"></div></div>'
-      : '';
-    var loadMsg = route === undefined ? 'Loading route...' : 'Route data unavailable';
-    var routeStatus = progPct != null
-      ? (progPct + '% flown' + (totalKm ? ' &middot; ' + totalKm + ' km' : ''))
-      : loadMsg;
-
-    dpBody.innerHTML =
-      // ── Route banner ──
-      '<div class="dp-section" style="grid-column:1/-1">' +
-        '<div class="dp-section-title">ROUTE</div>' +
-        '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:11px">' +
-          '<div style="text-align:center;flex:1">' +
-            '<div style="font-size:15px;font-weight:700;color:#00ff88;letter-spacing:1px">' + depCode + '</div>' +
-            '<div style="font-size:8px;color:#5a7a9a;margin-top:2px">' + depName + '</div>' +
-          '</div>' +
-          '<div style="flex:2;position:relative;padding:0 4px">' +
-            '<div style="height:2px;background:linear-gradient(90deg,#00ff88,#ff6b35);border-radius:1px"></div>' +
-            (progPct != null
-              ? '<div style="position:absolute;top:-9px;left:' + progPct + '%;transform:translateX(-50%);font-size:15px;filter:drop-shadow(0 0 4px #00d4ff)">^</div>'
-              : '') +
-            '<div style="text-align:center;font-size:8px;color:#5a7a9a;margin-top:3px">' + routeStatus + '</div>' +
-          '</div>' +
-          '<div style="text-align:center;flex:1">' +
-            '<div style="font-size:15px;font-weight:700;color:#ff6b35;letter-spacing:1px">' + arrCode + '</div>' +
-            '<div style="font-size:8px;color:#5a7a9a;margin-top:2px">' + arrName + '</div>' +
-          '</div>' +
-        '</div>' +
-        progBar +
-      '</div>' +
-
-      // ── Aircraft column ──
-      '<div class="dp-section">' +
-        '<div class="dp-section-title">AIRCRAFT</div>' +
-        row('Flight',    f.callsign || '–') +
-        row('Tail',      f.registration || '–', 'color:var(--accent)') +
-        row('Airline',   airline || '–', 'font-size:9px') +
-        row('Type',      (f.type_code || f.aircraft_type || '–')) +
-        row('Model',     typeDesc || '–', 'font-size:9px') +
-        row('Category',  catLabel, 'color:' + catColor + ';text-transform:capitalize') +
-        row('ICAO hex',  f.icao24 || '–') +
-      '</div>' +
-
-      // ── Live data column ──
-      '<div class="dp-section">' +
-        '<div class="dp-section-title">LIVE DATA</div>' +
-        row('Status',    f.on_ground ? 'On Ground' : 'Airborne') +
-        row('Altitude',  altStr, 'color:var(--accent)') +
-        row('Speed',     spdKts + ' kts') +
-        row('Heading',   hdg + '&deg;') +
-        row('Vert Rate', vrArrow + ' ' + Math.abs(vrFpm) + ' fpm', 'color:' + vrColor) +
-        row('Squawk',    f.squawk || '–', isEmerg ? 'color:#ff4444;font-weight:700' : '') +
-        row('Operator',  f.operator || f.origin_country || '–', 'font-size:9px') +
-        row('Position',  (f.latitude ? f.latitude.toFixed(3) : '?') + ' / ' + (f.longitude ? f.longitude.toFixed(3) : '?'), 'font-size:9px') +
-      '</div>' +
-
-      // ── Actions ──
-      '<div style="grid-column:1/-1;margin-top:8px;display:flex;gap:6px">' +
-        '<button class="zoom-to-map-btn" style="flex:1" onclick="panToFlight(selectedFlight)">' +
-          'Centre' +
-        '</button>' +
-        '<button class="zoom-to-map-btn" style="flex:1;background:rgba(255,107,53,0.1);border-color:#ff6b35;color:#ff6b35" ' +
-          'onclick="document.getElementById(\'detail-panel\').classList.remove(\'open\');' +
-          'selectedFlight=null;if(routeG)routeG.selectAll(\'*\').remove();renderFlights();renderList()">' +
-          'Close' +
-        '</button>' +
-      '</div>';
-  }
-
-  // Show panel immediately with loading state
-  buildPanel(undefined);
-  panel.classList.add('open');
+  renderFlights();
+  renderList();
   panToFlight(f);
 
-  // Fetch route async then update
+  const panel = document.getElementById('detail-panel');
+  if (!panel) return;
+
+  // Populate header
+  const cat   = getAircraftCategory(f);
+  const color = flightColor(f);
+  const catColors = {military:'#5cb85c',cargo:'#cc88ff',helicopter:'#00ffcc',
+                     widebody:'#e0e0e0',general:'#ffaa00',glider:'#88ccff',
+                     drone:'#ff9966',narrowbody:'#00d4ff'};
+  const catColor = catColors[cat] || '#00d4ff';
+  const catLabel = cat.toUpperCase();
+
+  const csEl   = document.getElementById('dp-callsign');
+  const regEl  = document.getElementById('dp-reg');
+  const badgeEl = document.getElementById('dp-cat-badge');
+  if (csEl) csEl.textContent = f.callsign || f.icao24 || '—';
+  if (csEl) csEl.style.color = color;
+  if (regEl) regEl.textContent = (f.registration && f.registration !== f.callsign) ? '/ ' + f.registration : '';
+  if (badgeEl) {
+    badgeEl.textContent = catLabel;
+    badgeEl.style.background = catColor + '22';
+    badgeEl.style.color = catColor;
+    badgeEl.style.border = '1px solid ' + catColor + '44';
+  }
+
+  // Open immediately with loading placeholder
+  const body = document.getElementById('dp-body');
+  if (body) body.innerHTML = '<div style="color:#5a7a9a;font-size:11px;padding:20px">Loading route data...</div>';
+  panel.classList.add('open');
+
+  // Wire close button
+  const closeBtn = document.getElementById('dp-close-btn');
+  if (closeBtn) closeBtn.onclick = closeDpanel;
+
+  function buildBody(route) {
+    if (!body) return;
+    const airline  = getAirline(f.callsign) || getAirline(f.flight_number) || f.operator || '—';
+    const typeDesc = getAircraftType(f.type_code || f.aircraft_type) || f.make_model || f.description || '—';
+    const altFt    = f.alt_baro_ft;
+    const altStr   = altFt == null ? 'GND' : altFt === 'ground' ? 'GND' :
+                     +altFt >= 1000 ? (+altFt/1000).toFixed(1) + 'k ft' : Math.round(+altFt) + ' ft';
+    const spdKts   = f.gs_kts != null ? Math.round(f.gs_kts) : Math.round((f.velocity||0)*1.944);
+    const vrFpm    = f.vr_fpm != null ? Math.round(f.vr_fpm) : Math.round((f.vertical_rate||0)*196.85);
+    const vrDir    = vrFpm > 100 ? '[+]' : vrFpm < -100 ? '[-]' : '[=]';
+    const vrColor  = vrFpm > 100 ? '#00ff88' : vrFpm < -100 ? '#ff6b35' : '#5a7a9a';
+    const hdg      = Math.round(f.true_track || 0);
+    const isEmerg  = ['7700','7600','7500'].includes(f.squawk);
+    const onGnd    = f.on_ground;
+
+    const dep      = route && route.dep;
+    const arr      = route && route.arr;
+    const depInfo  = route && route.depInfo;
+    const arrInfo  = route && route.arrInfo;
+    const depName  = depInfo ? depInfo.name : '—';
+    const arrName  = arrInfo ? arrInfo.name : '—';
+    const progress = route ? calcProgress(f, route) : null;
+
+    function col(title, rows) {
+      let html = '<div style="border-left:1px solid #1a2d4a;padding:0 14px">';
+      html += '<div style="font-size:8px;letter-spacing:2px;color:#5a7a9a;margin-bottom:6px;text-transform:uppercase">' + title + '</div>';
+      rows.forEach(([label, val, style]) => {
+        html += '<div style="display:flex;justify-content:space-between;align-items:baseline;padding:2px 0;border-bottom:1px solid rgba(26,45,74,0.3)">';
+        html += '<span style="font-size:9px;color:#5a7a9a">' + label + '</span>';
+        html += '<span style="font-size:10px;font-weight:700;' + (style||'') + '">' + val + '</span>';
+        html += '</div>';
+      });
+      return html + '</div>';
+    }
+
+    // Route column with progress bar
+    let routeHtml = '<div style="padding:0 14px">';
+    routeHtml += '<div style="font-size:8px;letter-spacing:2px;color:#5a7a9a;margin-bottom:8px;text-transform:uppercase">ROUTE</div>';
+    if (dep || arr) {
+      routeHtml += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">';
+      routeHtml += '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:#00ff88;letter-spacing:1px">' + (dep||'???') + '</div><div style="font-size:8px;color:#5a7a9a;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + depName + '</div></div>';
+      routeHtml += '<div style="flex:1;position:relative">';
+      routeHtml += '<div style="height:2px;background:linear-gradient(90deg,#00ff88,#ff6b35);border-radius:1px"></div>';
+      if (progress != null) {
+        routeHtml += '<div style="position:absolute;top:-8px;left:' + progress + '%;transform:translateX(-50%);font-size:12px">^</div>';
+        routeHtml += '<div style="font-size:8px;color:#5a7a9a;text-align:center;margin-top:2px">' + Math.round(progress) + '% flown</div>';
+      }
+      routeHtml += '</div>';
+      routeHtml += '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:#ff6b35;letter-spacing:1px">' + (arr||'???') + '</div><div style="font-size:8px;color:#5a7a9a;max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + arrName + '</div></div>';
+      routeHtml += '</div>';
+    } else {
+      routeHtml += '<div style="font-size:10px;color:#5a7a9a">' + (route === undefined ? 'Loading...' : 'No route data') + '</div>';
+    }
+    routeHtml += '</div>';
+
+    body.innerHTML = routeHtml +
+      col('AIRCRAFT', [
+        ['Airline', airline, 'font-size:9px'],
+        ['Type', f.type_code || f.aircraft_type || '—', ''],
+        ['Model', typeDesc.length > 20 ? typeDesc.slice(0,20)+'...' : typeDesc, 'font-size:9px'],
+        ['ICAO hex', f.icao24 || '—', 'font-family:monospace'],
+      ]) +
+      col('POSITION', [
+        ['Status', onGnd ? 'On Ground' : 'Airborne', onGnd ? 'color:#ffaa00' : 'color:#00ff88'],
+        ['Altitude', altStr, 'color:#00d4ff'],
+        ['Heading', hdg + '\u00b0', ''],
+        ['Lat / Lon', (f.latitude||0).toFixed(2) + ' / ' + (f.longitude||0).toFixed(2), 'font-size:9px;font-family:monospace'],
+      ]) +
+      col('PERFORMANCE', [
+        ['Speed', spdKts + ' kts', ''],
+        ['Vert Rate', vrDir + ' ' + Math.abs(vrFpm) + ' fpm', 'color:' + vrColor],
+        ['Squawk', f.squawk || '—', isEmerg ? 'color:#ff4444;font-weight:900' : ''],
+        ['Operator', (f.operator||f.origin_country||'—').slice(0,18), 'font-size:9px'],
+      ]);
+  }
+
+  buildBody(undefined);
+
   fetchRoute(f).then(function(route) {
     if (selectedFlight !== f) return;
-    buildPanel(route);
-    renderRoutePath(f, route);
+    buildBody(route);
+    if (layers.route) renderRoutePath(f, route);
   });
 }
 
@@ -2605,51 +2623,64 @@ function mapAircraft(ac, isMil) {
 }
 
 async function fetchFlights() {
-  setStatus('loading', 'Updating live traffic...');
+  setStatus('loading', 'Fetching live traffic...');
 
-  function fetchWithTimeout(url, ms) {
+  // True concurrent fetch with semaphore — all tiles fire immediately,
+  // at most MAX_CONCURRENT in-flight at once. No sequential batching.
+  const MAX_CONCURRENT = 16;
+  const TILE_TIMEOUT   = 12000; // 12s per tile
+
+  function fetchTile(url) {
     const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), ms);
+    const t = setTimeout(() => ctrl.abort(), TILE_TIMEOUT);
     return fetch(url, { signal: ctrl.signal })
-      .then(r => { clearTimeout(t); return r; })
-      .catch(e => { clearTimeout(t); throw e; });
+      .then(r => { clearTimeout(t); return r.ok ? r.json() : null; })
+      .catch(() => { clearTimeout(t); return null; });
   }
 
-  // Batch parallel requests to avoid rate-limiting
-  async function fetchBatch(urls, concurrency) {
-    const results = [];
-    for (let i = 0; i < urls.length; i += concurrency) {
-      const batch = urls.slice(i, i + concurrency);
-      const settled = await Promise.allSettled(batch.map(url =>
-        fetchWithTimeout(url, 15000).then(r => r.ok ? r.json() : null).catch(() => null)
-      ));
-      results.push(...settled.map(s => s.status === 'fulfilled' ? s.value : null));
-    }
-    return results;
+  async function concurrentFetch(urls, max) {
+    return new Promise(resolve => {
+      const results = new Array(urls.length).fill(null);
+      let idx = 0, done = 0, active = 0;
+      function next() {
+        while (active < max && idx < urls.length) {
+          const i = idx++;
+          active++;
+          fetchTile(urls[i]).then(data => {
+            results[i] = data;
+            active--;
+            done++;
+            if (done === urls.length) resolve(results);
+            else next();
+          });
+        }
+      }
+      next();
+    });
   }
 
-  // Build index of existing flights for merge strategy
+  // Build index of current flights for merge
   const existing = new Map(flights.map(f => [f.icao24, f]));
-  const fresh = new Map();
+  const fresh    = new Map();
   let milCount = 0, tileOk = 0, tileFail = 0;
 
-  // Fetch military endpoint first
-  try {
-    const r = await fetchWithTimeout(`${API_BASE}/mil`, 12000);
-    if (r.ok) {
-      const d = await r.json();
-      (d.ac || []).forEach(ac => {
-        if (ac.lat && ac.lon) { fresh.set(ac.hex, { ac, isMil: true }); milCount++; }
-      });
-    }
-  } catch(e) {}
+  // Mil + all tiles fire concurrently
+  const RADIUS = 3000;
+  const tileUrls = SAMPLE_POINTS.map(([la, lo]) => `${API_BASE}/point/${la}/${lo}/${RADIUS}`);
+  const allUrls  = [`${API_BASE}/mil`, ...tileUrls];
 
-  // Fetch all tiles in batches of 8
-  const RADIUS = 3000; // nm — large enough to ensure no dead zones
-  const urls = SAMPLE_POINTS.map(([lat, lon]) => `${API_BASE}/point/${lat}/${lon}/${RADIUS}`);
-  const responses = await fetchBatch(urls, 8);
+  const allResults = await concurrentFetch(allUrls, MAX_CONCURRENT);
 
-  responses.forEach(data => {
+  // Process mil (index 0)
+  const milData = allResults[0];
+  if (milData) {
+    (milData.ac || []).forEach(ac => {
+      if (ac.lat && ac.lon) { fresh.set(ac.hex, { ac, isMil: true }); milCount++; }
+    });
+  }
+
+  // Process tiles (indices 1+)
+  allResults.slice(1).forEach(data => {
     if (!data) { tileFail++; return; }
     tileOk++;
     (data.ac || []).forEach(ac => {
@@ -2660,47 +2691,50 @@ async function fetchFlights() {
 
   const now = Date.now();
 
-  // Merge: update existing in-place, add new
+  // Merge fresh into existing (in-place update preserves DR base)
   fresh.forEach(({ ac, isMil }, hex) => {
     const mapped = mapAircraft(ac, isMil);
     if (!mapped) return;
     if (existing.has(hex)) {
       const ex = existing.get(hex);
-      Object.assign(ex, mapped);
-      ex._lat0 = ac.lat; ex._lon0 = ac.lon;
-      ex._alt0 = typeof ac.alt_baro === 'number' ? ac.alt_baro : ex._alt0;
+      // Snap DR base to new real position
+      ex._lat0      = ac.lat;
+      ex._lon0      = ac.lon;
+      ex._alt0      = typeof ac.alt_baro === 'number' ? ac.alt_baro : (ex._alt0 || null);
       ex._fetchedAt = now;
+      // Update live fields without replacing object reference
+      const keep = { _lat0: ex._lat0, _lon0: ex._lon0, _alt0: ex._alt0, _fetchedAt: now };
+      Object.assign(ex, mapped, keep);
     } else {
+      mapped._lat0      = ac.lat;
+      mapped._lon0      = ac.lon;
+      mapped._alt0      = typeof ac.alt_baro === 'number' ? ac.alt_baro : null;
       mapped._fetchedAt = now;
-      mapped._lat0 = ac.lat;
-      mapped._lon0 = ac.lon;
-      mapped._alt0 = typeof ac.alt_baro === 'number' ? ac.alt_baro : null;
       existing.set(hex, mapped);
     }
   });
 
-  // Drop stale aircraft (> 90s not seen)
-  const STALE_MS = 90000;
+  // Remove aircraft not seen in 90s
   existing.forEach((f, hex) => {
-    if (now - (f._fetchedAt || 0) > STALE_MS) existing.delete(hex);
+    if (now - (f._fetchedAt || 0) > 90000) existing.delete(hex);
   });
 
   flights = Array.from(existing.values());
 
-  if (flights.length === 0) {
-    setStatus('error', `No data — ok:${tileOk} fail:${tileFail} — using demo`);
+  if (flights.length === 0 && fresh.size === 0) {
+    setStatus('error', 'API unavailable — showing demo data');
     loadMockData();
     return;
   }
 
   const airborne  = flights.filter(f => !f.on_ground).length;
   const countries = new Set(flights.map(f => f.origin_country).filter(Boolean)).size;
-  const el = id => document.getElementById(id);
-  if (el('stat-total'))     el('stat-total').textContent     = flights.length.toLocaleString();
-  if (el('stat-airborne'))  el('stat-airborne').textContent  = airborne.toLocaleString();
-  if (el('stat-countries')) el('stat-countries').textContent = countries || '?';
-  setStatus('ok', `${flights.length.toLocaleString()} live · ${tileOk}/${SAMPLE_POINTS.length} tiles · ${milCount} mil`);
+  const $  = id  => document.getElementById(id);
+  if ($('stat-total'))     $('stat-total').textContent     = flights.length.toLocaleString();
+  if ($('stat-airborne'))  $('stat-airborne').textContent  = airborne.toLocaleString();
+  if ($('stat-countries')) $('stat-countries').textContent = countries || '?';
 
+  setStatus('ok', `${flights.length.toLocaleString()} live · ${milCount} mil · ${tileOk}/${SAMPLE_POINTS.length} tiles`);
   applyFilters();
   renderFlights();
   renderList();
